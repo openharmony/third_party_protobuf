@@ -66,7 +66,9 @@ Note:If the text contains special characters, please escape them according to th
             <filefilter name="defaultPolicyFilter" desc="Filters for compatibility，license header policies">
                 <filteritem type="filename" name="generate_descriptor_proto.sh" desc="no license header"/>
                 <filteritem type="filename" name="autogen.sh" desc="no license header"/>
-                <filteritem type="filename" name="php/generate_descriptor_protos.sh" desc="no license header"/>
+                <filteritem type="filepath" name="php/generate_descriptor_protos.sh" desc="no license header"/>
+                <filteritem type="filepath" name="conformance/third_party/jsoncpp/json.h" desc="no license header"/>
+                <filteritem type="filepath" name="conformance/third_party/jsoncpp/jsoncpp.cpp" desc="no license header"/>
                 <filteritem type="filename" name="Makefile.am" desc="no license header"/>
                 <filteritem type="filename" name="post_process_dist.sh" desc="no license header"/>
                 <filteritem type="filepath" name="js/commonjs/export.js" desc="no license header"/>
