@@ -60,16 +60,20 @@ Note:If the text contains special characters, please escape them according to th
             </policy>
         </policylist>
         <filefilterlist>
+            <filefilter name="binaryFileTypePolicyFilter" desc="Filters for binary file policies" >
+                <filteritem type="filepath" name="./.*" desc="the binary file in third party"/>
+            </filefilter>
             <filefilter name="defaultPolicyFilter" desc="Filters for compatibility，license header policies">
                 <filteritem type="filename" name="generate_descriptor_proto.sh" desc="no license header"/>
-                <filteritem type="filename" name="kokoro/docs/publish-python.sh" desc="no license header"/>
                 <filteritem type="filename" name="autogen.sh" desc="no license header"/>
                 <filteritem type="filename" name="php/generate_descriptor_protos.sh" desc="no license header"/>
                 <filteritem type="filename" name="Makefile.am" desc="no license header"/>
-                <filteritem type="filename" name="kokoro/release/python/linux/config.sh" desc="no license header"/>
                 <filteritem type="filename" name="post_process_dist.sh" desc="no license header"/>
-                <filteritem type="filename" name="objectivec/generate_well_known_types.sh" desc="no license header"/>
-                <filteritem type="filename" name="configure.ac" desc="no license header"/>
+                <filteritem type="filepath" name="js/commonjs/export.js" desc="no license header"/>
+                <filteritem type="filepath" name="php/generate_descriptor_protos.sh" desc="no license header"/>
+                <filteritem type="filepath" name="kokoro/release/python/linux/config.sh" desc="no license header"/>
+                <filteritem type="filepath" name="kokoro/docs/publish-python.sh" desc="no license header"/>
+                <filteritem type="filepath" name="objectivec/generate_well_known_types.sh" desc="no license header"/>
             </filefilter>
         </filefilterlist>
     </oatconfig>
