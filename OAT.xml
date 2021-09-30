@@ -61,7 +61,7 @@ Note:If the text contains special characters, please escape them according to th
         </policylist>
         <filefilterlist>
             <filefilter name="binaryFileTypePolicyFilter" desc="Filters for binary file policies" >
-                <filteritem type="filepath" name="./.*" desc="the binary file in third party"/>
+                <filteritem type="filepath" name=".*" desc="the binary file in third party"/>
             </filefilter>
             <filefilter name="defaultPolicyFilter" desc="Filters for compatibility，license header policies">
                 <filteritem type="filename" name="generate_descriptor_proto.sh" desc="no license header"/>
@@ -76,6 +76,7 @@ Note:If the text contains special characters, please escape them according to th
                 <filteritem type="filepath" name="kokoro/release/python/linux/config.sh" desc="no license header"/>
                 <filteritem type="filepath" name="kokoro/docs/publish-python.sh" desc="no license header"/>
                 <filteritem type="filepath" name="objectivec/generate_well_known_types.sh" desc="no license header"/>
+                <filteritem type="filepath" name="configure.ac" desc="no license header"/>
             </filefilter>
         </filefilterlist>
     </oatconfig>
