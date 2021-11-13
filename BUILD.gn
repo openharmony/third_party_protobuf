@@ -103,8 +103,12 @@ ohos_static_library("protobuf_lite_static") {
     "src/google/protobuf/**/*.inc",
     "src",
   ]
-  if (current_toolchain != host_toolchain) {
-    external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
+  if (default_toolchain == current_toolchain) {
+    # target build, not host build
+    defines = [ "HAVE_HILOG" ]
+    external_deps = [
+      "hiviewdfx_hilog_native:libhilog",
+    ]
   }
 
   cflags_cc = [ "-Wno-sign-compare" ]
