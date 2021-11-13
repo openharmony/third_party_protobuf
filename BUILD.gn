@@ -116,7 +116,10 @@ ohos_static_library("protobuf_lite_static") {
     "-Wno-sign-compare",
     "-D HAVE_PTHREAD",
   ]
-
+  if(is_mingw) {
+    # ../../third_party/protobuf/src/google/protobuf/io/zero_copy_stream_impl.cc:60:9: error: 'lseek' macro redefined [-Werror,-Wmacro-redefined]
+    cflags += ["-Wno-macro-redefined"]
+  }
   public_configs = [ ":protobuf_config" ]
 }
 
