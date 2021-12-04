@@ -66,6 +66,7 @@ ohos_shared_library("protobuf_lite") {
   public_configs = [ ":protobuf_config" ]
   install_enable = true
   subsystem_name = "${OHOS_PROFILER_SUBSYS_NAME}"
+  part_name = "${OHOS_PROFILER_PART_NAME}"
 }
 
 ohos_static_library("protobuf_lite_static") {
@@ -192,6 +193,7 @@ ohos_shared_library("protobuf") {
   public_configs = [ ":protobuf_config" ]
   install_enable = true
   subsystem_name = "${OHOS_PROFILER_SUBSYS_NAME}"
+  part_name = "${OHOS_PROFILER_PART_NAME}"
 }
 
 ohos_static_library("protobuf_static") {
@@ -371,8 +373,8 @@ ohos_shared_library("protoc_lib") {
   ]
 
   public_configs = [ ":protobuf_config" ]
-  install_enable = true
   subsystem_name = "${OHOS_PROFILER_SUBSYS_NAME}"
+  part_name = "${OHOS_PROFILER_PART_NAME}"
 }
 
 ohos_executable("protoc") {
@@ -389,8 +391,8 @@ ohos_executable("protoc") {
     "-D HAVE_PTHREAD",
   ]
 
-  install_enable = true
   subsystem_name = "${OHOS_PROFILER_SUBSYS_NAME}"
+  part_name = "${OHOS_PROFILER_PART_NAME}"
 }
 
 print("----------------------------------protobuf_cc")
