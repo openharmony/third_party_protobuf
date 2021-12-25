@@ -399,5 +399,3 @@ if (current_toolchain == host_toolchain) {
     part_name = "${OHOS_PROFILER_PART_NAME}"
   }
 }
-
-print("----------------------------------protobuf_cc")
