@@ -1,0 +1,39 @@
+{
+    "name": "@ohos/protobuf",
+    "version": "",
+    "description": "Third-party open-source software protobuf | 三方开源软件protobuf",
+    "homePage": "https://gitee.com/openharmony",
+    "license": "BSD 3-Clause",
+    "repository": "https://gitee.com/openharmony/third_party_protobuf",
+    "domain": "os",
+    "language": "",
+    "publishAs": "code-segment",
+    "private": false,
+    "scripts": {},
+    "tags": [
+        "third_party"
+    ],
+    "keywords": [
+        "third-party",
+        "protobuf"
+    ],
+    "envs": [],
+    "dirs": [],
+    "segment": {
+        "destPath": "third_party/protobuf"
+    },
+    "component": {
+        "name": "thirdparty_protobuf",
+        "subsystem": "",
+        "syscap": [],
+        "features": [],
+        "adapted_system_type": [],
+        "rom": "",
+        "ram": "",
+        "build": {
+            "sub_component": [],
+            "inner_kits": [],
+            "test": []
+        }
+    }
+}
