@@ -30,6 +30,9 @@
 
 package com.google.protobuf;
 
+import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
+
 import protobuf_unittest.UnittestProto;
 import protobuf_unittest.UnittestProto.ForeignEnum;
 import protobuf_unittest.UnittestProto.TestAllExtensions;
@@ -40,7 +43,9 @@ import protobuf_unittest.UnittestProto.TestPackedExtensions;
 import protobuf_unittest.UnittestProto.TestPackedTypes;
 import proto3_unittest.UnittestProto3;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import org.junit.Assert;
 import junit.framework.TestCase;
 
 /**
@@ -58,7 +63,7 @@ public class UnknownFieldSetTest extends TestCase {
     unknownFields = emptyMessage.getUnknownFields();
   }
 
-  UnknownFieldSet.Field getField(String name) {
+  private UnknownFieldSet.Field getField(String name) {
     Descriptors.FieldDescriptor field = descriptor.findFieldByName(name);
     assertNotNull(field);
     return unknownFields.getField(field.getNumber());
@@ -96,6 +101,161 @@ public class UnknownFieldSetTest extends TestCase {
   UnknownFieldSet unknownFields;
 
   // =================================================================
+
+  public void testFieldBuildersAreReusable() {
+    UnknownFieldSet.Field.Builder fieldBuilder = UnknownFieldSet.Field.newBuilder();
+    fieldBuilder.addFixed32(10);
+    UnknownFieldSet.Field first = fieldBuilder.build();
+    UnknownFieldSet.Field second = fieldBuilder.build();
+    fieldBuilder.addFixed32(11);
+    UnknownFieldSet.Field third = fieldBuilder.build();
+
+    assertThat(first).isEqualTo(second);
+    assertThat(first).isNotEqualTo(third);
+  }
+
+  public void testClone() {
+    UnknownFieldSet.Builder unknownSetBuilder = UnknownFieldSet.newBuilder();
+    UnknownFieldSet.Field.Builder fieldBuilder = UnknownFieldSet.Field.newBuilder();
+    fieldBuilder.addFixed32(10);
+    unknownSetBuilder.addField(8, fieldBuilder.build());
+    // necessary to call clone twice to expose the bug
+    UnknownFieldSet.Builder clone1 = unknownSetBuilder.clone();
+    UnknownFieldSet.Builder clone2 = unknownSetBuilder.clone(); // failure is a NullPointerException
+    assertThat(clone1).isNotSameInstanceAs(clone2);
+  }
+
+  public void testClone_lengthDelimited() {
+    UnknownFieldSet.Builder destUnknownFieldSet =
+        UnknownFieldSet.newBuilder()
+            .addField(997, UnknownFieldSet.Field.newBuilder().addVarint(99).build())
+            .addField(
+                999,
+                UnknownFieldSet.Field.newBuilder()
+                    .addLengthDelimited(ByteString.copyFromUtf8("some data"))
+                    .addLengthDelimited(ByteString.copyFromUtf8("some more data"))
+                    .build());
+    UnknownFieldSet clone = destUnknownFieldSet.clone().build();
+    assertThat(clone.getField(997)).isNotNull();
+    UnknownFieldSet.Field field999 = clone.getField(999);
+    List<ByteString> lengthDelimited = field999.getLengthDelimitedList();
+    assertThat(lengthDelimited.get(0).toStringUtf8()).isEqualTo("some data");
+    assertThat(lengthDelimited.get(1).toStringUtf8()).isEqualTo("some more data");
+
+    UnknownFieldSet clone2 = destUnknownFieldSet.clone().build();
+    assertThat(clone2.getField(997)).isNotNull();
+    UnknownFieldSet.Field secondField = clone2.getField(999);
+    List<ByteString> lengthDelimited2 = secondField.getLengthDelimitedList();
+    assertThat(lengthDelimited2.get(0).toStringUtf8()).isEqualTo("some data");
+    assertThat(lengthDelimited2.get(1).toStringUtf8()).isEqualTo("some more data");
+  }
+
+  public void testReuse() {
+    UnknownFieldSet.Builder builder =
+        UnknownFieldSet.newBuilder()
+            .addField(997, UnknownFieldSet.Field.newBuilder().addVarint(99).build())
+            .addField(
+                999,
+                UnknownFieldSet.Field.newBuilder()
+                    .addLengthDelimited(ByteString.copyFromUtf8("some data"))
+                    .addLengthDelimited(ByteString.copyFromUtf8("some more data"))
+                    .build());
+
+    UnknownFieldSet fieldSet1 = builder.build();
+    UnknownFieldSet fieldSet2 = builder.build();
+    builder.addField(1000, UnknownFieldSet.Field.newBuilder().addVarint(-90).build());
+    UnknownFieldSet fieldSet3 = builder.build();
+
+    assertThat(fieldSet1).isEqualTo(fieldSet2);
+    assertThat(fieldSet1).isNotEqualTo(fieldSet3);
+  }
+
+  @SuppressWarnings("ModifiedButNotUsed")
+  public void testAddField_zero() {
+    UnknownFieldSet.Field field = getField("optional_int32");
+    try {
+      UnknownFieldSet.newBuilder().addField(0, field);
+      Assert.fail();
+    } catch (IllegalArgumentException expected) {
+      assertThat(expected).hasMessageThat().isEqualTo("0 is not a valid field number.");
+    }
+  }
+
+  @SuppressWarnings("ModifiedButNotUsed")
+  public void testAddField_negative() {
+    UnknownFieldSet.Field field = getField("optional_int32");
+    try {
+      UnknownFieldSet.newBuilder().addField(-2, field);
+      Assert.fail();
+    } catch (IllegalArgumentException expected) {
+      assertThat(expected).hasMessageThat().isEqualTo("-2 is not a valid field number.");
+    }
+  }
+
+  @SuppressWarnings("ModifiedButNotUsed")
+  public void testClearField_negative() {
+    try {
+      UnknownFieldSet.newBuilder().clearField(-28);
+      Assert.fail();
+    } catch (IllegalArgumentException expected) {
+      assertThat(expected).hasMessageThat().isEqualTo("-28 is not a valid field number.");
+    }
+  }
+
+  @SuppressWarnings("ModifiedButNotUsed")
+  public void testMergeField_negative() {
+    UnknownFieldSet.Field field = getField("optional_int32");
+    try {
+      UnknownFieldSet.newBuilder().mergeField(-2, field);
+      Assert.fail();
+    } catch (IllegalArgumentException expected) {
+      assertThat(expected).hasMessageThat().isEqualTo("-2 is not a valid field number.");
+    }
+  }
+
+  @SuppressWarnings("ModifiedButNotUsed")
+  public void testMergeVarintField_negative() {
+    try {
+      UnknownFieldSet.newBuilder().mergeVarintField(-2, 78);
+      Assert.fail();
+    } catch (IllegalArgumentException expected) {
+      assertThat(expected).hasMessageThat().isEqualTo("-2 is not a valid field number.");
+    }
+  }
+
+  @SuppressWarnings("ModifiedButNotUsed")
+  public void testHasField_negative() {
+    assertThat(UnknownFieldSet.newBuilder().hasField(-2)).isFalse();
+  }
+
+  @SuppressWarnings("ModifiedButNotUsed")
+  public void testMergeLengthDelimitedField_negative() {
+    ByteString byteString = ByteString.copyFromUtf8("some data");
+    try {
+      UnknownFieldSet.newBuilder().mergeLengthDelimitedField(-2, byteString);
+      Assert.fail();
+    } catch (IllegalArgumentException expected) {
+      assertThat(expected).hasMessageThat().isEqualTo("-2 is not a valid field number.");
+    }
+  }
+
+  public void testAddField() {
+    UnknownFieldSet.Field field = getField("optional_int32");
+    UnknownFieldSet fieldSet = UnknownFieldSet.newBuilder().addField(1, field).build();
+    assertThat(fieldSet.getField(1)).isEqualTo(field);
+  }
+
+  public void testAddField_withReplacement() {
+    UnknownFieldSet.Field first = UnknownFieldSet.Field.newBuilder().addFixed32(56).build();
+    UnknownFieldSet.Field second = UnknownFieldSet.Field.newBuilder().addFixed32(25).build();
+    UnknownFieldSet fieldSet = UnknownFieldSet.newBuilder()
+        .addField(1, first)
+        .addField(1, second)
+        .build();
+    List<Integer> list = fieldSet.getField(1).getFixed32List();
+    assertThat(list).hasSize(1);
+    assertThat(list.get(0)).isEqualTo(25);
+  }
 
   public void testVarint() throws Exception {
     UnknownFieldSet.Field field = getField("optional_int32");
@@ -171,6 +331,15 @@ public class UnknownFieldSetTest extends TestCase {
             .build();
 
     assertEquals("1: 1\n2: 2\n3: 3\n3: 4\n", destination.toString());
+  }
+
+  public void testAsMap() throws Exception {
+    UnknownFieldSet.Builder builder = UnknownFieldSet.newBuilder().mergeFrom(unknownFields);
+    Map<Integer, UnknownFieldSet.Field> mapFromBuilder = builder.asMap();
+    assertThat(mapFromBuilder).isNotEmpty();
+    UnknownFieldSet fields = builder.build();
+    Map<Integer, UnknownFieldSet.Field> mapFromFieldSet = fields.asMap();
+    assertThat(mapFromFieldSet).containsExactlyEntriesIn(mapFromBuilder);
   }
 
   public void testClear() throws Exception {
