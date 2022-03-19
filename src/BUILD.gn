@@ -148,7 +148,7 @@ ohos_shared_library("protobuf_standard") {
     "-Wno-inconsistent-missing-override",
   ]
   ldflags = [ "-shared" ]
-  subsystem_name = "global"
-  part_name = "i18n_standard"
+  part_name = "common"
+  subsystem_name = "common"
   install_enable = true
 }
