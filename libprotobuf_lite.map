@@ -426,6 +426,8 @@
     "google::protobuf::internal::FormatTime[abi:cxx11](long, int)";
     "google::protobuf::internal::ParseTime(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, long*, int*)";
     "google::protobuf::MessageLite::ParsePartialFromString(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)";
+    "google::protobuf::RepeatedField<int>::Add(int const&)";
+    "google::protobuf::SetLogHandler(void (*)(google::protobuf::LogLevel, char const*, int, std::__h::basic_string<char, std::__h::char_traits<char>, std::__h::allocator<char> > const&))";
   };
   local:
     *;
