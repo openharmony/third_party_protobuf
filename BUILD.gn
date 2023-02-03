@@ -48,6 +48,7 @@ ohos_shared_library("protobuf_lite") {
     "src/google/protobuf/stubs/time.cc",
     "src/google/protobuf/wire_format_lite.cc",
   ]
+  version_script = "libprotobuf_lite.map"
   include_dirs = [
     "src/google/protobuf/**/*.h",
     "src/google/protobuf/**/*.inc",
@@ -197,6 +198,7 @@ ohos_shared_library("protobuf") {
   ]
 
   deps = [ ":protobuf_lite" ]
+  version_script = "libprotobuf.map"
 
   public_configs = [ ":protobuf_config" ]
   install_enable = true
