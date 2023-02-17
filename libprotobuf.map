@@ -160,6 +160,7 @@
     "google::protobuf::EnumValueDescriptor::DebugString() const";
     "google::protobuf::MethodDescriptor::DebugString() const";
     "google::protobuf::io::Printer::Annotate(char const*, char const*, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&, std::__1::vector<int, std::__1::allocator<int> > const&)";
+    "google::protobuf::FileDescriptor::GetSourceLocation(std::__1::vector<int, std::__1::allocator<int> > const&, google::protobuf::SourceLocation*) const";
   };
   local:
     *;
