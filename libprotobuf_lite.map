@@ -487,7 +487,8 @@
     "google::protobuf::StringReplace(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&, bool)";
     "google::protobuf::internal::VersionString(int)";
     "google::protobuf::StrCat(google::protobuf::strings::AlphaNum const&, google::protobuf::strings::AlphaNum const&, google::protobuf::strings::AlphaNum const&, google::protobuf::strings::AlphaNum const&, google::protobuf::strings::AlphaNum const&, google::protobuf::strings::AlphaNum const&, google::protobuf::strings::AlphaNum const&, google::protobuf::strings::AlphaNum const&, google::protobuf::strings::AlphaNum const&)";
-    "google::protobuf::SplitStringAllowEmpty(google::protobuf::StringPiece, char const*, std::__1::vector<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >, st";
+    "google::protobuf::SplitStringAllowEmpty(google::protobuf::StringPiece, char const*, std::__1::vector<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >, std::__1::allocator<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > > >*)";
+    "google::protobuf::ReplaceCharacters(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >*, char const*, char)";
     "google::protobuf::strings::CHexEscape(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&)";
     "google::protobuf::GlobalReplaceSubstring(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >*)";
   };
