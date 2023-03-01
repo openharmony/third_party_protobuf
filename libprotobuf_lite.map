@@ -34,6 +34,7 @@
     "google::protobuf::io::EpsCopyOutputStream::WriteRawFallback(void const*, int, unsigned char*)";
     "google::protobuf::RepeatedField<int>::Reserve(int)";
     "google::protobuf::RepeatedField<int>::~RepeatedField()";
+    "google::protobuf::RepeatedField<int>::RepeatedField(google::protobuf::RepeatedField<int> const&)";
     "google::protobuf::internal::PackedInt32Parser(void*, char const*, google::protobuf::internal::ParseContext*)";
     "google::protobuf::internal::WireFormatLite::Int32Size(google::protobuf::RepeatedField<int> const&)";
     "google::protobuf::internal::RepeatedPtrFieldBase::InternalExtend(int)";
@@ -93,11 +94,17 @@
     "google::protobuf::internal::LogMessage::operator<<(google::protobuf::StringPiece const&)";
     "google::protobuf::internal::ArenaImpl::Init()";
     "google::protobuf::RepeatedField<long long>::~RepeatedField()";
+    "google::protobuf::RepeatedField<long long>::RepeatedField(google::protobuf::RepeatedField<long long> const&)";
     "google::protobuf::RepeatedField<unsigned int>::~RepeatedField()";
+    "google::protobuf::RepeatedField<unsigned int>::RepeatedField(google::protobuf::RepeatedField<unsigned int> const&)";
     "google::protobuf::RepeatedField<unsigned long long>::~RepeatedField()";
+    "google::protobuf::RepeatedField<unsigned long long>::RepeatedField(google::protobuf::RepeatedField<unsigned long long> const&)";
     "google::protobuf::RepeatedField<double>::~RepeatedField()";
+    "google::protobuf::RepeatedField<double>::RepeatedField(google::protobuf::RepeatedField<double> const&)";
     "google::protobuf::RepeatedField<float>::~RepeatedField()";
+    "google::protobuf::RepeatedField<float>::RepeatedField(google::protobuf::RepeatedField<float> const&)";
     "google::protobuf::RepeatedField<bool>::~RepeatedField()";
+    "google::protobuf::RepeatedField<bool>::RepeatedField(google::protobuf::RepeatedField<bool> const&)";
     "google::protobuf::internal::ExtensionSet::Extension::GetSize() const";
     "google::protobuf::internal::ExtensionSet::FindOrNull(int) const";
     "google::protobuf::internal::ExtensionSet::MaybeNewExtension(int, google::protobuf::FieldDescriptor const*, google::protobuf::internal::ExtensionSet::Extension**)";
@@ -240,7 +247,9 @@
     "google::protobuf::RepeatedPtrField<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>>::~RepeatedPtrField()";
     "google::protobuf::io::EpsCopyOutputStream::WriteStringOutline(unsigned int, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>> const&, unsigned char*)";
     "google::protobuf::RepeatedField<unsigned long>::~RepeatedField()";
+    "google::protobuf::RepeatedField<unsigned long>::RepeatedField(google::protobuf::RepeatedField<unsigned long> const&)";
     "google::protobuf::RepeatedField<long>::~RepeatedField()";
+    "google::protobuf::RepeatedField<long>::RepeatedField(google::protobuf::RepeatedField<long> const&)";
     "google::protobuf::internal::ExtensionSet::AddString[abi:cxx11](int, unsigned char, google::protobuf::FieldDescriptor const*)";
     "google::protobuf::internal::ExtensionSet::AddInt64(int, unsigned char, bool, long, google::protobuf::FieldDescriptor const*)";
     "google::protobuf::internal::ExtensionSet::AddUInt64(int, unsigned char, bool, unsigned long, google::protobuf::FieldDescriptor const*)";
