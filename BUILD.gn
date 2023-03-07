@@ -123,8 +123,8 @@ ohos_static_library("protobuf_lite_static") {
 
   cflags_cc = [ "-Wno-sign-compare" ]
   cflags = [
-    "-Wno-sign-compare",
     "-Wno-deprecated-declarations",
+    "-Wno-sign-compare",
     "-D HAVE_PTHREAD",
   ]
   if (is_mingw) {
