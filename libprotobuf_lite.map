@@ -500,6 +500,7 @@
     "google::protobuf::ReplaceCharacters(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>*, char const*, char)";
     "google::protobuf::strings::CHexEscape(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>> const&)";
     "google::protobuf::GlobalReplaceSubstring(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>> const&, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>> const&, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>*)";
+    "google::protobuf::RepeatedField<unsigned long>::Add(unsigned long const&)";
   };
   local:
     *;
