@@ -48,7 +48,7 @@ ohos_shared_library("protobuf_lite") {
     "src/google/protobuf/stubs/time.cc",
     "src/google/protobuf/wire_format_lite.cc",
   ]
-  if (!is_asan) {
+  if (!is_asan && !is_debug) {
     version_script = "libprotobuf_lite.map"
   }
   include_dirs = [
@@ -208,7 +208,7 @@ ohos_shared_library("protobuf") {
   ]
 
   deps = [ ":protobuf_lite" ]
-  if (!is_asan) {
+  if (!is_asan && !is_debug) {
     version_script = "libprotobuf.map"
   }
 
