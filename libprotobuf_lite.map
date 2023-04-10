@@ -429,6 +429,7 @@
     "google::protobuf::RepeatedField<int>::Add(int const&)";
     "google::protobuf::RepeatedField<unsigned int>::Add(unsigned int const&)";
     "google::protobuf::SetLogHandler(void (*)(google::protobuf::LogLevel, char const*, int, std::__h::basic_string<char, std::__h::char_traits<char>, std::__h::allocator<char> > const&))";
+    "google::protobuf::SetLogHandler(void (*)(google::protobuf::LogLevel, char const*, int, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&))";
     "google::protobuf::RepeatedPtrField<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > >::~RepeatedPtrField()";
     "google::protobuf::internal::InlineGreedyStringParser(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >*, char const*, google::protobuf::internal::ParseContext*)";
     "google::protobuf::internal::UnknownFieldParse(unsigned int, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >*, char const*,";
