@@ -162,6 +162,7 @@
     "google::protobuf::io::Printer::Annotate(char const*, char const*, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>> const&, std::__1::vector<int, std::__1::allocator<int>> const&)";
     "google::protobuf::FileDescriptor::GetSourceLocation(std::__1::vector<int, std::__1::allocator<int>> const&, google::protobuf::SourceLocation*) const";
     "google::protobuf::TextFormat::Parser::ParseFromString(std::__h::basic_string<char, std::__h::char_traits<char>, std::__h::allocator<char>> const&, google::protobuf::Message*)";
+    "google::protobuf::TextFormat::Parser::ParseFromString(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>> const&, google::protobuf::Message*)";
   };
   local:
     *;
