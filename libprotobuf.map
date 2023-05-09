@@ -162,7 +162,21 @@
     "google::protobuf::io::Printer::Annotate(char const*, char const*, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>> const&, std::__1::vector<int, std::__1::allocator<int>> const&)";
     "google::protobuf::FileDescriptor::GetSourceLocation(std::__1::vector<int, std::__1::allocator<int>> const&, google::protobuf::SourceLocation*) const";
     "google::protobuf::TextFormat::Parser::ParseFromString(std::__h::basic_string<char, std::__h::char_traits<char>, std::__h::allocator<char>> const&, google::protobuf::Message*)";
-    "google::protobuf::TextFormat::Parser::ParseFromString(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>> const&, google::protobuf::Message*)";
+    "google::protobuf::internal::WireFormatLite::Int64Size(google::protobuf::RepeatedField<long> const&)";
+    "google::protobuf::internal::MapFiledBase::SyncMapWithRepeatedField() const";
+    "google::protobuf::internal::MapFiledBase::SetMapDirty()";
+    "google::protobuf::Message::MergeFrom(google::protobuf::Message const&)";
+    "vtable for google::protobuf::internal::MapFiledBase";
+    "google::protobuf::internal::MapFiledBase::~MapFiledBase()";
+    "google::protobuf::internal::GenericSwap(google::protobuf::Message*, google::protobuf::Message*)";
+    "google::protobuf::Message::CopyFrom(google::protobuf::Message const&)";
+    "google::protobuf::Message::SetCachedSize(int) const";
+    "google::protobuf::io::CodedInputStream::SetTotalBytesLimit(int)";
+    "google::protobuf::MessageLite::ParseFromCodedStream(google::protobuf::io::CodedInputStream)";
+    "google::protobuf::io::IstreamInputStream::IstreamInputStream(std::__h::basic_istream<char, std::__h::char_traits<char>>*, int)";
+    "vtable for google::protobuf::io::IstreamInputStream";
+    "google::protobuf::io::IstreamInputStream::CopyingIstreamInputStream::~CopyingIstreamInputStream()";
+    "google::protobuf::MessageLite::SerializePartialToArray(void*, int) const";
   };
   local:
     *;
