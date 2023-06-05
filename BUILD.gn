@@ -73,6 +73,7 @@ ohos_shared_library("protobuf_lite") {
   public_configs = [ ":protobuf_config" ]
   install_enable = true
   subsystem_name = "${OHOS_PROFILER_SUBSYS_NAME}"
+  innerapi_tags = [ "platformsdk_indirect" ]
   part_name = "${OHOS_PROFILER_PART_NAME}"
 }
 
