@@ -1,0 +1,71 @@
+diff --git a/BUILD.gn b/BUILD.gn
+index f79eb7e2141ece0503c8fae6e12a7c288a67a5e7..25362cc4e104d94c86426335c955b114de8ca3be 100644
+--- a/BUILD.gn
++++ b/BUILD.gn
+@@ -12,7 +12,9 @@
+ # limitations under the License.
+ 
+ import("//build/ohos.gni")
+-import("//developtools/profiler/build/config.gni")
++
++THIRDPARTY_PROTOBUF_SUBSYS_NAME = "thirdparty"
++THIRDPARTY_PROTOBUF_PART_NAME = "protobuf"
+ 
+ config("protobuf_config") {
+   include_dirs = [ "src" ]
+@@ -72,9 +74,8 @@ ohos_shared_library("protobuf_lite") {
+ 
+   public_configs = [ ":protobuf_config" ]
+   install_enable = true
+-  subsystem_name = "${OHOS_PROFILER_SUBSYS_NAME}"
+-  innerapi_tags = [ "platformsdk_indirect" ]
+-  part_name = "${OHOS_PROFILER_PART_NAME}"
++  subsystem_name = "${THIRDPARTY_PROTOBUF_SUBSYS_NAME}"
++  part_name = "${THIRDPARTY_PROTOBUF_PART_NAME}"
+ }
+ 
+ ohos_static_library("protobuf_lite_static") {
+@@ -215,8 +216,8 @@ ohos_shared_library("protobuf") {
+ 
+   public_configs = [ ":protobuf_config" ]
+   install_enable = true
+-  subsystem_name = "${OHOS_PROFILER_SUBSYS_NAME}"
+-  part_name = "${OHOS_PROFILER_PART_NAME}"
++  subsystem_name = "${THIRDPARTY_PROTOBUF_SUBSYS_NAME}"
++  part_name = "${THIRDPARTY_PROTOBUF_PART_NAME}"
+ }
+ 
+ ohos_static_library("protobuf_static") {
+@@ -403,8 +404,8 @@ if (current_toolchain == host_toolchain) {
+     ]
+ 
+     public_configs = [ ":protobuf_config" ]
+-    subsystem_name = "${OHOS_PROFILER_SUBSYS_NAME}"
+-    part_name = "${OHOS_PROFILER_PART_NAME}"
++    subsystem_name = "${THIRDPARTY_PROTOBUF_SUBSYS_NAME}"
++    part_name = "${THIRDPARTY_PROTOBUF_PART_NAME}"
+   }
+ 
+   ohos_static_library("protoc_static_lib") {
+@@ -515,8 +516,8 @@ if (current_toolchain == host_toolchain) {
+     ]
+ 
+     public_configs = [ ":protobuf_config" ]
+-    subsystem_name = "${OHOS_PROFILER_SUBSYS_NAME}"
+-    part_name = "${OHOS_PROFILER_PART_NAME}"
++    subsystem_name = "${THIRDPARTY_PROTOBUF_SUBSYS_NAME}"
++    part_name = "${THIRDPARTY_PROTOBUF_PART_NAME}"
+   }
+ }
+ 
+@@ -539,8 +540,7 @@ if (current_toolchain == host_toolchain) {
+       "-D HAVE_PTHREAD",
+       "-Wno-deprecated-declarations",
+     ]
+-
+-    subsystem_name = "${OHOS_PROFILER_SUBSYS_NAME}"
+-    part_name = "${OHOS_PROFILER_PART_NAME}"
++    subsystem_name = "${THIRDPARTY_PROTOBUF_SUBSYS_NAME}"
++    part_name = "${THIRDPARTY_PROTOBUF_PART_NAME}"
+   }
+ }
