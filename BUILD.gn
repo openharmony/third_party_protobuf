@@ -137,6 +137,8 @@ ohos_static_library("protobuf_lite_static") {
     cflags += [ "-Wno-macro-redefined" ]
   }
   public_configs = [ ":protobuf_config" ]
+  subsystem_name = "${THIRDPARTY_PROTOBUF_SUBSYS_NAME}"
+  part_name = "${THIRDPARTY_PROTOBUF_PART_NAME}"
 }
 
 ohos_shared_library("protobuf") {
@@ -293,6 +295,8 @@ ohos_static_library("protobuf_static") {
   deps = [ ":protobuf_lite_static" ]
 
   public_configs = [ ":protobuf_config" ]
+  subsystem_name = "${THIRDPARTY_PROTOBUF_SUBSYS_NAME}"
+  part_name = "${THIRDPARTY_PROTOBUF_PART_NAME}"
 }
 
 if (current_toolchain == host_toolchain) {
