@@ -14,11 +14,15 @@
         "subsystem": "thirdparty",
         "syscap": [],
         "features": [],
-        "adapted_system_type": [],
+        "adapted_system_type": [
+            "standard"
+        ],
         "rom": "",
         "ram": "",
         "deps": {
-            "components": [],
+            "components": [
+                "hiviewdfx_hilog_native"
+            ],
             "third_party": []
         },
         "build": {
