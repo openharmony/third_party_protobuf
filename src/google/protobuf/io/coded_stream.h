@@ -1068,7 +1068,13 @@ class PROTOBUF_EXPORT CodedOutputStream {
   // automatically be trimmed when this stream is destroyed; this call is only
   // necessary if the underlying buffer is accessed *before* the stream is
   // destroyed.
-  void Trim() { cur_ = impl_.Trim(cur_); }
+  void Trim() 
+  {
+    if (cur_ != nullptr) {
+      cur_ = impl_.Trim(cur_);
+    }
+  }
+
 
   // Skips a number of bytes, leaving the bytes unmodified in the underlying
   // buffer.  Returns false if an underlying write error occurs.  This is
