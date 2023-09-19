@@ -521,6 +521,9 @@
     "google::protobuf::RepeatedPtrField<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>>::erase(google::protobuf::internal::RepeatedPtrIterator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>> const>, google::protobuf::internal::RepeatedPtrIterator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>> const>)";
     "google::protobuf::UnknownFieldSet::default_instance()";
     "google::protobuf::RepeatedField<int>::elements() const";
+    "google::protobuf::RepeatedField<long>::Get(int) const";
+    "google::protobuf::RepeatedField<long long>::Get(int) const";
+    "google::protobuf::internal::WireFormatLite::Int64Size(google::protobuf::RepeatedField<long long> const&)";
   };
   local:
     *;
