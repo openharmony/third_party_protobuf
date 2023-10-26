@@ -524,6 +524,10 @@
     "google::protobuf::RepeatedField<long>::Get(int) const";
     "google::protobuf::RepeatedField<long long>::Get(int) const";
     "google::protobuf::internal::WireFormatLite::Int64Size(google::protobuf::RepeatedField<long long> const&)";
+    "google::protobuf::internal::ExtensionSet::GetMessage(int, google::protobuf::MessageLite const&) const";
+    "google::protobuf::internal::ExtensionSet::RegisterMessageExtension(google::protobuf::MessageLite const*, unsigned char, bool, bool, google::protobuf::MessageLite const*)";
+    "google::protobuf::internal::DestroyString(void const*)";
+    "google::protobuf::ShutdownProtobufLibrary()";
   };
   local:
     *;

@@ -183,6 +183,9 @@
     "google::protobuf::RepeatedField<long>::Get(int) const";
     "google::protobuf::RepeatedField<long long>::Get(int) const";
     "google::protobuf::internal::WireFormatLite::Int64Size(google::protobuf::RepeatedField<long long> const&)";
+    "google::protobuf::Message::DebugString() const";
+    "google::protobuf::UnknownFieldSet::AddVarint(int, unsigned long)";
+    "google::protobuf::internal::ExtensionSet::ParseField(unsigned long, char const*, google::protobuf::Message const*, google::protobuf::internal::InternalMetadata*, google::protobuf::internal::ParseContext*)";
   };
   local:
     *;
