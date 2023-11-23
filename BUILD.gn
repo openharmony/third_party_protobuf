@@ -64,7 +64,10 @@ ohos_shared_library("protobuf_lite") {
     defines = [ "_FILE_OFFSET_BITS_SET_LSEEK" ]
   }
 
-  cflags_cc = [ "-Wno-sign-compare" ]
+  cflags_cc = [
+    "-Wno-sign-compare",
+    "-Wno-deprecated-declarations",
+  ]
   cflags = [
     "-Wno-sign-compare",
     "-D HAVE_PTHREAD",
@@ -121,7 +124,10 @@ ohos_static_library("protobuf_lite_static") {
     defines = [ "_FILE_OFFSET_BITS_SET_LSEEK" ]
   }
 
-  cflags_cc = [ "-Wno-sign-compare" ]
+  cflags_cc = [
+    "-Wno-sign-compare",
+    "-Wno-deprecated-declarations",
+  ]
   cflags = [
     "-Wno-sign-compare",
     "-D HAVE_PTHREAD",
