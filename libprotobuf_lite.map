@@ -528,6 +528,7 @@
     "google::protobuf::internal::ExtensionSet::RegisterMessageExtension(google::protobuf::MessageLite const*, unsigned char, bool, bool, google::protobuf::MessageLite const*)";
     "google::protobuf::internal::DestroyString(void const*)";
     "google::protobuf::ShutdownProtobufLibrary()";
+    "google::protobuf::RepeatedField<unsigned long>::elements() const";
   };
   local:
     *;
