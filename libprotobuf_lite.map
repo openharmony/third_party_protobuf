@@ -24,6 +24,7 @@
     "google::protobuf::MessageLite::SerializeToArray(void*, int) const";
     "google::protobuf::internal::fixed_address_empty_string";
     "google::protobuf::MessageLite::ParseFromArray(void const*, int)";
+    "google::protobuf::RepeatedPtrField<std::__h::basic_string<char, std::__h::char_traits<char>, std::__h::allocator<char> > >::MergeFrom(google::protobuf::RepeatedPtrField<std::__h::basic_string<char, std::__h::char_traits<char>, std::__h::allocator<char> > > const&)";
     "google::protobuf::RepeatedPtrField<std::__h::basic_string<char, std::__h::char_traits<char>, std::__h::allocator<char> > >::~RepeatedPtrField()";
     "google::protobuf::internal::InlineGreedyStringParser(std::__h::basic_string<char, std::__h::char_traits<char>, std::__h::allocator<char> >*, char const*, google::protobuf::internal::ParseContext*)";
     "google::protobuf::internal::ArenaImpl::AllocateAlignedAndAddCleanup(unsigned int, void (*)(void*))";
