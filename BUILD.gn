@@ -21,6 +21,7 @@ config("protobuf_config") {
 }
 
 ohos_shared_library("protobuf_lite") {
+  branch_protector_ret = "pac_ret"
   sources = [
     "src/google/protobuf/any_lite.cc",
     "src/google/protobuf/arena.cc",
