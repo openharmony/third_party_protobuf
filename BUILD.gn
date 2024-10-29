@@ -413,7 +413,7 @@ ohos_shared_library("protoc_lib") {
   if (!is_asan && !is_debug) {
     version_script = "libprotoc.map"
   }
-
+  install_enable = false
   public_configs = [ ":protobuf_config" ]
   subsystem_name = "${THIRDPARTY_PROTOBUF_SUBSYS_NAME}"
   part_name = "${THIRDPARTY_PROTOBUF_PART_NAME}"
