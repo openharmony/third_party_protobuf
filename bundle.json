@@ -2,7 +2,7 @@
     "name": "@ohos/protobuf",
     "description": "Protocol Buffers - Google's data interchange format.",
     "version": "3.1",
-    "license": "BSD 3-Clause",
+    "license": "Apache-2.0",
     "publishAs": "code-segment",
     "segment": {
         "destPath": "third_party/protobuf"
