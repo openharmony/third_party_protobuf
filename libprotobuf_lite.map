@@ -287,6 +287,9 @@
     "google::protobuf::MessageLite::SerializePartialToZeroCopyStream(google::protobuf::io::ZeroCopyOutputStream*) const";
     "vtable for google::protobuf::io::FileInputStream";
     "google::protobuf::io::CopyingInputStreamAdaptor::~CopyingInputStreamAdaptor()";
+    "google::protobuf::io::CopyingInputStream::Skip(int)";
+    "google::protobuf::io::CopyingOutputStreamAdaptor::CopyingOutputStreamAdaptor(google::protobuf::io::CopyingOutputStream*, int)";
+    "google::protobuf::io::CopyingInputStreamAdaptor::CopyingInputStreamAdaptor(google::protobuf::io::CopyingInputStream*, int)";
     "google::protobuf::io::FileInputStream::CopyingFileInputStream::~CopyingFileInputStream()";
     "google::protobuf::internal::VersionString[abi:cxx11](int)";
     "google::protobuf::io::ZeroCopyOutputStream::WriteAliasedRaw(void const*, int)";
