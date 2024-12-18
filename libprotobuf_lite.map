@@ -529,6 +529,7 @@
     "google::protobuf::internal::DestroyString(void const*)";
     "google::protobuf::ShutdownProtobufLibrary()";
     "google::protobuf::RepeatedField<unsigned long>::elements() const";
+    "google::protobuf::internal::EpsCopyInputStream::SkipFallback(char const*, int)";
   };
   local:
     *;
