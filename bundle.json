@@ -21,7 +21,8 @@
         "ram": "",
         "deps": {
             "components": [
-                "hilog"
+                "hilog",
+                "abseil-cpp"
             ],
             "third_party": []
         },
