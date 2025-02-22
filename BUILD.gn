@@ -677,6 +677,9 @@ if (current_toolchain == host_toolchain) {
       "-Wno-deprecated-declarations",
     ]
     external_deps = [ "abseil-cpp:absl_base_static" ]
+    if (is_mac || is_ios) {
+      frameworks = [ "Foundation.framework" ]
+    }
     cflags = [
       "-Wno-sign-compare",
       "-D HAVE_PTHREAD",
