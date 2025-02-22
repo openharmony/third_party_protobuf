@@ -124,12 +124,14 @@ ohos_static_library("protobuf_lite_static") {
   if (!is_mingw) {
     # target build, not host build
     defines = [ "HAVE_HILOG" ]
-    external_deps = [ "abseil-cpp:absl_base_static" ]
   } else {
-    external_deps = [ "abseil-cpp:absl_base_static" ]
     defines = [ "_FILE_OFFSET_BITS_SET_LSEEK" ]
   }
-
+  if (is_arkui_x) {
+    deps = [ "//third_party/abseil-cpp:absl_base_static" ]
+  } else {
+    external_deps = [ "abseil-cpp:absl_base_static" ]
+  }
   cflags_cc = [
     "-Wno-sign-compare",
     "-Wno-deprecated-declarations",
@@ -358,7 +360,12 @@ ohos_static_library("protobuf_static") {
   ]
 
   deps = [ ":protobuf_lite_static" ]
-  external_deps = [ "abseil-cpp:absl_base_static" ]
+  if (is_arkui_x) {
+    deps += [ "//third_party/abseil-cpp:absl_base_static" ]
+  } else {
+    external_deps = [ "abseil-cpp:absl_base_static" ]
+  }
+
   if (is_mingw) {
     # ../../third_party/protobuf/src/google/protobuf/io/zero_copy_stream_impl.cc:60:9: error: 'lseek' macro redefined [-Werror,-Wmacro-redefined]
     cflags += [ "-Wno-macro-redefined" ]
@@ -676,7 +683,11 @@ if (current_toolchain == host_toolchain) {
       "-Wno-sign-compare",
       "-Wno-deprecated-declarations",
     ]
-    external_deps = [ "abseil-cpp:absl_base_static" ]
+    if (is_arkui_x) {
+      deps += [ "//third_party/abseil-cpp:absl_base_static" ]
+    } else {
+      external_deps = [ "abseil-cpp:absl_base_static" ]
+    }
     cflags = [
       "-Wno-sign-compare",
       "-D HAVE_PTHREAD",
