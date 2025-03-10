@@ -19,7 +19,7 @@
 #include "google/protobuf/stubs/platform_macros.h"
 
 // Must be last.
-#include "google/protobuf/port_def.inc"  // NOLINT
+
 
 #undef PROTOBUF_LITTLE_ENDIAN
 #ifdef _WIN32
@@ -67,6 +67,7 @@
 #include <byteswap.h>  // IWYU pragma: export
 #endif
 
+#include "google/protobuf/port_def.inc"  // NOLINT
 // Legacy: some users reference these (internal-only) macros even though we
 // don't need them any more.
 #if defined(_MSC_VER) && defined(PROTOBUF_USE_DLLS)
