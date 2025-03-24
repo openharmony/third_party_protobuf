@@ -206,6 +206,7 @@
     "google::protobuf::_GeneratedCodeInfo_default_instance_";
     "google::protobuf::GeneratedCodeInfo::MergeFrom(google::protobuf::GeneratedCodeInfo const&)";
     "scc_info_GeneratedCodeInfo_google_2fprotobuf_2fdescriptor_2eproto";
+    "google::protobuf::internal::ArenaStringPtr::Destroy(google::protobuf::internal::ArenaStringPtr::EmptyDefault, google::protobuf::Arena*)";
   };
   local:
     *;
