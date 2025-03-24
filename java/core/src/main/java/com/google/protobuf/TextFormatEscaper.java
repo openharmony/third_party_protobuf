@@ -1,30 +1,36 @@
 // Protocol Buffers - Google's data interchange format
 // Copyright 2008 Google Inc.  All rights reserved.
+// https://developers.google.com/protocol-buffers/
 //
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file or at
-// https://developers.google.com/open-source/licenses/bsd
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.google.protobuf;
 
-/**
- * Provide text format escaping of proto instances. These ASCII characters are escaped:
- *
- * ASCII #7   (bell) --> \a
- * ASCII #8   (backspace) --> \b
- * ASCII #9   (horizontal tab) --> \t
- * ASCII #10  (linefeed) --> \n
- * ASCII #11  (vertical tab) --> \v
- * ASCII #13  (carriage return) --> \r
- * ASCII #12  (formfeed) --> \f
- * ASCII #34  (apostrophe) --> \'
- * ASCII #39  (straight double quote) --> \"
- * ASCII #92  (backslash) --> \\
- *
- * Other printable ASCII characters between 32 and 127 inclusive are output as is, unescaped.
- * Other ASCII characters less than 32 and all Unicode characters 128 or greater are
- * first encoded as UTF-8, then each byte is escaped individually as a 3-digit octal escape.
- */
+/** Provide text format escaping support for proto2 instances. */
 final class TextFormatEscaper {
   private TextFormatEscaper() {}
 
@@ -35,13 +41,17 @@ final class TextFormatEscaper {
   }
 
   /**
-   * Backslash escapes bytes in the format used in protocol buffer text format.
+   * Escapes bytes in the format used in protocol buffer text format, which is the same as the
+   * format used for C string literals. All bytes that are not printable 7-bit ASCII characters are
+   * escaped, as well as backslash, single-quote, and double-quote characters. Characters for which
+   * no defined short-hand escape sequence is defined will be escaped using 3-digit octal sequences.
    */
-  static String escapeBytes(ByteSequence input) {
+  static String escapeBytes(final ByteSequence input) {
     final StringBuilder builder = new StringBuilder(input.size());
     for (int i = 0; i < input.size(); i++) {
-      byte b = input.byteAt(i);
+      final byte b = input.byteAt(i);
       switch (b) {
+          // Java does not recognize \a or \v, apparently.
         case 0x07:
           builder.append("\\a");
           break;
@@ -90,7 +100,10 @@ final class TextFormatEscaper {
   }
 
   /**
-   * Backslash escapes bytes in the format used in protocol buffer text format.
+   * Escapes bytes in the format used in protocol buffer text format, which is the same as the
+   * format used for C string literals. All bytes that are not printable 7-bit ASCII characters are
+   * escaped, as well as backslash, single-quote, and double-quote characters. Characters for which
+   * no defined short-hand escape sequence is defined will be escaped using 3-digit octal sequences.
    */
   static String escapeBytes(final ByteString input) {
     return escapeBytes(
@@ -124,14 +137,16 @@ final class TextFormatEscaper {
   }
 
   /**
-   * Like {@link #escapeBytes(ByteString)}, but escapes a text string.
+   * Like {@link #escapeBytes(ByteString)}, but escapes a text string. Non-ASCII characters are
+   * first encoded as UTF-8, then each byte is escaped individually as a 3-digit octal escape. Yes,
+   * it's weird.
    */
-  static String escapeText(String input) {
+  static String escapeText(final String input) {
     return escapeBytes(ByteString.copyFromUtf8(input));
   }
 
   /** Escape double quotes and backslashes in a String for unicode output of a message. */
-  static String escapeDoubleQuotesAndBackslashes(String input) {
+  static String escapeDoubleQuotesAndBackslashes(final String input) {
     return input.replace("\\", "\\\\").replace("\"", "\\\"");
   }
 }

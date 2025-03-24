@@ -1,23 +1,43 @@
 // Protocol Buffers - Google's data interchange format
 // Copyright 2008 Google Inc.  All rights reserved.
+// https://developers.google.com/protocol-buffers/
 //
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file or at
-// https://developers.google.com/open-source/licenses/bsd
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.google.protobuf;
 
-import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
-
-import com.google.common.collect.ImmutableSet;
-import com.google.common.reflect.ClassPath;
 import protobuf_unittest.NonNestedExtension;
 import protobuf_unittest.NonNestedExtensionLite;
-import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -34,8 +54,9 @@ import org.junit.Ignore;
  * <p>The test mechanism employed here is based on the pattern in {@code
  * com.google.common.util.concurrent.AbstractFutureFallbackAtomicHelperTest}
  *
- * <p>This test is temporarily disabled while we figure out how to fix the class loading used for
- * testing lite functionality.
+ * <p> This test is temporarily disabled due to what appears to be a subtle change to class loading
+ * behavior in Java 11. That seems to have broken the way the test uses a custom ClassLoader to
+ * exercise Lite functionality.
  */
 @SuppressWarnings("JUnit4ClassUsedInJUnit3")
 @Ignore
@@ -64,21 +85,21 @@ public class ExtensionRegistryFactoryTest extends TestCase {
     public void testCreate() {
       ExtensionRegistryLite registry = ExtensionRegistryFactory.create();
 
-      assertThat(registry.getClass()).isEqualTo(ExtensionRegistry.class);
+      assertEquals(registry.getClass(), ExtensionRegistry.class);
     }
 
     @Override
     public void testEmpty() {
       ExtensionRegistryLite emptyRegistry = ExtensionRegistryFactory.createEmpty();
 
-      assertThat(emptyRegistry.getClass()).isEqualTo(ExtensionRegistry.class);
-      assertThat(emptyRegistry).isEqualTo(ExtensionRegistry.EMPTY_REGISTRY);
+      assertEquals(emptyRegistry.getClass(), ExtensionRegistry.class);
+      assertEquals(emptyRegistry, ExtensionRegistry.EMPTY_REGISTRY);
     }
 
     @Override
     public void testIsFullRegistry() {
       ExtensionRegistryLite registry = ExtensionRegistryFactory.create();
-      assertThat(ExtensionRegistryFactory.isFullRegistry(registry)).isTrue();
+      assertTrue(ExtensionRegistryFactory.isFullRegistry(registry));
     }
 
     @Override
@@ -94,24 +115,25 @@ public class ExtensionRegistryFactoryTest extends TestCase {
       ExtensionRegistry fullRegistry1 = (ExtensionRegistry) registry1;
       ExtensionRegistry fullRegistry2 = (ExtensionRegistry) registry2;
 
-      assertWithMessage("Test is using a non-lite extension")
-          .that(NonNestedExtensionLite.nonNestedExtensionLite.getClass())
-          .isInstanceOf(GeneratedMessageLite.GeneratedExtension.class);
-      assertWithMessage("Extension is not registered in masqueraded full registry")
-          .that(fullRegistry1.findImmutableExtensionByName("protobuf_unittest.nonNestedExtension"))
-          .isNull();
+      assertTrue(
+          "Test is using a non-lite extension",
+          GeneratedMessageLite.GeneratedExtension.class.isAssignableFrom(
+              NonNestedExtensionLite.nonNestedExtensionLite.getClass()));
+      assertNull(
+          "Extension is not registered in masqueraded full registry",
+          fullRegistry1.findImmutableExtensionByName("protobuf_unittest.nonNestedExtension"));
       GeneratedMessageLite.GeneratedExtension<NonNestedExtensionLite.MessageLiteToBeExtended, ?>
           extension =
               registry1.findLiteExtensionByNumber(
                   NonNestedExtensionLite.MessageLiteToBeExtended.getDefaultInstance(), 1);
-      assertWithMessage("Extension registered in lite registry").that(extension).isNotNull();
+      assertNotNull("Extension registered in lite registry", extension);
 
-      assertWithMessage("Test is using a non-lite extension")
-          .that(Extension.class.isAssignableFrom(NonNestedExtension.nonNestedExtension.getClass()))
-          .isTrue();
-      assertWithMessage("Extension is registered in masqueraded full registry")
-          .that(fullRegistry2.findImmutableExtensionByName("protobuf_unittest.nonNestedExtension"))
-          .isNotNull();
+      assertTrue(
+          "Test is using a non-lite extension",
+          Extension.class.isAssignableFrom(NonNestedExtension.nonNestedExtension.getClass()));
+      assertNotNull(
+          "Extension is registered in masqueraded full registry",
+          fullRegistry2.findImmutableExtensionByName("protobuf_unittest.nonNestedExtension"));
     }
 
     @Override
@@ -119,24 +141,24 @@ public class ExtensionRegistryFactoryTest extends TestCase {
       ExtensionRegistryLite registry1 = ExtensionRegistryLite.newInstance().getUnmodifiable();
       try {
         NonNestedExtensionLite.registerAllExtensions(registry1);
-        assertWithMessage("expected exception").fail();
+        fail();
       } catch (UnsupportedOperationException expected) {
       }
       try {
         registry1.add(NonNestedExtensionLite.nonNestedExtensionLite);
-        assertWithMessage("expected exception").fail();
+        fail();
       } catch (UnsupportedOperationException expected) {
       }
 
       ExtensionRegistryLite registry2 = ExtensionRegistryLite.newInstance().getUnmodifiable();
       try {
         NonNestedExtension.registerAllExtensions((ExtensionRegistry) registry2);
-        assertWithMessage("expected exception").fail();
+        fail();
       } catch (IllegalArgumentException expected) {
       }
       try {
         registry2.add(NonNestedExtension.nonNestedExtension);
-        assertWithMessage("expected exception").fail();
+        fail();
       } catch (IllegalArgumentException expected) {
       }
     }
@@ -149,21 +171,21 @@ public class ExtensionRegistryFactoryTest extends TestCase {
     public void testCreate() {
       ExtensionRegistryLite registry = ExtensionRegistryFactory.create();
 
-      assertThat(registry.getClass()).isEqualTo(ExtensionRegistryLite.class);
+      assertEquals(registry.getClass(), ExtensionRegistryLite.class);
     }
 
     @Override
     public void testEmpty() {
       ExtensionRegistryLite emptyRegistry = ExtensionRegistryFactory.createEmpty();
 
-      assertThat(emptyRegistry.getClass()).isEqualTo(ExtensionRegistryLite.class);
-      assertThat(emptyRegistry).isEqualTo(ExtensionRegistryLite.EMPTY_REGISTRY_LITE);
+      assertEquals(emptyRegistry.getClass(), ExtensionRegistryLite.class);
+      assertEquals(emptyRegistry, ExtensionRegistryLite.EMPTY_REGISTRY_LITE);
     }
 
     @Override
     public void testIsFullRegistry() {
       ExtensionRegistryLite registry = ExtensionRegistryFactory.create();
-      assertThat(ExtensionRegistryFactory.isFullRegistry(registry)).isFalse();
+      assertFalse(ExtensionRegistryFactory.isFullRegistry(registry));
     }
 
     @Override
@@ -174,7 +196,7 @@ public class ExtensionRegistryFactoryTest extends TestCase {
           extension =
               registry.findLiteExtensionByNumber(
                   NonNestedExtensionLite.MessageLiteToBeExtended.getDefaultInstance(), 1);
-      assertWithMessage("Extension is registered in Lite registry").that(extension).isNotNull();
+      assertNotNull("Extension is registered in Lite registry", extension);
     }
 
     @Override
@@ -182,7 +204,7 @@ public class ExtensionRegistryFactoryTest extends TestCase {
       ExtensionRegistryLite registry = ExtensionRegistryLite.newInstance().getUnmodifiable();
       try {
         NonNestedExtensionLite.registerAllExtensions(registry);
-        assertWithMessage("expected exception").fail();
+        fail();
       } catch (UnsupportedOperationException expected) {
       }
     }
@@ -230,27 +252,19 @@ public class ExtensionRegistryFactoryTest extends TestCase {
    * determine the Lite/non-Lite runtime.
    */
   private static ClassLoader getLiteOnlyClassLoader() {
-
-    ImmutableSet<ClassPath.ClassInfo> classes = ImmutableSet.of();
-    try {
-      classes = ClassPath.from(ExtensionRegistryFactoryTest.class.getClassLoader()).getAllClasses();
-    } catch (IOException ex) {
-      throw new RuntimeException(ex);
-    }
-    URL[] urls = new URL[classes.size()];
-    int i = 0;
-    for (ClassPath.ClassInfo classInfo : classes) {
-      urls[i++] = classInfo.url();
-    }
-    final ImmutableSet<String> classNamesNotInLite =
-        ImmutableSet.of(
-            ExtensionRegistryFactory.FULL_REGISTRY_CLASS_NAME,
-            ExtensionRegistry.EXTENSION_CLASS_NAME);
+    ClassLoader testClassLoader = ExtensionRegistryFactoryTest.class.getClassLoader();
+    final Set<String> classNamesNotInLite =
+        Collections.unmodifiableSet(
+            new HashSet<String>(
+                Arrays.asList(
+                    ExtensionRegistryFactory.FULL_REGISTRY_CLASS_NAME,
+                    ExtensionRegistry.EXTENSION_CLASS_NAME)));
 
     // Construct a URLClassLoader delegating to the system ClassLoader, and looking up classes
     // in jar files based on the URLs already configured for this test's UrlClassLoader.
     // Certain classes throw a ClassNotFoundException by design.
-    return new URLClassLoader(urls, ClassLoader.getSystemClassLoader()) {
+    return new URLClassLoader(
+        ((URLClassLoader) testClassLoader).getURLs(), ClassLoader.getSystemClassLoader()) {
       @Override
       public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         if (classNamesNotInLite.contains(name)) {

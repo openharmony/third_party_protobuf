@@ -1,14 +1,34 @@
 // Protocol Buffers - Google's data interchange format
 // Copyright 2008 Google Inc.  All rights reserved.
+// https://developers.google.com/protocol-buffers/
 //
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file or at
-// https://developers.google.com/open-source/licenses/bsd
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.google.protobuf;
-
-import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
 
 import com.google.protobuf.CodedOutputStream.OutOfSpaceException;
 import protobuf_unittest.UnittestProto.SparseEnumMessage;
@@ -21,13 +41,14 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import junit.framework.TestCase;
 
-/** Unit test for {@link CodedOutputStream}. */
-@RunWith(JUnit4.class)
-public class CodedOutputStreamTest {
+/**
+ * Unit test for {@link CodedOutputStream}.
+ *
+ * @author kenton@google.com Kenton Varda
+ */
+public class CodedOutputStreamTest extends TestCase {
   private interface Coder {
     CodedOutputStream stream();
 
@@ -203,7 +224,6 @@ public class CodedOutputStreamTest {
   }
 
   /** Checks that invariants are maintained for varint round trip input and output. */
-  @Test
   public void testVarintRoundTrips() throws Exception {
     for (OutputType outputType : OutputType.values()) {
       assertVarintRoundTrip(outputType, 0L);
@@ -218,7 +238,6 @@ public class CodedOutputStreamTest {
   }
 
   /** Tests writeRawVarint32() and writeRawVarint64(). */
-  @Test
   public void testWriteVarint() throws Exception {
     assertWriteVarint(bytes(0x00), 0);
     assertWriteVarint(bytes(0x01), 1);
@@ -262,7 +281,6 @@ public class CodedOutputStreamTest {
   }
 
   /** Tests writeRawLittleEndian32() and writeRawLittleEndian64(). */
-  @Test
   public void testWriteLittleEndian() throws Exception {
     assertWriteLittleEndian32(bytes(0x78, 0x56, 0x34, 0x12), 0x12345678);
     assertWriteLittleEndian32(bytes(0xf0, 0xde, 0xbc, 0x9a), 0x9abcdef0);
@@ -274,61 +292,50 @@ public class CodedOutputStreamTest {
   }
 
   /** Test encodeZigZag32() and encodeZigZag64(). */
-  @Test
   public void testEncodeZigZag() throws Exception {
-    assertThat(CodedOutputStream.encodeZigZag32(0)).isEqualTo(0);
-    assertThat(CodedOutputStream.encodeZigZag32(-1)).isEqualTo(1);
-    assertThat(CodedOutputStream.encodeZigZag32(1)).isEqualTo(2);
-    assertThat(CodedOutputStream.encodeZigZag32(-2)).isEqualTo(3);
-    assertThat(CodedOutputStream.encodeZigZag32(0x3FFFFFFF)).isEqualTo(0x7FFFFFFE);
-    assertThat(CodedOutputStream.encodeZigZag32(0xC0000000)).isEqualTo(0x7FFFFFFF);
-    assertThat(CodedOutputStream.encodeZigZag32(0x7FFFFFFF)).isEqualTo(0xFFFFFFFE);
-    assertThat(CodedOutputStream.encodeZigZag32(0x80000000)).isEqualTo(0xFFFFFFFF);
+    assertEquals(0, CodedOutputStream.encodeZigZag32(0));
+    assertEquals(1, CodedOutputStream.encodeZigZag32(-1));
+    assertEquals(2, CodedOutputStream.encodeZigZag32(1));
+    assertEquals(3, CodedOutputStream.encodeZigZag32(-2));
+    assertEquals(0x7FFFFFFE, CodedOutputStream.encodeZigZag32(0x3FFFFFFF));
+    assertEquals(0x7FFFFFFF, CodedOutputStream.encodeZigZag32(0xC0000000));
+    assertEquals(0xFFFFFFFE, CodedOutputStream.encodeZigZag32(0x7FFFFFFF));
+    assertEquals(0xFFFFFFFF, CodedOutputStream.encodeZigZag32(0x80000000));
 
-    assertThat(CodedOutputStream.encodeZigZag64(0)).isEqualTo(0);
-    assertThat(CodedOutputStream.encodeZigZag64(-1)).isEqualTo(1);
-    assertThat(CodedOutputStream.encodeZigZag64(1)).isEqualTo(2);
-    assertThat(CodedOutputStream.encodeZigZag64(-2)).isEqualTo(3);
-    assertThat(CodedOutputStream.encodeZigZag64(0x000000003FFFFFFFL))
-        .isEqualTo(0x000000007FFFFFFEL);
-    assertThat(CodedOutputStream.encodeZigZag64(0xFFFFFFFFC0000000L))
-        .isEqualTo(0x000000007FFFFFFFL);
-    assertThat(CodedOutputStream.encodeZigZag64(0x000000007FFFFFFFL))
-        .isEqualTo(0x00000000FFFFFFFEL);
-    assertThat(CodedOutputStream.encodeZigZag64(0xFFFFFFFF80000000L))
-        .isEqualTo(0x00000000FFFFFFFFL);
-    assertThat(CodedOutputStream.encodeZigZag64(0x7FFFFFFFFFFFFFFFL))
-        .isEqualTo(0xFFFFFFFFFFFFFFFEL);
-    assertThat(CodedOutputStream.encodeZigZag64(0x8000000000000000L))
-        .isEqualTo(0xFFFFFFFFFFFFFFFFL);
+    assertEquals(0, CodedOutputStream.encodeZigZag64(0));
+    assertEquals(1, CodedOutputStream.encodeZigZag64(-1));
+    assertEquals(2, CodedOutputStream.encodeZigZag64(1));
+    assertEquals(3, CodedOutputStream.encodeZigZag64(-2));
+    assertEquals(0x000000007FFFFFFEL, CodedOutputStream.encodeZigZag64(0x000000003FFFFFFFL));
+    assertEquals(0x000000007FFFFFFFL, CodedOutputStream.encodeZigZag64(0xFFFFFFFFC0000000L));
+    assertEquals(0x00000000FFFFFFFEL, CodedOutputStream.encodeZigZag64(0x000000007FFFFFFFL));
+    assertEquals(0x00000000FFFFFFFFL, CodedOutputStream.encodeZigZag64(0xFFFFFFFF80000000L));
+    assertEquals(0xFFFFFFFFFFFFFFFEL, CodedOutputStream.encodeZigZag64(0x7FFFFFFFFFFFFFFFL));
+    assertEquals(0xFFFFFFFFFFFFFFFFL, CodedOutputStream.encodeZigZag64(0x8000000000000000L));
 
     // Some easier-to-verify round-trip tests.  The inputs (other than 0, 1, -1)
     // were chosen semi-randomly via keyboard bashing.
-    assertThat(CodedOutputStream.encodeZigZag32(CodedInputStream.decodeZigZag32(0))).isEqualTo(0);
-    assertThat(CodedOutputStream.encodeZigZag32(CodedInputStream.decodeZigZag32(1))).isEqualTo(1);
-    assertThat(CodedOutputStream.encodeZigZag32(CodedInputStream.decodeZigZag32(-1))).isEqualTo(-1);
-    assertThat(CodedOutputStream.encodeZigZag32(CodedInputStream.decodeZigZag32(14927)))
-        .isEqualTo(14927);
-    assertThat(CodedOutputStream.encodeZigZag32(CodedInputStream.decodeZigZag32(-3612)))
-        .isEqualTo(-3612);
+    assertEquals(0, CodedOutputStream.encodeZigZag32(CodedInputStream.decodeZigZag32(0)));
+    assertEquals(1, CodedOutputStream.encodeZigZag32(CodedInputStream.decodeZigZag32(1)));
+    assertEquals(-1, CodedOutputStream.encodeZigZag32(CodedInputStream.decodeZigZag32(-1)));
+    assertEquals(14927, CodedOutputStream.encodeZigZag32(CodedInputStream.decodeZigZag32(14927)));
+    assertEquals(-3612, CodedOutputStream.encodeZigZag32(CodedInputStream.decodeZigZag32(-3612)));
 
-    assertThat(CodedOutputStream.encodeZigZag64(CodedInputStream.decodeZigZag64(0))).isEqualTo(0);
-    assertThat(CodedOutputStream.encodeZigZag64(CodedInputStream.decodeZigZag64(1))).isEqualTo(1);
-    assertThat(CodedOutputStream.encodeZigZag64(CodedInputStream.decodeZigZag64(-1))).isEqualTo(-1);
-    assertThat(CodedOutputStream.encodeZigZag64(CodedInputStream.decodeZigZag64(14927)))
-        .isEqualTo(14927);
-    assertThat(CodedOutputStream.encodeZigZag64(CodedInputStream.decodeZigZag64(-3612)))
-        .isEqualTo(-3612);
+    assertEquals(0, CodedOutputStream.encodeZigZag64(CodedInputStream.decodeZigZag64(0)));
+    assertEquals(1, CodedOutputStream.encodeZigZag64(CodedInputStream.decodeZigZag64(1)));
+    assertEquals(-1, CodedOutputStream.encodeZigZag64(CodedInputStream.decodeZigZag64(-1)));
+    assertEquals(14927, CodedOutputStream.encodeZigZag64(CodedInputStream.decodeZigZag64(14927)));
+    assertEquals(-3612, CodedOutputStream.encodeZigZag64(CodedInputStream.decodeZigZag64(-3612)));
 
-    assertThat(CodedOutputStream.encodeZigZag64(CodedInputStream.decodeZigZag64(856912304801416L)))
-        .isEqualTo(856912304801416L);
-    assertThat(
-            CodedOutputStream.encodeZigZag64(CodedInputStream.decodeZigZag64(-75123905439571256L)))
-        .isEqualTo(-75123905439571256L);
+    assertEquals(
+        856912304801416L,
+        CodedOutputStream.encodeZigZag64(CodedInputStream.decodeZigZag64(856912304801416L)));
+    assertEquals(
+        -75123905439571256L,
+        CodedOutputStream.encodeZigZag64(CodedInputStream.decodeZigZag64(-75123905439571256L)));
   }
 
   /** Tests writing a whole message with every field type. */
-  @Test
   public void testWriteWholeMessage() throws Exception {
     final byte[] expectedBytes = TestUtil.getGoldenMessage().toByteArray();
     TestAllTypes message = TestUtil.getAllSet();
@@ -354,7 +361,6 @@ public class CodedOutputStreamTest {
    * Tests writing a whole message with every packed field type. Ensures the wire format of packed
    * fields is compatible with C++.
    */
-  @Test
   public void testWriteWholePackedFieldsMessage() throws Exception {
     byte[] expectedBytes = TestUtil.getGoldenPackedFieldsMessage().toByteArray();
     TestPackedTypes message = TestUtil.getPackedSet();
@@ -372,23 +378,21 @@ public class CodedOutputStreamTest {
    * Test writing a message containing a negative enum value. This used to fail because the size was
    * not properly computed as a sign-extended varint.
    */
-  @Test
   public void testWriteMessageWithNegativeEnumValue() throws Exception {
     SparseEnumMessage message =
         SparseEnumMessage.newBuilder().setSparseEnum(TestSparseEnum.SPARSE_E).build();
-    assertThat(message.getSparseEnum().getNumber()).isLessThan(0);
+    assertTrue(message.getSparseEnum().getNumber() < 0);
     for (OutputType outputType : OutputType.values()) {
       Coder coder = outputType.newCoder(message.getSerializedSize());
       message.writeTo(coder.stream());
       coder.stream().flush();
       byte[] rawBytes = coder.toByteArray();
       SparseEnumMessage message2 = SparseEnumMessage.parseFrom(rawBytes);
-      assertThat(message2.getSparseEnum()).isEqualTo(TestSparseEnum.SPARSE_E);
+      assertEquals(TestSparseEnum.SPARSE_E, message2.getSparseEnum());
     }
   }
 
   /** Test getTotalBytesWritten() */
-  @Test
   public void testGetTotalBytesWritten() throws Exception {
     Coder coder = OutputType.STREAM.newCoder(4 * 1024);
 
@@ -398,27 +402,26 @@ public class CodedOutputStreamTest {
     for (int i = 0; i < 1024; ++i) {
       coder.stream().writeRawBytes(value, 0, value.length);
     }
-    assertThat(coder.stream().getTotalBytesWritten()).isEqualTo(value.length * 1024);
+    assertEquals(value.length * 1024, coder.stream().getTotalBytesWritten());
 
     // Now write an encoded string.
     String string =
         "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz";
     // Ensure we take the slower fast path.
-    assertThat(CodedOutputStream.computeUInt32SizeNoTag(string.length()))
-        .isNotEqualTo(
-            CodedOutputStream.computeUInt32SizeNoTag(string.length() * Utf8.MAX_BYTES_PER_CHAR));
+    assertTrue(
+        CodedOutputStream.computeUInt32SizeNoTag(string.length())
+            != CodedOutputStream.computeUInt32SizeNoTag(string.length() * Utf8.MAX_BYTES_PER_CHAR));
 
     coder.stream().writeStringNoTag(string);
     coder.stream().flush();
     int stringSize = CodedOutputStream.computeStringSizeNoTag(string);
 
     // Verify that the total bytes written is correct
-    assertThat(coder.stream().getTotalBytesWritten()).isEqualTo((value.length * 1024) + stringSize);
+    assertEquals((value.length * 1024) + stringSize, coder.stream().getTotalBytesWritten());
   }
 
-  // TODO: Write a comprehensive test suite for CodedOutputStream that covers more than just
+  // TODO(dweis): Write a comprehensive test suite for CodedOutputStream that covers more than just
   //    this case.
-  @Test
   public void testWriteStringNoTag_fastpath() throws Exception {
     int bufferSize = 153;
     String threeBytesPer = "\u0981";
@@ -427,10 +430,10 @@ public class CodedOutputStreamTest {
       string += threeBytesPer;
     }
     // These checks ensure we will tickle the slower fast path.
-    assertThat(CodedOutputStream.computeUInt32SizeNoTag(string.length())).isEqualTo(1);
-    assertThat(CodedOutputStream.computeUInt32SizeNoTag(string.length() * Utf8.MAX_BYTES_PER_CHAR))
-        .isEqualTo(2);
-    assertThat(bufferSize).isEqualTo(string.length() * Utf8.MAX_BYTES_PER_CHAR);
+    assertEquals(1, CodedOutputStream.computeUInt32SizeNoTag(string.length()));
+    assertEquals(
+        2, CodedOutputStream.computeUInt32SizeNoTag(string.length() * Utf8.MAX_BYTES_PER_CHAR));
+    assertEquals(bufferSize, string.length() * Utf8.MAX_BYTES_PER_CHAR);
 
     for (OutputType outputType : OutputType.values()) {
       Coder coder = outputType.newCoder(bufferSize + 2);
@@ -439,7 +442,6 @@ public class CodedOutputStreamTest {
     }
   }
 
-  @Test
   public void testWriteToByteBuffer() throws Exception {
     final int bufferSize = 16 * 1024;
     ByteBuffer buffer = ByteBuffer.allocate(bufferSize);
@@ -460,20 +462,19 @@ public class CodedOutputStreamTest {
     codedStream.flush();
 
     // Check that data is correctly written to the ByteBuffer.
-    assertThat(buffer.remaining()).isEqualTo(0);
+    assertEquals(0, buffer.remaining());
     buffer.flip();
     for (int i = 0; i < length1; i++) {
-      assertThat(buffer.get()).isEqualTo((byte) 1);
+      assertEquals((byte) 1, buffer.get());
     }
     for (int i = 0; i < length2; i++) {
-      assertThat(buffer.get()).isEqualTo((byte) 2);
+      assertEquals((byte) 2, buffer.get());
     }
     for (int i = 0; i < length3; i++) {
-      assertThat(buffer.get()).isEqualTo((byte) 3);
+      assertEquals((byte) 3, buffer.get());
     }
   }
 
-  @Test
   public void testWriteByteBuffer() throws Exception {
     byte[] value = "abcde".getBytes(Internal.UTF_8);
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -483,33 +484,31 @@ public class CodedOutputStreamTest {
     // ByteBuffer's capacity() is 5.
     codedStream.writeRawBytes(byteBuffer);
     // The above call shouldn't affect the ByteBuffer's state.
-    assertThat(byteBuffer.position()).isEqualTo(0);
-    assertThat(byteBuffer.limit()).isEqualTo(1);
+    assertEquals(0, byteBuffer.position());
+    assertEquals(1, byteBuffer.limit());
 
     // The correct way to write part of an array using ByteBuffer.
     codedStream.writeRawBytes(ByteBuffer.wrap(value, 2, 1).slice());
 
     codedStream.flush();
     byte[] result = outputStream.toByteArray();
-    assertThat(result).hasLength(6);
+    assertEquals(6, result.length);
     for (int i = 0; i < 5; i++) {
-      assertThat(value[i]).isEqualTo(result[i]);
+      assertEquals(value[i], result[i]);
     }
-    assertThat(value[2]).isEqualTo(result[5]);
+    assertEquals(value[2], result[5]);
   }
 
-  @Test
   public void testWriteByteArrayWithOffsets() throws Exception {
     byte[] fullArray = bytes(0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88);
     for (OutputType type : new OutputType[] {OutputType.ARRAY}) {
       Coder coder = type.newCoder(4);
       coder.stream().writeByteArrayNoTag(fullArray, 2, 2);
       assertEqualBytes(type, bytes(0x02, 0x33, 0x44), coder.toByteArray());
-      assertThat(coder.stream().getTotalBytesWritten()).isEqualTo(3);
+      assertEquals(3, coder.stream().getTotalBytesWritten());
     }
   }
 
-  @Test
   public void testSerializeUtf8_MultipleSmallWrites() throws Exception {
     final String source = "abcdefghijklmnopqrstuvwxyz";
 
@@ -534,7 +533,6 @@ public class CodedOutputStreamTest {
     }
   }
 
-  @Test
   public void testSerializeInvalidUtf8() throws Exception {
     String[] invalidStrings =
         new String[] {
@@ -550,7 +548,7 @@ public class CodedOutputStreamTest {
     CodedOutputStream outputWithByteBuffer =
         CodedOutputStream.newInstance(ByteBuffer.allocate(10000));
     for (String s : invalidStrings) {
-      // TODO: These should all fail; instead they are corrupting data.
+      // TODO(dweis): These should all fail; instead they are corrupting data.
       CodedOutputStream.computeStringSizeNoTag(s);
       outputWithStream.writeStringNoTag(s);
       outputWithArray.writeStringNoTag(s);
@@ -558,9 +556,8 @@ public class CodedOutputStreamTest {
     }
   }
 
-  // TODO: This test can be deleted once we properly throw IOException while
+  // TODO(nathanmittler): This test can be deleted once we properly throw IOException while
   // encoding invalid UTF-8 strings.
-  @Test
   public void testSerializeInvalidUtf8FollowedByOutOfSpace() throws Exception {
     final int notEnoughBytes = 4;
     CodedOutputStream outputWithArray = CodedOutputStream.newInstance(new byte[notEnoughBytes]);
@@ -570,25 +567,25 @@ public class CodedOutputStreamTest {
     String invalidString = newString(Character.MIN_HIGH_SURROGATE, 'f', 'o', 'o', 'b', 'a', 'r');
     try {
       outputWithArray.writeStringNoTag(invalidString);
-      assertWithMessage("Expected OutOfSpaceException").fail();
+      fail("Expected OutOfSpaceException");
     } catch (OutOfSpaceException e) {
-      assertThat(e).hasCauseThat().isInstanceOf(IndexOutOfBoundsException.class);
+      assertTrue(e.getCause() instanceof IndexOutOfBoundsException);
     }
     try {
       outputWithByteBuffer.writeStringNoTag(invalidString);
-      assertWithMessage("Expected OutOfSpaceException").fail();
+      fail("Expected OutOfSpaceException");
     } catch (OutOfSpaceException e) {
-      assertThat(e).hasCauseThat().isInstanceOf(IndexOutOfBoundsException.class);
+      assertTrue(e.getCause() instanceof IndexOutOfBoundsException);
     }
   }
 
   /** Regression test for https://github.com/protocolbuffers/protobuf/issues/292 */
-  @Test
   public void testCorrectExceptionThrowWhenEncodingStringsWithoutEnoughSpace() throws Exception {
     String testCase = "Foooooooo";
-    assertThat(CodedOutputStream.computeUInt32SizeNoTag(testCase.length()))
-        .isEqualTo(CodedOutputStream.computeUInt32SizeNoTag(testCase.length() * 3));
-    assertThat(CodedOutputStream.computeStringSize(1, testCase)).isEqualTo(11);
+    assertEquals(
+        CodedOutputStream.computeUInt32SizeNoTag(testCase.length()),
+        CodedOutputStream.computeUInt32SizeNoTag(testCase.length() * 3));
+    assertEquals(11, CodedOutputStream.computeStringSize(1, testCase));
     // Tag is one byte, varint describing string length is 1 byte, string length is 9 bytes.
     // An array of size 1 will cause a failure when trying to write the varint.
     for (OutputType outputType :
@@ -602,14 +599,13 @@ public class CodedOutputStreamTest {
         Coder coder = outputType.newCoder(i);
         try {
           coder.stream().writeString(1, testCase);
-          assertWithMessage("Should have thrown an out of space exception").fail();
+          fail("Should have thrown an out of space exception");
         } catch (CodedOutputStream.OutOfSpaceException expected) {
         }
       }
     }
   }
 
-  @Test
   public void testDifferentStringLengths() throws Exception {
     // Test string serialization roundtrip using strings of the following lengths,
     // with ASCII and Unicode characters requiring different UTF-8 byte counts per
@@ -635,7 +631,6 @@ public class CodedOutputStreamTest {
     }
   }
 
-  @Test
   public void testNioEncodersWithInitialOffsets() throws Exception {
     String value = "abc";
     for (Coder coder :
@@ -701,9 +696,10 @@ public class CodedOutputStreamTest {
     Coder coder = outputType.newCoder(testAllTypes.getSerializedSize());
     testAllTypes.writeTo(coder.stream());
     coder.stream().flush();
-    assertWithMessage("OuputType: " + outputType)
-        .that(fullString)
-        .isEqualTo(TestAllTypes.parseFrom(coder.toByteArray()).getOptionalString());
+    assertEquals(
+        "OuputType: " + outputType,
+        fullString,
+        TestAllTypes.parseFrom(coder.toByteArray()).getOptionalString());
   }
 
   private static String fullString(char c, int length) {
@@ -734,14 +730,13 @@ public class CodedOutputStreamTest {
   }
 
   private static void assertEqualBytes(OutputType outputType, byte[] a, byte[] b) {
-    assertWithMessage(outputType.name()).that(toList(a)).isEqualTo(toList(b));
+    assertEquals(outputType.name(), toList(a), toList(b));
   }
 
   /**
    * Writes the given value using writeRawVarint32() and writeRawVarint64() and checks that the
    * result matches the given bytes.
    */
-  @SuppressWarnings("UnnecessaryLongToIntConversion") // Intentionally tests 32-bit int values.
   private static void assertWriteVarint(byte[] data, long value) throws Exception {
     for (OutputType outputType : OutputType.values()) {
       // Only test 32-bit write if the value fits into an int.
@@ -752,7 +747,7 @@ public class CodedOutputStreamTest {
         assertEqualBytes(outputType, data, coder.toByteArray());
 
         // Also try computing size.
-        assertThat(data).hasLength(CodedOutputStream.computeUInt32SizeNoTag((int) value));
+        assertEquals(data.length, CodedOutputStream.computeUInt32SizeNoTag((int) value));
       }
 
       {
@@ -762,7 +757,7 @@ public class CodedOutputStreamTest {
         assertEqualBytes(outputType, data, coder.toByteArray());
 
         // Also try computing size.
-        assertThat(data).hasLength(CodedOutputStream.computeUInt64SizeNoTag(value));
+        assertEquals(data.length, CodedOutputStream.computeUInt64SizeNoTag(value));
       }
     }
 
@@ -797,11 +792,10 @@ public class CodedOutputStreamTest {
       coder.stream().writeUInt64NoTag(value);
       coder.stream().flush();
       byte[] bytes = coder.toByteArray();
-      assertWithMessage(outputType.name())
-          .that(bytes)
-          .hasLength(CodedOutputStream.computeUInt64SizeNoTag(value));
+      assertEquals(
+          outputType.name(), bytes.length, CodedOutputStream.computeUInt64SizeNoTag(value));
       CodedInputStream input = CodedInputStream.newInstance(new ByteArrayInputStream(bytes));
-      assertWithMessage(outputType.name()).that(input.readRawVarint64()).isEqualTo(value);
+      assertEquals(outputType.name(), value, input.readRawVarint64());
     }
 
     if (value == (int) value) {
@@ -809,11 +803,10 @@ public class CodedOutputStreamTest {
       coder.stream().writeUInt32NoTag((int) value);
       coder.stream().flush();
       byte[] bytes = coder.toByteArray();
-      assertWithMessage(outputType.name())
-          .that(bytes)
-          .hasLength(CodedOutputStream.computeUInt32SizeNoTag((int) value));
+      assertEquals(
+          outputType.name(), bytes.length, CodedOutputStream.computeUInt32SizeNoTag((int) value));
       CodedInputStream input = CodedInputStream.newInstance(new ByteArrayInputStream(bytes));
-      assertWithMessage(outputType.name()).that(input.readRawVarint32()).isEqualTo(value);
+      assertEquals(outputType.name(), value, input.readRawVarint32());
     }
   }
 }

@@ -1,11 +1,36 @@
 // Protocol Buffers - Google's data interchange format
 // Copyright 2008 Google Inc.  All rights reserved.
+// https://developers.google.com/protocol-buffers/
 //
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file or at
-// https://developers.google.com/open-source/licenses/bsd
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.google.protobuf;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.EnumDescriptor;
@@ -26,7 +51,7 @@ import java.util.regex.Pattern;
 
 /**
  * Provide text parsing and formatting support for proto2 instances. The implementation largely
- * follows text_format.cc.
+ * follows google/protobuf/text_format.cc.
  *
  * @author wenboz@google.com Wenbo Zhu
  * @author kenton@google.com Kenton Varda
@@ -36,8 +61,6 @@ public final class TextFormat {
 
   private static final Logger logger = Logger.getLogger(TextFormat.class.getName());
 
-  private static final String DEBUG_STRING_SILENT_MARKER = "\t ";
-
   /**
    * Outputs a textual representation of the Protocol Message supplied into the parameter output.
    * (This representation is the new version of the classic "ProtocolPrinter" output from the
@@ -46,9 +69,6 @@ public final class TextFormat {
    * @deprecated Use {@code printer().print(MessageOrBuilder, Appendable)}
    */
   @Deprecated
-  @InlineMe(
-      replacement = "TextFormat.printer().print(message, output)",
-      imports = "com.google.protobuf.TextFormat")
   public static void print(final MessageOrBuilder message, final Appendable output)
       throws IOException {
     printer().print(message, output);
@@ -71,9 +91,6 @@ public final class TextFormat {
    * @deprecated Use {@code printer().escapingNonAscii(false).print(MessageOrBuilder, Appendable)}
    */
   @Deprecated
-  @InlineMe(
-      replacement = "TextFormat.printer().escapingNonAscii(false).print(message, output)",
-      imports = "com.google.protobuf.TextFormat")
   public static void printUnicode(final MessageOrBuilder message, final Appendable output)
       throws IOException {
     printer().escapingNonAscii(false).print(message, output);
@@ -92,8 +109,8 @@ public final class TextFormat {
 
   /**
    * Generates a human readable form of this message, useful for debugging and other purposes, with
-   * no newline characters. This is just a trivial wrapper around {@link
-   * TextFormat.Printer#shortDebugString(MessageOrBuilder)}.
+   * no newline characters. This is just a trivial wrapper around
+   * {@link TextFormat.Printer#shortDebugString(MessageOrBuilder)}.
    */
   public static String shortDebugString(final MessageOrBuilder message) {
     return printer().shortDebugString(message);
@@ -109,7 +126,7 @@ public final class TextFormat {
   public static String shortDebugString(final FieldDescriptor field, final Object value) {
     return printer().shortDebugString(field, value);
   }
-
+  //
   /**
    * Generates a human readable form of the unknown fields, useful for debugging and other
    * purposes, with no newline characters.
@@ -127,9 +144,6 @@ public final class TextFormat {
    * @deprecated Use {@code message.toString()}
    */
   @Deprecated
-  @InlineMe(
-      replacement = "TextFormat.printer().printToString(message)",
-      imports = "com.google.protobuf.TextFormat")
   public static String printToString(final MessageOrBuilder message) {
     return printer().printToString(message);
   }
@@ -151,9 +165,6 @@ public final class TextFormat {
    * @deprecated Use {@code printer().escapingNonAscii(false).printToString(MessageOrBuilder)}
    */
   @Deprecated
-  @InlineMe(
-      replacement = "TextFormat.printer().escapingNonAscii(false).printToString(message)",
-      imports = "com.google.protobuf.TextFormat")
   public static String printToUnicodeString(final MessageOrBuilder message) {
     return printer().escapingNonAscii(false).printToString(message);
   }
@@ -168,7 +179,7 @@ public final class TextFormat {
   public static String printToUnicodeString(final UnknownFieldSet fields) {
     return printer().escapingNonAscii(false).printToString(fields);
   }
-
+  //
   /** @deprecated Use {@code printer().printField(FieldDescriptor, Object, Appendable)} */
   @Deprecated
   public static void printField(
@@ -176,13 +187,13 @@ public final class TextFormat {
       throws IOException {
     printer().printField(field, value, output);
   }
-
+  //
   /** @deprecated Use {@code printer().printFieldToString(FieldDescriptor, Object)} */
   @Deprecated
   public static String printFieldToString(final FieldDescriptor field, final Object value) {
     return printer().printFieldToString(field, value);
   }
-
+  //
   /**
    * Outputs a unicode textual representation of the value of given field value.
    *
@@ -215,9 +226,6 @@ public final class TextFormat {
    * @throws IOException if there is an exception writing to the output
    */
   @Deprecated
-  @InlineMe(
-      replacement = "TextFormat.printer().printFieldValue(field, value, output)",
-      imports = "com.google.protobuf.TextFormat")
   public static void printFieldValue(
       final FieldDescriptor field, final Object value, final Appendable output) throws IOException {
     printer().printFieldValue(field, value, output);
@@ -435,16 +443,21 @@ public final class TextFormat {
       }
     }
 
-    /** An adapter class that can take a {@link MapEntry} and returns its key and entry. */
+    /**
+     * An adapter class that can take a MapEntry or a MutableMapEntry and returns its key and entry.
+     * This class is created solely for the purpose of sorting map entries by its key and prevent
+     * duplicated logic by having a separate comparator for MapEntry and MutableMapEntry.
+     */
     private static class MapEntryAdapter implements Comparable<MapEntryAdapter> {
       private Object entry;
 
       @SuppressWarnings({"rawtypes"})
       private MapEntry mapEntry;
 
+
       private final FieldDescriptor.JavaType fieldType;
 
-      MapEntryAdapter(Object entry, FieldDescriptor fieldDescriptor) {
+      public MapEntryAdapter(Object entry, FieldDescriptor fieldDescriptor) {
         if (entry instanceof MapEntry) {
           this.mapEntry = (MapEntry) entry;
         } else {
@@ -457,14 +470,14 @@ public final class TextFormat {
         return fieldDescriptor.getMessageType().getFields().get(0).getJavaType();
       }
 
-      Object getKey() {
+      public Object getKey() {
         if (mapEntry != null) {
           return mapEntry.getKey();
         }
         return null;
       }
 
-      Object getEntry() {
+      public Object getEntry() {
         if (mapEntry != null) {
           return mapEntry;
         }
@@ -479,11 +492,11 @@ public final class TextFormat {
         }
         switch (fieldType) {
           case BOOLEAN:
-            return Boolean.valueOf((boolean) getKey()).compareTo((boolean) b.getKey());
+            return Boolean.compare((boolean) getKey(), (boolean) b.getKey());
           case LONG:
-            return Long.valueOf((long) getKey()).compareTo((long) b.getKey());
+            return Long.compare((long) getKey(), (long) b.getKey());
           case INT:
-            return Integer.valueOf((int) getKey()).compareTo((int) b.getKey());
+            return Integer.compare((int) getKey(), (int) b.getKey());
           case STRING:
             String aString = (String) getKey();
             String bString = (String) b.getKey();
@@ -920,15 +933,6 @@ public final class TextFormat {
         Pattern.compile("-?inf(inity)?f?", Pattern.CASE_INSENSITIVE);
     private static final Pattern FLOAT_NAN = Pattern.compile("nanf?", Pattern.CASE_INSENSITIVE);
 
-    /**
-     * {@link containsSilentMarkerAfterCurrentToken} indicates if there is a silent marker after the
-     * current token. This value is moved to {@link containsSilentMarkerAfterPrevToken} every time
-     * the next token is parsed.
-     */
-    private boolean containsSilentMarkerAfterCurrentToken = false;
-
-    private boolean containsSilentMarkerAfterPrevToken = false;
-
     /** Construct a tokenizer that parses tokens from the given text. */
     private Tokenizer(final CharSequence text) {
       this.text = text;
@@ -953,21 +957,13 @@ public final class TextFormat {
       return column;
     }
 
-    boolean getContainsSilentMarkerAfterCurrentToken() {
-      return containsSilentMarkerAfterCurrentToken;
-    }
-
-    boolean getContainsSilentMarkerAfterPrevToken() {
-      return containsSilentMarkerAfterPrevToken;
-    }
-
     /** Are we at the end of the input? */
-    boolean atEnd() {
+    public boolean atEnd() {
       return currentToken.length() == 0;
     }
 
     /** Advance to the next token. */
-    void nextToken() {
+    public void nextToken() {
       previousLine = line;
       previousColumn = column;
 
@@ -1013,7 +1009,7 @@ public final class TextFormat {
      * If the next token exactly matches {@code token}, consume it and return {@code true}.
      * Otherwise, return {@code false} without doing anything.
      */
-    boolean tryConsume(final String token) {
+    public boolean tryConsume(final String token) {
       if (currentToken.equals(token)) {
         nextToken();
         return true;
@@ -1026,14 +1022,14 @@ public final class TextFormat {
      * If the next token exactly matches {@code token}, consume it. Otherwise, throw a {@link
      * ParseException}.
      */
-    void consume(final String token) throws ParseException {
+    public void consume(final String token) throws ParseException {
       if (!tryConsume(token)) {
         throw parseException("Expected \"" + token + "\".");
       }
     }
 
     /** Returns {@code true} if the next token is an integer, but does not consume it. */
-    boolean lookingAtInteger() {
+    public boolean lookingAtInteger() {
       if (currentToken.length() == 0) {
         return false;
       }
@@ -1043,7 +1039,7 @@ public final class TextFormat {
     }
 
     /** Returns {@code true} if the current token's text is equal to that specified. */
-    boolean lookingAt(String text) {
+    public boolean lookingAt(String text) {
       return currentToken.equals(text);
     }
 
@@ -1051,7 +1047,7 @@ public final class TextFormat {
      * If the next token is an identifier, consume it and return its value. Otherwise, throw a
      * {@link ParseException}.
      */
-    String consumeIdentifier() throws ParseException {
+    public String consumeIdentifier() throws ParseException {
       for (int i = 0; i < currentToken.length(); i++) {
         final char c = currentToken.charAt(i);
         if (('a' <= c && c <= 'z')
@@ -1074,7 +1070,7 @@ public final class TextFormat {
      * If the next token is an identifier, consume it and return {@code true}. Otherwise, return
      * {@code false} without doing anything.
      */
-    boolean tryConsumeIdentifier() {
+    public boolean tryConsumeIdentifier() {
       try {
         consumeIdentifier();
         return true;
@@ -1087,7 +1083,7 @@ public final class TextFormat {
      * If the next token is a 32-bit signed integer, consume it and return its value. Otherwise,
      * throw a {@link ParseException}.
      */
-    int consumeInt32() throws ParseException {
+    public int consumeInt32() throws ParseException {
       try {
         final int result = parseInt32(currentToken);
         nextToken();
@@ -1101,7 +1097,7 @@ public final class TextFormat {
      * If the next token is a 32-bit unsigned integer, consume it and return its value. Otherwise,
      * throw a {@link ParseException}.
      */
-    int consumeUInt32() throws ParseException {
+    public int consumeUInt32() throws ParseException {
       try {
         final int result = parseUInt32(currentToken);
         nextToken();
@@ -1115,7 +1111,7 @@ public final class TextFormat {
      * If the next token is a 64-bit signed integer, consume it and return its value. Otherwise,
      * throw a {@link ParseException}.
      */
-    long consumeInt64() throws ParseException {
+    public long consumeInt64() throws ParseException {
       try {
         final long result = parseInt64(currentToken);
         nextToken();
@@ -1129,7 +1125,7 @@ public final class TextFormat {
      * If the next token is a 64-bit signed integer, consume it and return {@code true}. Otherwise,
      * return {@code false} without doing anything.
      */
-    boolean tryConsumeInt64() {
+    public boolean tryConsumeInt64() {
       try {
         consumeInt64();
         return true;
@@ -1142,7 +1138,7 @@ public final class TextFormat {
      * If the next token is a 64-bit unsigned integer, consume it and return its value. Otherwise,
      * throw a {@link ParseException}.
      */
-    long consumeUInt64() throws ParseException {
+    public long consumeUInt64() throws ParseException {
       try {
         final long result = parseUInt64(currentToken);
         nextToken();
@@ -1271,28 +1267,27 @@ public final class TextFormat {
       return consumeByteString().toStringUtf8();
     }
 
+    /** If the next token is a string, consume it and return true. Otherwise, return false. */
+    public boolean tryConsumeString() {
+      try {
+        consumeString();
+        return true;
+      } catch (ParseException e) {
+        return false;
+      }
+    }
+
     /**
      * If the next token is a string, consume it, unescape it as a {@link ByteString}, and return
      * it. Otherwise, throw a {@link ParseException}.
      */
-    @CanIgnoreReturnValue
-    ByteString consumeByteString() throws ParseException {
+    public ByteString consumeByteString() throws ParseException {
       List<ByteString> list = new ArrayList<ByteString>();
       consumeByteString(list);
       while (currentToken.startsWith("'") || currentToken.startsWith("\"")) {
         consumeByteString(list);
       }
       return ByteString.copyFrom(list);
-    }
-
-    /** If the next token is a string, consume it and return true. Otherwise, return false. */
-    boolean tryConsumeByteString() {
-      try {
-        consumeByteString();
-        return true;
-      } catch (ParseException e) {
-        return false;
-      }
     }
 
     /**
@@ -1324,7 +1319,7 @@ public final class TextFormat {
      * Returns a {@link ParseException} with the current line and column numbers in the description,
      * suitable for throwing.
      */
-    ParseException parseException(final String description) {
+    public ParseException parseException(final String description) {
       // Note:  People generally prefer one-based line and column numbers.
       return new ParseException(line + 1, column + 1, description);
     }
@@ -1333,7 +1328,7 @@ public final class TextFormat {
      * Returns a {@link ParseException} with the line and column numbers of the previous token in
      * the description, suitable for throwing.
      */
-    ParseException parseExceptionPreviousToken(final String description) {
+    public ParseException parseExceptionPreviousToken(final String description) {
       // Note:  People generally prefer one-based line and column numbers.
       return new ParseException(previousLine + 1, previousColumn + 1, description);
     }
@@ -1352,6 +1347,17 @@ public final class TextFormat {
      */
     private ParseException floatParseException(final NumberFormatException e) {
       return parseException("Couldn't parse number: " + e.getMessage());
+    }
+
+    /**
+     * Returns a {@link UnknownFieldParseException} with the line and column numbers of the previous
+     * token in the description, and the unknown field name, suitable for throwing.
+     */
+    public UnknownFieldParseException unknownFieldParseExceptionPreviousToken(
+        final String unknownField, final String description) {
+      // Note:  People generally prefer one-based line and column numbers.
+      return new UnknownFieldParseException(
+          previousLine + 1, previousColumn + 1, unknownField, description);
     }
   }
 
@@ -1476,6 +1482,7 @@ public final class TextFormat {
     PARSER.merge(input, extensionRegistry, builder);
   }
 
+
   /**
    * Parse a text-format message from {@code input} and merge the contents into {@code builder}.
    * Extensions will be recognized if they are registered in {@code extensionRegistry}.
@@ -1506,6 +1513,7 @@ public final class TextFormat {
     return output;
   }
 
+
   /**
    * Parser for text-format proto2 instances. This class is thread-safe. The implementation largely
    * follows google/protobuf/text_format.cc.
@@ -1514,28 +1522,15 @@ public final class TextFormat {
    * control the parser behavior.
    */
   public static class Parser {
-
-    /**
-     * A valid silent marker appears between a field name and its value. If there is a ":" in
-     * between, the silent marker will only appear after the colon. This is called after a field
-     * name is parsed, and before the ":" if it exists. If the current token is ":", then
-     * containsSilentMarkerAfterCurrentToken indicates if there is a valid silent marker. Otherwise,
-     * the current token is part of the field value, so the silent marker is indicated by
-     * containsSilentMarkerAfterPrevToken.
-     */
-    private void detectSilentMarker(
-        Tokenizer tokenizer, Descriptor immediateMessageType, String fieldName) {
-    }
-
     /**
      * Determines if repeated values for non-repeated fields and oneofs are permitted. For example,
-     * given required/optional field "foo" and a oneof containing "baz" and "moo":
+     * given required/optional field "foo" and a oneof containing "baz" and "qux":
      *
      * <ul>
      *   <li>"foo: 1 foo: 2"
-     *   <li>"baz: 1 moo: 2"
+     *   <li>"baz: 1 qux: 2"
      *   <li>merging "foo: 2" into a proto in which foo is already set, or
-     *   <li>merging "moo: 2" into a proto in which baz is already set.
+     *   <li>merging "qux: 2" into a proto in which baz is already set.
      * </ul>
      */
     public enum SingularOverwritePolicy {
@@ -1554,7 +1549,6 @@ public final class TextFormat {
     private final boolean allowUnknownExtensions;
     private final SingularOverwritePolicy singularOverwritePolicy;
     private TextFormatParseInfoTree.Builder parseInfoTreeBuilder;
-    private final int recursionLimit;
 
     private Parser(
         TypeRegistry typeRegistry,
@@ -1562,15 +1556,13 @@ public final class TextFormat {
         boolean allowUnknownEnumValues,
         boolean allowUnknownExtensions,
         SingularOverwritePolicy singularOverwritePolicy,
-        TextFormatParseInfoTree.Builder parseInfoTreeBuilder,
-        int recursionLimit) {
+        TextFormatParseInfoTree.Builder parseInfoTreeBuilder) {
       this.typeRegistry = typeRegistry;
       this.allowUnknownFields = allowUnknownFields;
       this.allowUnknownEnumValues = allowUnknownEnumValues;
       this.allowUnknownExtensions = allowUnknownExtensions;
       this.singularOverwritePolicy = singularOverwritePolicy;
       this.parseInfoTreeBuilder = parseInfoTreeBuilder;
-      this.recursionLimit = recursionLimit;
     }
 
     /** Returns a new instance of {@link Builder}. */
@@ -1587,7 +1579,6 @@ public final class TextFormat {
           SingularOverwritePolicy.ALLOW_SINGULAR_OVERWRITES;
       private TextFormatParseInfoTree.Builder parseInfoTreeBuilder = null;
       private TypeRegistry typeRegistry = TypeRegistry.getEmptyTypeRegistry();
-      private int recursionLimit = 100;
 
       /**
        * Sets the TypeRegistry for resolving Any. If this is not set, TextFormat will not be able to
@@ -1605,8 +1596,8 @@ public final class TextFormat {
        * unknown field is encountered. If this is set, the parser will only log a warning. Allow
        * unknown fields will also allow unknown extensions.
        *
-       * <p>Use of this parameter is discouraged which may hide some errors (e.g. spelling error on
-       * field name).
+       * <p>Use of this parameter is discouraged which may hide some errors (e.g.
+       * spelling error on field name).
        */
       public Builder setAllowUnknownFields(boolean allowUnknownFields) {
         this.allowUnknownFields = allowUnknownFields;
@@ -1614,9 +1605,10 @@ public final class TextFormat {
       }
 
       /**
-       * Set whether this parser will allow unknown extensions. By default, an exception is thrown
-       * if unknown extension is encountered. If this is set true, the parser will only log a
-       * warning. Allow unknown extensions does not mean allow normal unknown fields.
+       * Set whether this parser will allow unknown extensions. By default, an
+       * exception is thrown if unknown extension is encountered. If this is set true,
+       * the parser will only log a warning. Allow unknown extensions does not mean
+       * allow normal unknown fields.
        */
       public Builder setAllowUnknownExtensions(boolean allowUnknownExtensions) {
         this.allowUnknownExtensions = allowUnknownExtensions;
@@ -1634,15 +1626,6 @@ public final class TextFormat {
         return this;
       }
 
-      /**
-       * Set the maximum recursion limit that the parser will allow. If the depth of the message
-       * exceeds this limit then the parser will stop and throw an exception.
-       */
-      public Builder setRecursionLimit(int recursionLimit) {
-        this.recursionLimit = recursionLimit;
-        return this;
-      }
-
       public Parser build() {
         return new Parser(
             typeRegistry,
@@ -1650,8 +1633,7 @@ public final class TextFormat {
             allowUnknownEnumValues,
             allowUnknownExtensions,
             singularOverwritePolicy,
-            parseInfoTreeBuilder,
-            recursionLimit);
+            parseInfoTreeBuilder);
       }
     }
 
@@ -1690,9 +1672,10 @@ public final class TextFormat {
       merge(toStringBuilder(input), extensionRegistry, builder);
     }
 
+
     private static final int BUFFER_SIZE = 4096;
 
-    // TODO: See if working around java.io.Reader#read(CharBuffer)
+    // TODO(chrisn): See if working around java.io.Reader#read(CharBuffer)
     // overhead is worthwhile
     private static StringBuilder toStringBuilder(final Readable input) throws IOException {
       final StringBuilder text = new StringBuilder();
@@ -1702,7 +1685,7 @@ public final class TextFormat {
         if (n == -1) {
           break;
         }
-        Java8Compatibility.flip(buffer);
+        buffer.flip();
         text.append(buffer, 0, n);
       }
       return text;
@@ -1710,8 +1693,7 @@ public final class TextFormat {
 
     static final class UnknownField {
       static enum Type {
-        FIELD,
-        EXTENSION;
+        FIELD, EXTENSION;
       }
 
       final String message;
@@ -1772,29 +1754,30 @@ public final class TextFormat {
         throws ParseException {
       final Tokenizer tokenizer = new Tokenizer(input);
       MessageReflection.BuilderAdapter target = new MessageReflection.BuilderAdapter(builder);
+
       List<UnknownField> unknownFields = new ArrayList<UnknownField>();
 
       while (!tokenizer.atEnd()) {
-        mergeField(tokenizer, extensionRegistry, target, unknownFields, recursionLimit);
+        mergeField(tokenizer, extensionRegistry, target, unknownFields);
       }
+
       checkUnknownFields(unknownFields);
     }
+
 
     /** Parse a single field from {@code tokenizer} and merge it into {@code builder}. */
     private void mergeField(
         final Tokenizer tokenizer,
         final ExtensionRegistry extensionRegistry,
         final MessageReflection.MergeTarget target,
-        List<UnknownField> unknownFields,
-        int recursionLimit)
+        List<UnknownField> unknownFields)
         throws ParseException {
       mergeField(
           tokenizer,
           extensionRegistry,
           target,
           parseInfoTreeBuilder,
-          unknownFields,
-          recursionLimit);
+          unknownFields);
     }
 
     /** Parse a single field from {@code tokenizer} and merge it into {@code target}. */
@@ -1803,41 +1786,29 @@ public final class TextFormat {
         final ExtensionRegistry extensionRegistry,
         final MessageReflection.MergeTarget target,
         TextFormatParseInfoTree.Builder parseTreeBuilder,
-        List<UnknownField> unknownFields,
-        int recursionLimit)
+        List<UnknownField> unknownFields)
         throws ParseException {
       FieldDescriptor field = null;
-      String name;
       int startLine = tokenizer.getLine();
       int startColumn = tokenizer.getColumn();
       final Descriptor type = target.getDescriptorForType();
       ExtensionRegistry.ExtensionInfo extension = null;
 
       if ("google.protobuf.Any".equals(type.getFullName()) && tokenizer.tryConsume("[")) {
-        if (recursionLimit < 1) {
-          throw tokenizer.parseException("Message is nested too deep");
-        }
-        mergeAnyFieldValue(
-            tokenizer,
-            extensionRegistry,
-            target,
-            parseTreeBuilder,
-            unknownFields,
-            type,
-            recursionLimit - 1);
+        mergeAnyFieldValue(tokenizer, extensionRegistry, target, parseTreeBuilder, unknownFields,
+            type);
         return;
       }
 
       if (tokenizer.tryConsume("[")) {
         // An extension.
-        StringBuilder nameBuilder = new StringBuilder(tokenizer.consumeIdentifier());
+        final StringBuilder name = new StringBuilder(tokenizer.consumeIdentifier());
         while (tokenizer.tryConsume(".")) {
-          nameBuilder.append('.');
-          nameBuilder.append(tokenizer.consumeIdentifier());
+          name.append('.');
+          name.append(tokenizer.consumeIdentifier());
         }
-        name = nameBuilder.toString();
 
-        extension = target.findExtensionByName(extensionRegistry, name);
+        extension = target.findExtensionByName(extensionRegistry, name.toString());
 
         if (extension == null) {
           String message =
@@ -1864,7 +1835,7 @@ public final class TextFormat {
 
         tokenizer.consume("]");
       } else {
-        name = tokenizer.consumeIdentifier();
+        final String name = tokenizer.consumeIdentifier();
         field = type.findFieldByName(name);
 
         // Group names are expected to be capitalized as they appear in the
@@ -1888,28 +1859,35 @@ public final class TextFormat {
         }
 
         if (field == null) {
-          String message =
-              (tokenizer.getPreviousLine() + 1)
-                  + ":"
-                  + (tokenizer.getPreviousColumn() + 1)
-                  + ":\t"
-                  + type.getFullName()
-                  + "."
-                  + name;
+          String message = (tokenizer.getPreviousLine() + 1)
+                           + ":"
+                           + (tokenizer.getPreviousColumn() + 1)
+                           + ":\t"
+                           + type.getFullName()
+                           + "."
+                           + name;
           unknownFields.add(new UnknownField(message, UnknownField.Type.FIELD));
         }
       }
 
       // Skips unknown fields.
       if (field == null) {
-        detectSilentMarker(tokenizer, type, name);
-        guessFieldTypeAndSkip(tokenizer, type, recursionLimit);
+        // Try to guess the type of this field.
+        // If this field is not a message, there should be a ":" between the
+        // field name and the field value and also the field value should not
+        // start with "{" or "<" which indicates the beginning of a message body.
+        // If there is no ":" or there is a "{" or "<" after ":", this field has
+        // to be a message or the input is ill-formed.
+        if (tokenizer.tryConsume(":") && !tokenizer.lookingAt("{") && !tokenizer.lookingAt("<")) {
+          skipFieldValue(tokenizer);
+        } else {
+          skipFieldMessage(tokenizer);
+        }
         return;
       }
 
       // Handle potential ':'.
       if (field.getJavaType() == FieldDescriptor.JavaType.MESSAGE) {
-        detectSilentMarker(tokenizer, type, field.getFullName());
         tokenizer.tryConsume(":"); // optional
         if (parseTreeBuilder != null) {
           TextFormatParseInfoTree.Builder childParseTreeBuilder =
@@ -1921,8 +1899,7 @@ public final class TextFormat {
               field,
               extension,
               childParseTreeBuilder,
-              unknownFields,
-              recursionLimit);
+              unknownFields);
         } else {
           consumeFieldValues(
               tokenizer,
@@ -1931,11 +1908,9 @@ public final class TextFormat {
               field,
               extension,
               parseTreeBuilder,
-              unknownFields,
-              recursionLimit);
+              unknownFields);
         }
       } else {
-        detectSilentMarker(tokenizer, type, field.getFullName());
         tokenizer.consume(":"); // required
         consumeFieldValues(
             tokenizer,
@@ -1944,8 +1919,7 @@ public final class TextFormat {
             field,
             extension,
             parseTreeBuilder,
-            unknownFields,
-            recursionLimit);
+            unknownFields);
       }
 
       if (parseTreeBuilder != null) {
@@ -1959,29 +1933,6 @@ public final class TextFormat {
       }
     }
 
-    private String consumeFullTypeName(Tokenizer tokenizer) throws ParseException {
-      // If there is not a leading `[`, this is just a type name.
-      if (!tokenizer.tryConsume("[")) {
-        return tokenizer.consumeIdentifier();
-      }
-
-      // Otherwise, this is an extension or google.protobuf.Any type URL: we consume proto path
-      // elements until we've addressed the type.
-      String name = tokenizer.consumeIdentifier();
-      while (tokenizer.tryConsume(".")) {
-        name += "." + tokenizer.consumeIdentifier();
-      }
-      if (tokenizer.tryConsume("/")) {
-        name += "/" + tokenizer.consumeIdentifier();
-        while (tokenizer.tryConsume(".")) {
-          name += "." + tokenizer.consumeIdentifier();
-        }
-      }
-      tokenizer.consume("]");
-
-      return name;
-    }
-
     /**
      * Parse a one or more field values from {@code tokenizer} and merge it into {@code builder}.
      */
@@ -1992,8 +1943,7 @@ public final class TextFormat {
         final FieldDescriptor field,
         final ExtensionRegistry.ExtensionInfo extension,
         final TextFormatParseInfoTree.Builder parseTreeBuilder,
-        List<UnknownField> unknownFields,
-        int recursionLimit)
+        List<UnknownField> unknownFields)
         throws ParseException {
       // Support specifying repeated field values as a comma-separated list.
       // Ex."foo: [1, 2, 3]"
@@ -2007,8 +1957,7 @@ public final class TextFormat {
                 field,
                 extension,
                 parseTreeBuilder,
-                unknownFields,
-                recursionLimit);
+                unknownFields);
             if (tokenizer.tryConsume("]")) {
               // End of list.
               break;
@@ -2024,8 +1973,7 @@ public final class TextFormat {
             field,
             extension,
             parseTreeBuilder,
-            unknownFields,
-            recursionLimit);
+            unknownFields);
       }
     }
 
@@ -2037,8 +1985,7 @@ public final class TextFormat {
         final FieldDescriptor field,
         final ExtensionRegistry.ExtensionInfo extension,
         final TextFormatParseInfoTree.Builder parseTreeBuilder,
-        List<UnknownField> unknownFields,
-        int recursionLimit)
+        List<UnknownField> unknownFields)
         throws ParseException {
       if (singularOverwritePolicy == SingularOverwritePolicy.FORBID_SINGULAR_OVERWRITES
           && !field.isRepeated()) {
@@ -2062,10 +2009,6 @@ public final class TextFormat {
       Object value = null;
 
       if (field.getJavaType() == FieldDescriptor.JavaType.MESSAGE) {
-        if (recursionLimit < 1) {
-          throw tokenizer.parseException("Message is nested too deep");
-        }
-
         final String endToken;
         if (tokenizer.tryConsume("<")) {
           endToken = ">";
@@ -2074,24 +2017,32 @@ public final class TextFormat {
           endToken = "}";
         }
 
-        Message defaultInstance = (extension == null) ? null : extension.defaultInstance;
-        MessageReflection.MergeTarget subField =
-            target.newMergeTargetForField(field, defaultInstance);
+        // Try to parse human readable format of Any in the form: [type_url]: { ... }
+        if (field.getMessageType().getFullName().equals("google.protobuf.Any")
+            && tokenizer.tryConsume("[")) {
+          // Use Proto reflection here since depending on Any would intoduce a cyclic dependency
+          // (java_proto_library for any_java_proto depends on the protobuf_impl).
+          Message anyBuilder = DynamicMessage.getDefaultInstance(field.getMessageType());
+          MessageReflection.MergeTarget anyField = target.newMergeTargetForField(field, anyBuilder);
+          mergeAnyFieldValue(tokenizer, extensionRegistry, anyField, parseTreeBuilder,
+              unknownFields, field.getMessageType());
+          value = anyField.finish();
+          tokenizer.consume(endToken);
+        } else {
+          Message defaultInstance = (extension == null) ? null : extension.defaultInstance;
+          MessageReflection.MergeTarget subField =
+              target.newMergeTargetForField(field, defaultInstance);
 
-        while (!tokenizer.tryConsume(endToken)) {
-          if (tokenizer.atEnd()) {
-            throw tokenizer.parseException("Expected \"" + endToken + "\".");
+          while (!tokenizer.tryConsume(endToken)) {
+            if (tokenizer.atEnd()) {
+              throw tokenizer.parseException("Expected \"" + endToken + "\".");
+            }
+            mergeField(tokenizer, extensionRegistry, subField, parseTreeBuilder, unknownFields);
           }
-          mergeField(
-              tokenizer,
-              extensionRegistry,
-              subField,
-              parseTreeBuilder,
-              unknownFields,
-              recursionLimit - 1);
+
+          value = subField.finish();
         }
 
-        value = subField.finish();
       } else {
         switch (field.getType()) {
           case INT32:
@@ -2189,7 +2140,7 @@ public final class TextFormat {
       }
 
       if (field.isRepeated()) {
-        // TODO: If field.isMapField() and FORBID_SINGULAR_OVERWRITES mode,
+        // TODO(b/29122459): If field.isMapField() and FORBID_SINGULAR_OVERWRITES mode,
         //     check for duplicate map keys here.
         target.addRepeatedField(field, value);
       } else {
@@ -2203,8 +2154,7 @@ public final class TextFormat {
         MergeTarget target,
         final TextFormatParseInfoTree.Builder parseTreeBuilder,
         List<UnknownField> unknownFields,
-        Descriptor anyDescriptor,
-        int recursionLimit)
+        Descriptor anyDescriptor)
         throws ParseException {
       // Try to parse human readable format of Any in the form: [type_url]: { ... }
       StringBuilder typeUrlBuilder = new StringBuilder();
@@ -2222,7 +2172,6 @@ public final class TextFormat {
           throw tokenizer.parseExceptionPreviousToken("Expected a valid type URL.");
         }
       }
-      detectSilentMarker(tokenizer, anyDescriptor, typeUrlBuilder.toString());
       tokenizer.tryConsume(":");
       final String anyEndToken;
       if (tokenizer.tryConsume("<")) {
@@ -2250,13 +2199,7 @@ public final class TextFormat {
       MessageReflection.BuilderAdapter contentTarget =
           new MessageReflection.BuilderAdapter(contentBuilder);
       while (!tokenizer.tryConsume(anyEndToken)) {
-        mergeField(
-            tokenizer,
-            extensionRegistry,
-            contentTarget,
-            parseTreeBuilder,
-            unknownFields,
-            recursionLimit);
+        mergeField(tokenizer, extensionRegistry, contentTarget, parseTreeBuilder, unknownFields);
       }
 
       target.setField(anyDescriptor.findFieldByName("type_url"), typeUrlBuilder.toString());
@@ -2265,12 +2208,28 @@ public final class TextFormat {
     }
 
     /** Skips the next field including the field's name and value. */
-    private void skipField(Tokenizer tokenizer, Descriptor type, int recursionLimit)
-        throws ParseException {
-      String name = consumeFullTypeName(tokenizer);
-      detectSilentMarker(tokenizer, type, name);
-      guessFieldTypeAndSkip(tokenizer, type, recursionLimit);
+    private static void skipField(Tokenizer tokenizer) throws ParseException {
+      if (tokenizer.tryConsume("[")) {
+        // Extension name.
+        do {
+          tokenizer.consumeIdentifier();
+        } while (tokenizer.tryConsume("."));
+        tokenizer.consume("]");
+      } else {
+        tokenizer.consumeIdentifier();
+      }
 
+      // Try to guess the type of this field.
+      // If this field is not a message, there should be a ":" between the
+      // field name and the field value and also the field value should not
+      // start with "{" or "<" which indicates the beginning of a message body.
+      // If there is no ":" or there is a "{" or "<" after ":", this field has
+      // to be a message or the input is ill-formed.
+      if (tokenizer.tryConsume(":") && !tokenizer.lookingAt("<") && !tokenizer.lookingAt("{")) {
+        skipFieldValue(tokenizer);
+      } else {
+        skipFieldMessage(tokenizer);
+      }
       // For historical reasons, fields may optionally be separated by commas or
       // semicolons.
       if (!tokenizer.tryConsume(";")) {
@@ -2281,8 +2240,7 @@ public final class TextFormat {
     /**
      * Skips the whole body of a message including the beginning delimiter and the ending delimiter.
      */
-    private void skipFieldMessage(Tokenizer tokenizer, Descriptor type, int recursionLimit)
-        throws ParseException {
+    private static void skipFieldMessage(Tokenizer tokenizer) throws ParseException {
       final String delimiter;
       if (tokenizer.tryConsume("<")) {
         delimiter = ">";
@@ -2291,80 +2249,23 @@ public final class TextFormat {
         delimiter = "}";
       }
       while (!tokenizer.lookingAt(">") && !tokenizer.lookingAt("}")) {
-        skipField(tokenizer, type, recursionLimit);
+        skipField(tokenizer);
       }
       tokenizer.consume(delimiter);
     }
 
     /** Skips a field value. */
-    private void skipFieldValue(Tokenizer tokenizer) throws ParseException {
-      if (!tokenizer.tryConsumeByteString()
-          && !tokenizer.tryConsumeIdentifier() // includes enum & boolean
+    private static void skipFieldValue(Tokenizer tokenizer) throws ParseException {
+      if (tokenizer.tryConsumeString()) {
+        while (tokenizer.tryConsumeString()) {}
+        return;
+      }
+      if (!tokenizer.tryConsumeIdentifier() // includes enum & boolean
           && !tokenizer.tryConsumeInt64() // includes int32
           && !tokenizer.tryConsumeUInt64() // includes uint32
           && !tokenizer.tryConsumeDouble()
           && !tokenizer.tryConsumeFloat()) {
         throw tokenizer.parseException("Invalid field value: " + tokenizer.currentToken);
-      }
-    }
-
-    /**
-     * Tries to guess the type of this field and skip it.
-     *
-     * <p>If this field is not a message, there should be a ":" between the field name and the field
-     * value and also the field value should not start with "{" or "<" which indicates the beginning
-     * of a message body. If there is no ":" or there is a "{" or "<" after ":", this field has to
-     * be a message or the input is ill-formed. For short-formed repeated fields (i.e. with "[]"),
-     * if it is repeated scalar, there must be a ":" between the field name and the starting "[" .
-     */
-    private void guessFieldTypeAndSkip(Tokenizer tokenizer, Descriptor type, int recursionLimit)
-        throws ParseException {
-      boolean semicolonConsumed = tokenizer.tryConsume(":");
-      if (tokenizer.lookingAt("[")) {
-        // Short repeated field form. If a semicolon was consumed, it could be repeated scalar or
-        // repeated message. If not, it must be repeated message.
-        skipFieldShortFormedRepeated(tokenizer, semicolonConsumed, type, recursionLimit);
-      } else if (semicolonConsumed && !tokenizer.lookingAt("{") && !tokenizer.lookingAt("<")) {
-        skipFieldValue(tokenizer);
-      } else {
-        if (recursionLimit < 1) {
-          throw tokenizer.parseException("Message is nested too deep");
-        }
-        skipFieldMessage(tokenizer, type, recursionLimit - 1);
-      }
-    }
-
-    /**
-     * Skips a short-formed repeated field value.
-     *
-     * <p>Reports an error if scalar type is not allowed but showing up inside "[]".
-     */
-    private void skipFieldShortFormedRepeated(
-        Tokenizer tokenizer, boolean scalarAllowed, Descriptor type, int recursionLimit)
-        throws ParseException {
-      if (!tokenizer.tryConsume("[") || tokenizer.tryConsume("]")) {
-        // Try skipping "[]".
-        return;
-      }
-
-      while (true) {
-        if (tokenizer.lookingAt("{") || tokenizer.lookingAt("<")) {
-          // Try skipping message field inside "[]"
-          if (recursionLimit < 1) {
-            throw tokenizer.parseException("Message is nested too deep");
-          }
-          skipFieldMessage(tokenizer, type, recursionLimit - 1);
-        } else if (scalarAllowed) {
-          // Try skipping scalar field inside "[]".
-          skipFieldValue(tokenizer);
-        } else {
-          throw tokenizer.parseException(
-              "Invalid repeated scalar field: missing \":\" before \"[\".");
-        }
-        if (tokenizer.tryConsume("]")) {
-          break;
-        }
-        tokenizer.consume(",");
       }
     }
   }
@@ -2394,7 +2295,7 @@ public final class TextFormat {
    * Un-escape a byte sequence as escaped using {@link #escapeBytes(ByteString)}. Two-digit hex
    * escapes (starting with "\x") are also recognized.
    */
-  public static ByteString unescapeBytes(CharSequence charString)
+  public static ByteString unescapeBytes(final CharSequence charString)
       throws InvalidEscapeSequenceException {
     // First convert the Java character sequence to UTF-8 bytes.
     ByteString input = ByteString.copyFromUtf8(charString.toString());
@@ -2458,9 +2359,6 @@ public final class TextFormat {
               case '"':
                 result[pos++] = '\"';
                 break;
-              case '?':
-                result[pos++] = '?';
-                break;
 
               case 'x':
                 // hex escape
@@ -2493,12 +2391,11 @@ public final class TextFormat {
                               | digitValue(input.byteAt(i + 1)) << 8
                               | digitValue(input.byteAt(i + 2)) << 4
                               | digitValue(input.byteAt(i + 3)));
-
-                  if (ch >= Character.MIN_SURROGATE && ch <= Character.MAX_SURROGATE) {
+                  if (Character.isSurrogate(ch)) {
                     throw new InvalidEscapeSequenceException(
                         "Invalid escape sequence: '\\u' refers to a surrogate");
                   }
-                  byte[] chUtf8 = Character.toString(ch).getBytes(Internal.UTF_8);
+                  byte[] chUtf8 = Character.toString(ch).getBytes(UTF_8);
                   System.arraycopy(chUtf8, 0, result, pos, chUtf8.length);
                   pos += chUtf8.length;
                   i += 3;
@@ -2531,11 +2428,9 @@ public final class TextFormat {
                           + "' is not a valid code point value");
                 }
                 Character.UnicodeBlock unicodeBlock = Character.UnicodeBlock.of(codepoint);
-                if (unicodeBlock != null
-                    && (unicodeBlock.equals(Character.UnicodeBlock.LOW_SURROGATES)
-                        || unicodeBlock.equals(Character.UnicodeBlock.HIGH_SURROGATES)
-                        || unicodeBlock.equals(
-                            Character.UnicodeBlock.HIGH_PRIVATE_USE_SURROGATES))) {
+                if (unicodeBlock.equals(Character.UnicodeBlock.LOW_SURROGATES)
+                    || unicodeBlock.equals(Character.UnicodeBlock.HIGH_SURROGATES)
+                    || unicodeBlock.equals(Character.UnicodeBlock.HIGH_PRIVATE_USE_SURROGATES)) {
                   throw new InvalidEscapeSequenceException(
                       "Invalid escape sequence: '\\U"
                           + input.substring(i, i + 8).toStringUtf8()
@@ -2543,7 +2438,7 @@ public final class TextFormat {
                 }
                 int[] codepoints = new int[1];
                 codepoints[0] = codepoint;
-                byte[] chUtf8 = new String(codepoints, 0, 1).getBytes(Internal.UTF_8);
+                byte[] chUtf8 = new String(codepoints, 0, 1).getBytes(UTF_8);
                 System.arraycopy(chUtf8, 0, result, pos, chUtf8.length);
                 pos += chUtf8.length;
                 i += 7;

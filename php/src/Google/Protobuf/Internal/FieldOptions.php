@@ -74,20 +74,10 @@ class FieldOptions extends \Google\Protobuf\Internal\Message
      * implementation must either *always* check its required fields, or *never*
      * check its required fields, regardless of whether or not the message has
      * been parsed.
-     * As of May 2022, lazy verifies the contents of the byte stream during
-     * parsing.  An invalid byte stream will cause the overall parsing to fail.
      *
      * Generated from protobuf field <code>optional bool lazy = 5 [default = false];</code>
      */
     protected $lazy = null;
-    /**
-     * unverified_lazy does no correctness checks on the byte stream. This should
-     * only be used where lazy with verification is prohibitive for performance
-     * reasons.
-     *
-     * Generated from protobuf field <code>optional bool unverified_lazy = 15 [default = false];</code>
-     */
-    protected $unverified_lazy = null;
     /**
      * Is this field deprecated?
      * Depending on the target platform, this can emit Deprecated annotations
@@ -163,12 +153,6 @@ class FieldOptions extends \Google\Protobuf\Internal\Message
      *           implementation must either *always* check its required fields, or *never*
      *           check its required fields, regardless of whether or not the message has
      *           been parsed.
-     *           As of May 2022, lazy verifies the contents of the byte stream during
-     *           parsing.  An invalid byte stream will cause the overall parsing to fail.
-     *     @type bool $unverified_lazy
-     *           unverified_lazy does no correctness checks on the byte stream. This should
-     *           only be used where lazy with verification is prohibitive for performance
-     *           reasons.
      *     @type bool $deprecated
      *           Is this field deprecated?
      *           Depending on the target platform, this can emit Deprecated annotations
@@ -176,7 +160,7 @@ class FieldOptions extends \Google\Protobuf\Internal\Message
      *           is a formalization for deprecating fields.
      *     @type bool $weak
      *           For Google-internal migration only. Do not use.
-     *     @type array<\Google\Protobuf\Internal\UninterpretedOption>|\Google\Protobuf\Internal\RepeatedField $uninterpreted_option
+     *     @type \Google\Protobuf\Internal\UninterpretedOption[]|\Google\Protobuf\Internal\RepeatedField $uninterpreted_option
      *           The parser stores options it doesn't recognize here. See above.
      * }
      */
@@ -350,8 +334,6 @@ class FieldOptions extends \Google\Protobuf\Internal\Message
      * implementation must either *always* check its required fields, or *never*
      * check its required fields, regardless of whether or not the message has
      * been parsed.
-     * As of May 2022, lazy verifies the contents of the byte stream during
-     * parsing.  An invalid byte stream will cause the overall parsing to fail.
      *
      * Generated from protobuf field <code>optional bool lazy = 5 [default = false];</code>
      * @return bool
@@ -396,8 +378,6 @@ class FieldOptions extends \Google\Protobuf\Internal\Message
      * implementation must either *always* check its required fields, or *never*
      * check its required fields, regardless of whether or not the message has
      * been parsed.
-     * As of May 2022, lazy verifies the contents of the byte stream during
-     * parsing.  An invalid byte stream will cause the overall parsing to fail.
      *
      * Generated from protobuf field <code>optional bool lazy = 5 [default = false];</code>
      * @param bool $var
@@ -407,46 +387,6 @@ class FieldOptions extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkBool($var);
         $this->lazy = $var;
-
-        return $this;
-    }
-
-    /**
-     * unverified_lazy does no correctness checks on the byte stream. This should
-     * only be used where lazy with verification is prohibitive for performance
-     * reasons.
-     *
-     * Generated from protobuf field <code>optional bool unverified_lazy = 15 [default = false];</code>
-     * @return bool
-     */
-    public function getUnverifiedLazy()
-    {
-        return isset($this->unverified_lazy) ? $this->unverified_lazy : false;
-    }
-
-    public function hasUnverifiedLazy()
-    {
-        return isset($this->unverified_lazy);
-    }
-
-    public function clearUnverifiedLazy()
-    {
-        unset($this->unverified_lazy);
-    }
-
-    /**
-     * unverified_lazy does no correctness checks on the byte stream. This should
-     * only be used where lazy with verification is prohibitive for performance
-     * reasons.
-     *
-     * Generated from protobuf field <code>optional bool unverified_lazy = 15 [default = false];</code>
-     * @param bool $var
-     * @return $this
-     */
-    public function setUnverifiedLazy($var)
-    {
-        GPBUtil::checkBool($var);
-        $this->unverified_lazy = $var;
 
         return $this;
     }
@@ -544,7 +484,7 @@ class FieldOptions extends \Google\Protobuf\Internal\Message
      * The parser stores options it doesn't recognize here. See above.
      *
      * Generated from protobuf field <code>repeated .google.protobuf.UninterpretedOption uninterpreted_option = 999;</code>
-     * @param array<\Google\Protobuf\Internal\UninterpretedOption>|\Google\Protobuf\Internal\RepeatedField $var
+     * @param \Google\Protobuf\Internal\UninterpretedOption[]|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setUninterpretedOption($var)

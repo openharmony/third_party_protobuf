@@ -2,8 +2,6 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
 
 licenses(["notice"])  # BSD/MIT-like license (for zlib)
 
-exports_files(["zlib.BUILD"])
-
 _ZLIB_HEADERS = [
     "crc32.h",
     "deflate.h",
@@ -27,11 +25,7 @@ genrule(
     name = "copy_public_headers",
     srcs = _ZLIB_HEADERS,
     outs = _ZLIB_PREFIXED_HEADERS,
-    cmd_bash = "cp $(SRCS) $(@D)/zlib/include/",
-    cmd_bat = " && ".join(
-        ["@copy /Y $(location %s) $(@D)\\zlib\\include\\  >NUL" %
-         s for s in _ZLIB_HEADERS],
-    ),
+    cmd = "cp $(SRCS) $(@D)/zlib/include/",
 )
 
 cc_library(
@@ -58,9 +52,8 @@ cc_library(
     ] + _ZLIB_HEADERS,
     hdrs = _ZLIB_PREFIXED_HEADERS,
     copts = select({
-        "@platforms//os:windows": [],
+        "@bazel_tools//src/conditions:windows": [],
         "//conditions:default": [
-            "-Wno-deprecated-non-prototype",
             "-Wno-unused-variable",
             "-Wno-implicit-function-declaration",
         ],

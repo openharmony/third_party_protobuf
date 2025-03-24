@@ -1,9 +1,32 @@
 // Protocol Buffers - Google's data interchange format
 // Copyright 2008 Google Inc.  All rights reserved.
+// https://developers.google.com/protocol-buffers/
 //
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file or at
-// https://developers.google.com/open-source/licenses/bsd
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import com.google.protobuf.AbstractMessage;
 import com.google.protobuf.ByteString;
@@ -31,7 +54,7 @@ class ConformanceJava {
     while (len > 0) {
       int read = System.in.read(buf, ofs, len);
       if (read == -1) {
-        return false; // EOF
+        return false;  // EOF
       }
       ofs += read;
       len -= read;
@@ -58,10 +81,10 @@ class ConformanceJava {
 
   private void writeLittleEndianIntToStdout(int val) throws Exception {
     byte[] buf = new byte[4];
-    buf[0] = (byte) val;
-    buf[1] = (byte) (val >> 8);
-    buf[2] = (byte) (val >> 16);
-    buf[3] = (byte) (val >> 24);
+    buf[0] = (byte)val;
+    buf[1] = (byte)(val >> 8);
+    buf[2] = (byte)(val >> 16);
+    buf[3] = (byte)(val >> 24);
     writeToStdout(buf);
   }
 
@@ -75,71 +98,85 @@ class ConformanceJava {
     INPUT_STREAM_DECODER;
   }
 
-  private static class BinaryDecoder<T extends AbstractMessage> {
-    public T decode(
-        ByteString bytes, BinaryDecoderType type, Parser<T> parser, ExtensionRegistry extensions)
-        throws InvalidProtocolBufferException {
+  private static class BinaryDecoder <MessageType extends AbstractMessage> {
+    public MessageType decode (ByteString bytes, BinaryDecoderType type,
+        Parser <MessageType> parser, ExtensionRegistry extensions)
+      throws InvalidProtocolBufferException {
       switch (type) {
         case BTYE_STRING_DECODER:
-        case BYTE_ARRAY_DECODER:
           return parser.parseFrom(bytes, extensions);
-        case ARRAY_BYTE_BUFFER_DECODER:
-          {
-            ByteBuffer buffer = ByteBuffer.allocate(bytes.size());
-            bytes.copyTo(buffer);
-            buffer.flip();
+        case BYTE_ARRAY_DECODER:
+          return parser.parseFrom(bytes.toByteArray(), extensions);
+        case ARRAY_BYTE_BUFFER_DECODER: {
+          ByteBuffer buffer = ByteBuffer.allocate(bytes.size());
+          bytes.copyTo(buffer);
+          buffer.flip();
+          try {
             return parser.parseFrom(CodedInputStream.newInstance(buffer), extensions);
+          } catch (InvalidProtocolBufferException e) {
+            throw e;
           }
-        case READONLY_ARRAY_BYTE_BUFFER_DECODER:
-          {
+        }
+        case READONLY_ARRAY_BYTE_BUFFER_DECODER: {
+          try {
             return parser.parseFrom(
                 CodedInputStream.newInstance(bytes.asReadOnlyByteBuffer()), extensions);
+          } catch (InvalidProtocolBufferException e) {
+            throw e;
           }
-        case DIRECT_BYTE_BUFFER_DECODER:
-          {
-            ByteBuffer buffer = ByteBuffer.allocateDirect(bytes.size());
-            bytes.copyTo(buffer);
-            buffer.flip();
+        }
+        case DIRECT_BYTE_BUFFER_DECODER: {
+          ByteBuffer buffer = ByteBuffer.allocateDirect(bytes.size());
+          bytes.copyTo(buffer);
+          buffer.flip();
+          try {
             return parser.parseFrom(CodedInputStream.newInstance(buffer), extensions);
+          } catch (InvalidProtocolBufferException e) {
+            throw e;
           }
-        case READONLY_DIRECT_BYTE_BUFFER_DECODER:
-          {
-            ByteBuffer buffer = ByteBuffer.allocateDirect(bytes.size());
-            bytes.copyTo(buffer);
-            buffer.flip();
+        }
+        case READONLY_DIRECT_BYTE_BUFFER_DECODER: {
+          ByteBuffer buffer = ByteBuffer.allocateDirect(bytes.size());
+          bytes.copyTo(buffer);
+          buffer.flip();
+          try {
             return parser.parseFrom(
                 CodedInputStream.newInstance(buffer.asReadOnlyBuffer()), extensions);
+          } catch (InvalidProtocolBufferException e) {
+            throw e;
           }
-        case INPUT_STREAM_DECODER:
-          {
+        }
+        case INPUT_STREAM_DECODER: {
+          try {
             return parser.parseFrom(bytes.newInput(), extensions);
+          } catch (InvalidProtocolBufferException e) {
+            throw e;
           }
+        }
+        default :
+          return null;
       }
-      return null;
     }
   }
 
-  private <T extends AbstractMessage> T parseBinary(
-      ByteString bytes, Parser<T> parser, ExtensionRegistry extensions)
+  private <MessageType extends AbstractMessage> MessageType parseBinary(
+      ByteString bytes, Parser <MessageType> parser, ExtensionRegistry extensions)
       throws InvalidProtocolBufferException {
-    ArrayList<T> messages = new ArrayList<>();
-    ArrayList<InvalidProtocolBufferException> exceptions = new ArrayList<>();
+    ArrayList <MessageType> messages = new ArrayList <MessageType> ();
+    ArrayList <InvalidProtocolBufferException> exceptions =
+        new ArrayList <InvalidProtocolBufferException>();
 
     for (int i = 0; i < BinaryDecoderType.values().length; i++) {
       messages.add(null);
       exceptions.add(null);
     }
-    if (messages.isEmpty()) {
-      throw new RuntimeException("binary decoder types missing");
-    }
-
-    BinaryDecoder<T> decoder = new BinaryDecoder<>();
+    BinaryDecoder <MessageType> decoder = new BinaryDecoder <MessageType> ();
 
     boolean hasMessage = false;
     boolean hasException = false;
     for (int i = 0; i < BinaryDecoderType.values().length; ++i) {
       try {
-        // = BinaryDecoderType.values()[i].parseProto3(bytes);
+        //= BinaryDecoderType.values()[i].parseProto3(bytes);
         messages.set(i, decoder.decode(bytes, BinaryDecoderType.values()[i], parser, extensions));
         hasMessage = true;
       } catch (InvalidProtocolBufferException e) {
@@ -165,15 +202,7 @@ class ConformanceJava {
     if (hasException) {
       // We do not check if exceptions are equal. Different implementations may return different
       // exception messages. Throw an arbitrary one out instead.
-      InvalidProtocolBufferException exception = null;
-      for (InvalidProtocolBufferException e : exceptions) {
-        if (exception != null) {
-          exception.addSuppressed(e);
-        } else {
-          exception = e;
-        }
-      }
-      throw exception;
+      throw exceptions.get(0);
     }
 
     // Fast path comparing all the messages with the first message, assuming equality being
@@ -206,147 +235,122 @@ class ConformanceJava {
   }
 
   private Conformance.ConformanceResponse doTest(Conformance.ConformanceRequest request) {
-    AbstractMessage testMessage;
-    String messageType = request.getMessageType();
-    boolean isProto3 = messageType.equals("protobuf_test_messages.proto3.TestAllTypesProto3");
-    boolean isProto2 = messageType.equals("protobuf_test_messages.proto2.TestAllTypesProto2");
+    com.google.protobuf.AbstractMessage testMessage;
+    boolean isProto3 =
+        request.getMessageType().equals("protobuf_test_messages.proto3.TestAllTypesProto3");
+    boolean isProto2 =
+        request.getMessageType().equals("protobuf_test_messages.proto2.TestAllTypesProto2");
 
     switch (request.getPayloadCase()) {
-      case PROTOBUF_PAYLOAD:
-        {
-          if (isProto3) {
-            try {
-              ExtensionRegistry extensions = ExtensionRegistry.newInstance();
-              TestMessagesProto3.registerAllExtensions(extensions);
-              testMessage =
-                  parseBinary(
-                      request.getProtobufPayload(), TestAllTypesProto3.parser(), extensions);
-            } catch (InvalidProtocolBufferException e) {
-              return Conformance.ConformanceResponse.newBuilder()
-                  .setParseError(e.getMessage())
-                  .build();
-            }
-          } else if (isProto2) {
-            try {
-              ExtensionRegistry extensions = ExtensionRegistry.newInstance();
-              TestMessagesProto2.registerAllExtensions(extensions);
-              testMessage =
-                  parseBinary(
-                      request.getProtobufPayload(), TestAllTypesProto2.parser(), extensions);
-            } catch (InvalidProtocolBufferException e) {
-              return Conformance.ConformanceResponse.newBuilder()
-                  .setParseError(e.getMessage())
-                  .build();
-            }
-          } else {
-            throw new IllegalArgumentException(
-                "Protobuf request has unexpected payload type: " + messageType);
-          }
-          break;
-        }
-      case JSON_PAYLOAD:
-        {
+      case PROTOBUF_PAYLOAD: {
+        if (isProto3) {
           try {
-            JsonFormat.Parser parser = JsonFormat.parser().usingTypeRegistry(typeRegistry);
-            if (request.getTestCategory()
-                == Conformance.TestCategory.JSON_IGNORE_UNKNOWN_PARSING_TEST) {
-              parser = parser.ignoringUnknownFields();
-            }
-            if (isProto3) {
-              TestMessagesProto3.TestAllTypesProto3.Builder builder =
-                  TestMessagesProto3.TestAllTypesProto3.newBuilder();
-              parser.merge(request.getJsonPayload(), builder);
-              testMessage = builder.build();
-            } else if (isProto2) {
-              TestMessagesProto2.TestAllTypesProto2.Builder builder =
-                  TestMessagesProto2.TestAllTypesProto2.newBuilder();
-              parser.merge(request.getJsonPayload(), builder);
-              testMessage = builder.build();
-            } else {
-              throw new IllegalArgumentException(
-                  "Protobuf request has unexpected payload type: " + messageType);
-            }
+            ExtensionRegistry extensions = ExtensionRegistry.newInstance();
+            TestMessagesProto3.registerAllExtensions(extensions);
+            testMessage = parseBinary(request.getProtobufPayload(), TestAllTypesProto3.parser(), extensions);
           } catch (InvalidProtocolBufferException e) {
-            return Conformance.ConformanceResponse.newBuilder()
-                .setParseError(e.getMessage())
-                .build();
+            return Conformance.ConformanceResponse.newBuilder().setParseError(e.getMessage()).build();
           }
-          break;
+        } else if (isProto2) {
+          try {
+            ExtensionRegistry extensions = ExtensionRegistry.newInstance();
+            TestMessagesProto2.registerAllExtensions(extensions);
+            testMessage = parseBinary(request.getProtobufPayload(), TestAllTypesProto2.parser(), extensions);
+          } catch (InvalidProtocolBufferException e) {
+            return Conformance.ConformanceResponse.newBuilder().setParseError(e.getMessage()).build();
+          }
+        } else {
+          throw new RuntimeException("Protobuf request doesn't have specific payload type.");
         }
-      case TEXT_PAYLOAD:
-        {
+        break;
+      }
+      case JSON_PAYLOAD: {
+        try {
+          JsonFormat.Parser parser = JsonFormat.parser().usingTypeRegistry(typeRegistry);
+          if (request.getTestCategory()
+              == Conformance.TestCategory.JSON_IGNORE_UNKNOWN_PARSING_TEST) {
+            parser = parser.ignoringUnknownFields();
+          }
           if (isProto3) {
-            try {
-              TestMessagesProto3.TestAllTypesProto3.Builder builder =
-                  TestMessagesProto3.TestAllTypesProto3.newBuilder();
-              TextFormat.merge(request.getTextPayload(), builder);
-              testMessage = builder.build();
-            } catch (TextFormat.ParseException e) {
-              return Conformance.ConformanceResponse.newBuilder()
-                  .setParseError(e.getMessage())
-                  .build();
-            }
+            TestMessagesProto3.TestAllTypesProto3.Builder builder =
+                TestMessagesProto3.TestAllTypesProto3.newBuilder();
+            parser.merge(request.getJsonPayload(), builder);
+            testMessage = builder.build();
           } else if (isProto2) {
-            try {
-              TestMessagesProto2.TestAllTypesProto2.Builder builder =
-                  TestMessagesProto2.TestAllTypesProto2.newBuilder();
-              TextFormat.merge(request.getTextPayload(), builder);
-              testMessage = builder.build();
-            } catch (TextFormat.ParseException e) {
+            TestMessagesProto2.TestAllTypesProto2.Builder builder =
+                TestMessagesProto2.TestAllTypesProto2.newBuilder();
+            parser.merge(request.getJsonPayload(), builder);
+            testMessage = builder.build();
+          } else {
+            throw new RuntimeException("Protobuf request doesn't have specific payload type.");
+          }
+        } catch (InvalidProtocolBufferException e) {
+          return Conformance.ConformanceResponse.newBuilder().setParseError(e.getMessage()).build();
+        }
+        break;
+      }
+      case TEXT_PAYLOAD: {
+        if (isProto3) {
+          try {
+            TestMessagesProto3.TestAllTypesProto3.Builder builder =
+                TestMessagesProto3.TestAllTypesProto3.newBuilder();
+            TextFormat.merge(request.getTextPayload(), builder);
+            testMessage = builder.build();
+          } catch (TextFormat.ParseException e) {
               return Conformance.ConformanceResponse.newBuilder()
                   .setParseError(e.getMessage())
                   .build();
-            }
-          } else {
-            throw new IllegalArgumentException(
-                "Protobuf request has unexpected payload type: " + messageType);
           }
-          break;
+        } else if (isProto2) {
+          try {
+            TestMessagesProto2.TestAllTypesProto2.Builder builder =
+                TestMessagesProto2.TestAllTypesProto2.newBuilder();
+            TextFormat.merge(request.getTextPayload(), builder);
+            testMessage = builder.build();
+          } catch (TextFormat.ParseException e) {
+              return Conformance.ConformanceResponse.newBuilder()
+                  .setParseError(e.getMessage())
+                  .build();
+          }
+        } else {
+          throw new RuntimeException("Protobuf request doesn't have specific payload type.");
         }
-      case PAYLOAD_NOT_SET:
-        {
-          throw new IllegalArgumentException("Request didn't have payload.");
-        }
+        break;
+      }
+      case PAYLOAD_NOT_SET: {
+        throw new RuntimeException("Request didn't have payload.");
+      }
 
-      default:
-        {
-          throw new IllegalArgumentException("Unexpected payload case.");
-        }
+      default: {
+        throw new RuntimeException("Unexpected payload case.");
+      }
     }
 
     switch (request.getRequestedOutputFormat()) {
       case UNSPECIFIED:
-        throw new IllegalArgumentException("Unspecified output format.");
+        throw new RuntimeException("Unspecified output format.");
 
-      case PROTOBUF:
-        {
-          ByteString messageString = testMessage.toByteString();
-          return Conformance.ConformanceResponse.newBuilder()
-              .setProtobufPayload(messageString)
-              .build();
-        }
+      case PROTOBUF: {
+        ByteString MessageString = testMessage.toByteString();
+        return Conformance.ConformanceResponse.newBuilder().setProtobufPayload(MessageString).build();
+      }
 
       case JSON:
         try {
-          return Conformance.ConformanceResponse.newBuilder()
-              .setJsonPayload(
-                  JsonFormat.printer().usingTypeRegistry(typeRegistry).print(testMessage))
-              .build();
+          return Conformance.ConformanceResponse.newBuilder().setJsonPayload(
+              JsonFormat.printer().usingTypeRegistry(typeRegistry).print(testMessage)).build();
         } catch (InvalidProtocolBufferException | IllegalArgumentException e) {
-          return Conformance.ConformanceResponse.newBuilder()
-              .setSerializeError(e.getMessage())
-              .build();
+          return Conformance.ConformanceResponse.newBuilder().setSerializeError(
+              e.getMessage()).build();
         }
 
       case TEXT_FORMAT:
-        return Conformance.ConformanceResponse.newBuilder()
-            .setTextPayload(TextFormat.printer().printToString(testMessage))
-            .build();
+        return Conformance.ConformanceResponse.newBuilder().setTextPayload(
+            TextFormat.printToString(testMessage)).build();
 
-      default:
-        {
-          throw new IllegalArgumentException("Unexpected request output.");
-        }
+      default: {
+        throw new RuntimeException("Unexpected request output.");
+      }
     }
   }
 
@@ -354,7 +358,7 @@ class ConformanceJava {
     int bytes = readLittleEndianIntFromStdin();
 
     if (bytes == -1) {
-      return false; // EOF
+      return false;  // EOF
     }
 
     byte[] serializedInput = new byte[bytes];
@@ -375,16 +379,14 @@ class ConformanceJava {
   }
 
   public void run() throws Exception {
-    typeRegistry =
-        TypeRegistry.newBuilder()
-            .add(TestMessagesProto3.TestAllTypesProto3.getDescriptor())
-            .build();
+    typeRegistry = TypeRegistry.newBuilder().add(
+        TestMessagesProto3.TestAllTypesProto3.getDescriptor()).build();
     while (doTestIo()) {
       this.testCount++;
     }
 
-    System.err.println(
-        "ConformanceJava: received EOF from test runner after " + this.testCount + " tests");
+    System.err.println("ConformanceJava: received EOF from test runner after " +
+        this.testCount + " tests");
   }
 
   public static void main(String[] args) throws Exception {
