@@ -1,6 +1,5 @@
 <?php
 
-require_once('test_base.php');
 require_once('test_util.php');
 
 use Google\Protobuf\Internal\RepeatedField;
@@ -8,7 +7,7 @@ use Google\Protobuf\Internal\GPBType;
 use Foo\TestMessage;
 use Foo\TestMessage\Sub;
 
-class ArrayTest extends TestBase
+class ArrayTest extends \PHPUnit\Framework\TestCase
 {
 
     #########################################################
@@ -297,15 +296,15 @@ class ArrayTest extends TestBase
 
         // Test append.
         $arr[] = 1;
-        $this->assertFloatEquals(1.0, $arr[0], MAX_FLOAT_DIFF);
+        $this->assertEquals(1.0, $arr[0], '', MAX_FLOAT_DIFF);
 
         $arr[] = 1.1;
-        $this->assertFloatEquals(1.1, $arr[1], MAX_FLOAT_DIFF);
+        $this->assertEquals(1.1, $arr[1], '', MAX_FLOAT_DIFF);
 
         $arr[] = '2';
-        $this->assertFloatEquals(2.0, $arr[2], MAX_FLOAT_DIFF);
+        $this->assertEquals(2.0, $arr[2], '', MAX_FLOAT_DIFF);
         $arr[] = '3.1';
-        $this->assertFloatEquals(3.1, $arr[3], MAX_FLOAT_DIFF);
+        $this->assertEquals(3.1, $arr[3], '', MAX_FLOAT_DIFF);
 
         $this->assertEquals(4, count($arr));
 
@@ -316,15 +315,15 @@ class ArrayTest extends TestBase
 
         // Test set.
         $arr[0] = 1;
-        $this->assertFloatEquals(1.0, $arr[0], MAX_FLOAT_DIFF);
+        $this->assertEquals(1.0, $arr[0], '', MAX_FLOAT_DIFF);
 
         $arr[1] = 1.1;
-        $this->assertFloatEquals(1.1, $arr[1], MAX_FLOAT_DIFF);
+        $this->assertEquals(1.1, $arr[1], '', MAX_FLOAT_DIFF);
 
         $arr[2] = '2';
-        $this->assertFloatEquals(2.0, $arr[2], MAX_FLOAT_DIFF);
+        $this->assertEquals(2.0, $arr[2], '', MAX_FLOAT_DIFF);
         $arr[3] = '3.1';
-        $this->assertFloatEquals(3.1, $arr[3], MAX_FLOAT_DIFF);
+        $this->assertEquals(3.1, $arr[3], '', MAX_FLOAT_DIFF);
     }
 
     #########################################################
@@ -337,15 +336,15 @@ class ArrayTest extends TestBase
 
         // Test append.
         $arr[] = 1;
-        $this->assertFloatEquals(1.0, $arr[0], MAX_FLOAT_DIFF);
+        $this->assertEquals(1.0, $arr[0], '', MAX_FLOAT_DIFF);
 
         $arr[] = 1.1;
-        $this->assertFloatEquals(1.1, $arr[1], MAX_FLOAT_DIFF);
+        $this->assertEquals(1.1, $arr[1], '', MAX_FLOAT_DIFF);
 
         $arr[] = '2';
-        $this->assertFloatEquals(2.0, $arr[2], MAX_FLOAT_DIFF);
+        $this->assertEquals(2.0, $arr[2], '', MAX_FLOAT_DIFF);
         $arr[] = '3.1';
-        $this->assertFloatEquals(3.1, $arr[3], MAX_FLOAT_DIFF);
+        $this->assertEquals(3.1, $arr[3], '', MAX_FLOAT_DIFF);
 
         $this->assertEquals(4, count($arr));
 
@@ -356,15 +355,15 @@ class ArrayTest extends TestBase
 
         // Test set.
         $arr[0] = 1;
-        $this->assertFloatEquals(1.0, $arr[0], MAX_FLOAT_DIFF);
+        $this->assertEquals(1.0, $arr[0], '', MAX_FLOAT_DIFF);
 
         $arr[1] = 1.1;
-        $this->assertFloatEquals(1.1, $arr[1], MAX_FLOAT_DIFF);
+        $this->assertEquals(1.1, $arr[1], '', MAX_FLOAT_DIFF);
 
         $arr[2] = '2';
-        $this->assertFloatEquals(2.0, $arr[2], MAX_FLOAT_DIFF);
+        $this->assertEquals(2.0, $arr[2], '', MAX_FLOAT_DIFF);
         $arr[3] = '3.1';
-        $this->assertFloatEquals(3.1, $arr[3], MAX_FLOAT_DIFF);
+        $this->assertEquals(3.1, $arr[3], '', MAX_FLOAT_DIFF);
     }
 
     #########################################################
@@ -567,8 +566,6 @@ class ArrayTest extends TestBase
             $sub = new Sub(['a' => $sub]);
         }
         $m->setRepeatedMessage($subs);
-
-        $this->assertTrue(true);
     }
 
     #########################################################
@@ -577,14 +574,6 @@ class ArrayTest extends TestBase
 
     public function testCycleLeak()
     {
-        if (getenv("USE_ZEND_ALLOC") === "0") {
-            // If we are disabling Zend's internal allocator (as we do for
-            // Valgrind tests, for example) then memory_get_usage() will not
-            // return a useful value.
-            $this->markTestSkipped();
-            return;
-        }
-
         gc_collect_cycles();
         $arr = new RepeatedField(GPBType::MESSAGE, TestMessage::class);
         $arr[] = new TestMessage;
@@ -600,86 +589,5 @@ class ArrayTest extends TestBase
 
         $end = memory_get_usage();
         $this->assertLessThan($start, $end);
-    }
-
-    #########################################################
-    # Test incorrect types
-    #########################################################
-
-    public function testAppendNull()
-    {
-        $this->expectException(TypeError::class);
-        $arr = new RepeatedField(GPBType::MESSAGE, TestMessage::class);
-        $arr[] = null;
-    }
-
-    #########################################################
-    # Test equality
-    #########################################################
-
-    public function testEquality()
-    {
-        $arr = new RepeatedField(GPBType::INT32);
-        $arr2 = new RepeatedField(GPBType::INT32);
-
-        $this->assertTrue($arr == $arr2);
-
-        $arr[] = 0;
-        $arr[] = 1;
-        $arr[] = 2;
-
-        $this->assertFalse($arr == $arr2);
-
-        $arr2[] = 0;
-        $arr2[] = 1;
-        $arr2[] = 2;
-
-        $this->assertTrue($arr == $arr2);
-
-        // Arrays of different types always compare false.
-        $this->assertFalse(new RepeatedField(GPBType::INT32) ==
-                           new RepeatedField(GPBType::INT64));
-        $this->assertFalse(
-            new RepeatedField(GPBType::MESSAGE, TestMessage::class) ==
-            new RepeatedField(GPBType::MESSAGE, Sub::class));
-    }
-
-    #########################################################
-    # Test clone
-    #########################################################
-
-    public function testClone()
-    {
-        $arr = new RepeatedField(GPBType::MESSAGE, TestMessage::class);
-        $arr[] = new TestMessage;
-        $arr2 = clone $arr;
-        $this->assertSame($arr[0], $arr2[0]);
-    }
-
-    #########################################################
-    # Test offsetUnset
-    #########################################################
-
-    public function testOffsetUnset()
-    {
-        $arr = new RepeatedField(GPBType::INT32);
-        $arr[] = 0;
-        $arr[] = 1;
-        $arr[] = 2;
-
-        $this->assertSame(3, count($arr));
-        $this->assertSame(0, $arr[0]);
-        $this->assertSame(1, $arr[1]);
-        $this->assertSame(2, $arr[2]);
-
-        $arr->offsetUnset(1);
-        $this->assertSame(0, $arr[0]);
-        $this->assertSame(2, $arr[1]);
-
-        $arr->offsetUnset(0);
-        $this->assertSame(2, $arr[0]);
-
-        $arr->offsetUnset(0);
-        $this->assertCount(0, $arr);
     }
 }

@@ -1,9 +1,32 @@
 // Protocol Buffers - Google's data interchange format
 // Copyright 2008 Google Inc.  All rights reserved.
+// https://developers.google.com/protocol-buffers/
 //
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file or at
-// https://developers.google.com/open-source/licenses/bsd
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.google.protobuf.util;
 
@@ -23,7 +46,6 @@ import com.google.protobuf.Message;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javax.annotation.Nullable;
 
 /**
  * Utility helper functions to work with {@link com.google.protobuf.FieldMask}.
@@ -39,7 +61,7 @@ public final class FieldMaskUtil {
    * Converts a FieldMask to a string.
    */
   public static String toString(FieldMask fieldMask) {
-    // TODO: Consider using com.google.common.base.Joiner here instead.
+    // TODO(xiaofeng): Consider using com.google.common.base.Joiner here instead.
     StringBuilder result = new StringBuilder();
     boolean first = true;
     for (String value : fieldMask.getPathsList()) {
@@ -61,7 +83,7 @@ public final class FieldMaskUtil {
    * Parses from a string to a FieldMask.
    */
   public static FieldMask fromString(String value) {
-    // TODO: Consider using com.google.common.base.Splitter here instead.
+    // TODO(xiaofeng): Consider using com.google.common.base.Splitter here instead.
     return fromStringList(Arrays.asList(value.split(FIELD_PATH_SEPARATOR_REGEX)));
   }
 
@@ -71,15 +93,16 @@ public final class FieldMaskUtil {
    * @throws IllegalArgumentException if any of the field path is invalid.
    */
   public static FieldMask fromString(Class<? extends Message> type, String value) {
-    // TODO: Consider using com.google.common.base.Splitter here instead.
+    // TODO(xiaofeng): Consider using com.google.common.base.Splitter here instead.
     return fromStringList(type, Arrays.asList(value.split(FIELD_PATH_SEPARATOR_REGEX)));
   }
 
   /**
    * Constructs a FieldMask for a list of field paths in a certain type.
    *
-   * @throws IllegalArgumentException if any of the field path is not valid
+   * @throws IllegalArgumentException if any of the field path is not valid.
    */
+  // TODO(xiaofeng): Consider renaming fromStrings()
   public static FieldMask fromStringList(Class<? extends Message> type, Iterable<String> paths) {
     return fromStringList(Internal.getDefaultInstance(type).getDescriptorForType(), paths);
   }
@@ -207,8 +230,10 @@ public final class FieldMaskUtil {
     return isValid(descriptor, path);
   }
 
-  /** Checks whether paths in a given fields mask are valid. */
-  public static boolean isValid(@Nullable Descriptor descriptor, String path) {
+  /**
+   * Checks whether paths in a given fields mask are valid.
+   */
+  public static boolean isValid(Descriptor descriptor, String path) {
     String[] parts = path.split(FIELD_SEPARATOR_REGEX);
     if (parts.length == 0) {
       return false;
@@ -251,13 +276,7 @@ public final class FieldMaskUtil {
     return maskTree.toFieldMask();
   }
 
-  /**
-   * Subtracts {@code secondMask} and {@code otherMasks} from {@code firstMask}.
-   *
-   * <p>This method disregards proto structure. That is, if {@code firstMask} is "foo" and {@code
-   * secondMask} is "foo.bar", the response will always be "foo" without considering the internal
-   * proto structure of message "foo".
-   */
+  /** Subtracts {@code secondMask} and {@code otherMasks} from {@code firstMask}. */
   public static FieldMask subtract(
       FieldMask firstMask, FieldMask secondMask, FieldMask... otherMasks) {
     FieldMaskTree maskTree = new FieldMaskTree(firstMask).removeFromFieldMask(secondMask);
@@ -285,7 +304,7 @@ public final class FieldMaskUtil {
   public static final class MergeOptions {
     private boolean replaceMessageFields = false;
     private boolean replaceRepeatedFields = false;
-    // TODO: change the default behavior to always replace primitive fields after
+    // TODO(b/28277137): change the default behavior to always replace primitive fields after
     // fixing all failing TAP tests.
     private boolean replacePrimitiveFields = false;
 
@@ -372,15 +391,5 @@ public final class FieldMaskUtil {
    */
   public static void merge(FieldMask mask, Message source, Message.Builder destination) {
     merge(mask, source, destination, new MergeOptions());
-  }
-
-  /**
-   * Returns the result of keeping only the masked fields of the given proto.
-   */
-  @SuppressWarnings("unchecked")
-  public static <P extends Message> P trim(FieldMask mask, P source) {
-   Message.Builder destination = source.newBuilderForType();
-    merge(mask, source, destination);
-    return (P) destination.build();
   }
 }
