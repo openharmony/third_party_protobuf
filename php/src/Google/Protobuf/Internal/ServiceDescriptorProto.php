@@ -37,7 +37,7 @@ class ServiceDescriptorProto extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $name
-     *     @type array<\Google\Protobuf\Internal\MethodDescriptorProto>|\Google\Protobuf\Internal\RepeatedField $method
+     *     @type \Google\Protobuf\Internal\MethodDescriptorProto[]|\Google\Protobuf\Internal\RepeatedField $method
      *     @type \Google\Protobuf\Internal\ServiceOptions $options
      * }
      */
@@ -89,7 +89,7 @@ class ServiceDescriptorProto extends \Google\Protobuf\Internal\Message
 
     /**
      * Generated from protobuf field <code>repeated .google.protobuf.MethodDescriptorProto method = 2;</code>
-     * @param array<\Google\Protobuf\Internal\MethodDescriptorProto>|\Google\Protobuf\Internal\RepeatedField $var
+     * @param \Google\Protobuf\Internal\MethodDescriptorProto[]|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setMethod($var)
@@ -102,11 +102,11 @@ class ServiceDescriptorProto extends \Google\Protobuf\Internal\Message
 
     /**
      * Generated from protobuf field <code>optional .google.protobuf.ServiceOptions options = 3;</code>
-     * @return \Google\Protobuf\Internal\ServiceOptions|null
+     * @return \Google\Protobuf\Internal\ServiceOptions
      */
     public function getOptions()
     {
-        return $this->options;
+        return isset($this->options) ? $this->options : null;
     }
 
     public function hasOptions()
