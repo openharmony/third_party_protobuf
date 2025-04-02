@@ -552,13 +552,14 @@ java_EXTRA_DIST=                                                                
   java/util/src/test/java/com/google/protobuf/util/FieldMaskTreeTest.java          \
   java/util/src/test/java/com/google/protobuf/util/FieldMaskUtilTest.java          \
   java/util/src/test/java/com/google/protobuf/util/JsonFormatTest.java             \
-  java/util/src/test/java/com/google/protobuf/util/StructsTest.java                 \
+  java/util/src/test/java/com/google/protobuf/util/StructsTest.java                \
   java/util/src/test/java/com/google/protobuf/util/TimeUtilTest.java               \
   java/util/src/test/java/com/google/protobuf/util/ValuesTest.java                 \
   java/util/src/test/proto/com/google/protobuf/util/json_test.proto
 
 objectivec_EXTRA_DIST=                                                       \
   objectivec/.clang-format                                                   \
+  objectivec/BUILD                                                           \
   objectivec/DevTools/check_version_stamps.sh                                \
   objectivec/DevTools/compile_testing_protos.sh                              \
   objectivec/DevTools/full_mac_build.sh                                      \
@@ -772,13 +773,11 @@ php_EXTRA_DIST=                                                       \
   php/ext/google/protobuf/arena.h                                     \
   php/ext/google/protobuf/array.c                                     \
   php/ext/google/protobuf/array.h                                     \
-  php/ext/google/protobuf/bundled_php.h                               \
   php/ext/google/protobuf/config.m4                                   \
   php/ext/google/protobuf/convert.c                                   \
   php/ext/google/protobuf/convert.h                                   \
   php/ext/google/protobuf/def.c                                       \
   php/ext/google/protobuf/def.h                                       \
-  php/ext/google/protobuf/make-preload.php                            \
   php/ext/google/protobuf/map.c                                       \
   php/ext/google/protobuf/map.h                                       \
   php/ext/google/protobuf/message.c                                   \
@@ -790,8 +789,10 @@ php_EXTRA_DIST=                                                       \
   php/ext/google/protobuf/php-upb.h                                   \
   php/ext/google/protobuf/protobuf.c                                  \
   php/ext/google/protobuf/protobuf.h                                  \
+  php/ext/google/protobuf/wkt.inc                                     \
   php/generate_descriptor_protos.sh                                   \
   php/phpunit.xml                                                     \
+  php/prepare_c_extension.sh                                          \
   php/release.sh                                                      \
   php/src/GPBMetadata/Google/Protobuf/Any.php                         \
   php/src/GPBMetadata/Google/Protobuf/Api.php                         \
@@ -827,6 +828,7 @@ php_EXTRA_DIST=                                                       \
   php/src/Google/Protobuf/GPBEmpty.php                                \
   php/src/Google/Protobuf/Int32Value.php                              \
   php/src/Google/Protobuf/Int64Value.php                              \
+  php/src/Google/Protobuf/Internal/AnyBase.php                        \
   php/src/Google/Protobuf/Internal/CodedInputStream.php               \
   php/src/Google/Protobuf/Internal/CodedOutputStream.php              \
   php/src/Google/Protobuf/Internal/Descriptor.php                     \
@@ -886,6 +888,7 @@ php_EXTRA_DIST=                                                       \
   php/src/Google/Protobuf/Internal/ServiceOptions.php                 \
   php/src/Google/Protobuf/Internal/SourceCodeInfo.php                 \
   php/src/Google/Protobuf/Internal/SourceCodeInfo/Location.php        \
+  php/src/Google/Protobuf/Internal/TimestampBase.php                  \
   php/src/Google/Protobuf/Internal/UninterpretedOption.php            \
   php/src/Google/Protobuf/Internal/UninterpretedOption/NamePart.php   \
   php/src/Google/Protobuf/Internal/DescriptorProto_ExtensionRange.php \
@@ -1390,6 +1393,8 @@ EXTRA_DIST = $(@DIST_LANG@_EXTRA_DIST)   \
   python/release/wheel/README.md         \
   third_party/six.BUILD                  \
   third_party/zlib.BUILD                 \
+  third_party/wyhash/LICENSE             \
+  third_party/wyhash/wyhash.h            \
   util/python/BUILD
 
 

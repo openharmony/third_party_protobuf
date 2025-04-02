@@ -1,53 +1,50 @@
 // Protocol Buffers - Google's data interchange format
 // Copyright 2008 Google Inc.  All rights reserved.
+// https://developers.google.com/protocol-buffers/
 //
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file or at
-// https://developers.google.com/open-source/licenses/bsd
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.google.protobuf;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import protobuf_unittest.Engine;
-import protobuf_unittest.TimingBelt;
 import protobuf_unittest.Vehicle;
 import protobuf_unittest.Wheel;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import junit.framework.TestCase;
 
 /**
  * Test cases that exercise end-to-end use cases involving {@link SingleFieldBuilder} and {@link
  * RepeatedFieldBuilder}.
+ *
+ * @author jonp@google.com (Jon Perlow)
  */
-@RunWith(JUnit4.class)
-public class NestedBuildersTest {
+public class NestedBuildersTest extends TestCase {
 
-  @Test
-  public void test3LayerPropagationWithIntermediateClear() {
-    Vehicle.Builder vehicleBuilder = Vehicle.newBuilder();
-    vehicleBuilder.getEngineBuilder().getTimingBeltBuilder();
-
-    // This step detaches the TimingBelt.Builder (though it leaves a SingleFieldBuilder in place)
-    vehicleBuilder.getEngineBuilder().clear();
-
-    // These steps build the middle and top level messages, it used to leave the vestigial
-    // TimingBelt.Builder in a state where further changes didn't propagate anymore
-    Object unused = vehicleBuilder.getEngineBuilder().build();
-    unused = vehicleBuilder.build();
-
-    TimingBelt expected = TimingBelt.newBuilder().setNumberOfTeeth(124).build();
-    vehicleBuilder.getEngineBuilder().setTimingBelt(expected);
-    // Testing that b/254158939 is fixed. It used to be that the setTimingBelt call above didn't
-    // propagate a change notification and the call below would return a stale version of the timing
-    // belt.
-    assertThat(vehicleBuilder.getEngine().getTimingBelt()).isEqualTo(expected);
-  }
-
-  @Test
   public void testMessagesAndBuilders() {
     Vehicle.Builder vehicleBuilder = Vehicle.newBuilder();
     vehicleBuilder.addWheelBuilder().setRadius(4).setWidth(1);
@@ -57,13 +54,13 @@ public class NestedBuildersTest {
     vehicleBuilder.getEngineBuilder().setLiters(10);
 
     Vehicle vehicle = vehicleBuilder.build();
-    assertThat(vehicle.getWheelCount()).isEqualTo(4);
+    assertEquals(4, vehicle.getWheelCount());
     for (int i = 0; i < 4; i++) {
       Wheel wheel = vehicle.getWheel(i);
-      assertThat(wheel.getRadius()).isEqualTo(4);
-      assertThat(wheel.getWidth()).isEqualTo(i + 1);
+      assertEquals(4, wheel.getRadius());
+      assertEquals(i + 1, wheel.getWidth());
     }
-    assertThat(vehicle.getEngine().getLiters()).isEqualTo(10);
+    assertEquals(10, vehicle.getEngine().getLiters());
 
     for (int i = 0; i < 4; i++) {
       vehicleBuilder.getWheelBuilder(i).setRadius(5).setWidth(i + 10);
@@ -73,17 +70,16 @@ public class NestedBuildersTest {
     vehicle = vehicleBuilder.build();
     for (int i = 0; i < 4; i++) {
       Wheel wheel = vehicle.getWheel(i);
-      assertThat(wheel.getRadius()).isEqualTo(5);
-      assertThat(wheel.getWidth()).isEqualTo(i + 10);
+      assertEquals(5, wheel.getRadius());
+      assertEquals(i + 10, wheel.getWidth());
     }
-    assertThat(vehicle.getEngine().getLiters()).isEqualTo(20);
-    assertThat(vehicle.hasEngine()).isTrue();
+    assertEquals(20, vehicle.getEngine().getLiters());
+    assertTrue(vehicle.hasEngine());
 
     engineBuilder.setLiters(50);
-    assertThat(vehicleBuilder.getEngine().getLiters()).isEqualTo(50);
+    assertEquals(50, vehicleBuilder.getEngine().getLiters());
   }
 
-  @Test
   public void testMessagesAreCached() {
     Vehicle.Builder vehicleBuilder = Vehicle.newBuilder();
     vehicleBuilder.addWheelBuilder().setRadius(1).setWidth(2);
@@ -94,7 +90,7 @@ public class NestedBuildersTest {
     // Make sure messages are cached.
     List<Wheel> wheels = new ArrayList<Wheel>(vehicleBuilder.getWheelList());
     for (int i = 0; i < wheels.size(); i++) {
-      assertThat(wheels.get(i)).isSameInstanceAs(vehicleBuilder.getWheel(i));
+      assertSame(wheels.get(i), vehicleBuilder.getWheel(i));
     }
 
     // Now get builders and check they didn't change.
@@ -102,7 +98,7 @@ public class NestedBuildersTest {
       vehicleBuilder.getWheel(i);
     }
     for (int i = 0; i < wheels.size(); i++) {
-      assertThat(wheels.get(i)).isSameInstanceAs(vehicleBuilder.getWheel(i));
+      assertSame(wheels.get(i), vehicleBuilder.getWheel(i));
     }
 
     // Change just one
@@ -111,36 +107,33 @@ public class NestedBuildersTest {
     // Now get wheels and check that only that one changed
     for (int i = 0; i < wheels.size(); i++) {
       if (i < 3) {
-        assertThat(wheels.get(i)).isSameInstanceAs(vehicleBuilder.getWheel(i));
+        assertSame(wheels.get(i), vehicleBuilder.getWheel(i));
       } else {
-        assertThat(wheels.get(i)).isNotSameInstanceAs(vehicleBuilder.getWheel(i));
+        assertNotSame(wheels.get(i), vehicleBuilder.getWheel(i));
       }
     }
   }
 
-  @Test
   public void testRemove_WithNestedBuilders() {
     Vehicle.Builder vehicleBuilder = Vehicle.newBuilder();
     vehicleBuilder.addWheelBuilder().setRadius(1).setWidth(1);
     vehicleBuilder.addWheelBuilder().setRadius(2).setWidth(2);
     vehicleBuilder.removeWheel(0);
 
-    assertThat(vehicleBuilder.getWheelCount()).isEqualTo(1);
-    assertThat(vehicleBuilder.getWheel(0).getRadius()).isEqualTo(2);
+    assertEquals(1, vehicleBuilder.getWheelCount());
+    assertEquals(2, vehicleBuilder.getWheel(0).getRadius());
   }
 
-  @Test
   public void testRemove_WithNestedMessages() {
     Vehicle.Builder vehicleBuilder = Vehicle.newBuilder();
     vehicleBuilder.addWheel(Wheel.newBuilder().setRadius(1).setWidth(1));
     vehicleBuilder.addWheel(Wheel.newBuilder().setRadius(2).setWidth(2));
     vehicleBuilder.removeWheel(0);
 
-    assertThat(vehicleBuilder.getWheelCount()).isEqualTo(1);
-    assertThat(vehicleBuilder.getWheel(0).getRadius()).isEqualTo(2);
+    assertEquals(1, vehicleBuilder.getWheelCount());
+    assertEquals(2, vehicleBuilder.getWheel(0).getRadius());
   }
 
-  @Test
   public void testMerge() {
     Vehicle vehicle1 =
         Vehicle.newBuilder()
@@ -150,17 +143,16 @@ public class NestedBuildersTest {
 
     Vehicle vehicle2 = Vehicle.newBuilder().mergeFrom(vehicle1).build();
     // List should be the same -- no allocation
-    assertThat(vehicle1.getWheelList()).isSameInstanceAs(vehicle2.getWheelList());
+    assertSame(vehicle1.getWheelList(), vehicle2.getWheelList());
 
     Vehicle vehicle3 = vehicle1.toBuilder().build();
-    assertThat(vehicle1.getWheelList()).isSameInstanceAs(vehicle3.getWheelList());
+    assertSame(vehicle1.getWheelList(), vehicle3.getWheelList());
   }
 
-  @Test
   public void testGettingBuilderMarksFieldAsHaving() {
     Vehicle.Builder vehicleBuilder = Vehicle.newBuilder();
     vehicleBuilder.getEngineBuilder();
     Vehicle vehicle = vehicleBuilder.buildPartial();
-    assertThat(vehicle.hasEngine()).isTrue();
+    assertTrue(vehicle.hasEngine());
   }
 }

@@ -25,6 +25,7 @@ ohos_shared_library("protobuf_lite") {
   sources = [
     "src/google/protobuf/any_lite.cc",
     "src/google/protobuf/arena.cc",
+    "src/google/protobuf/arenastring.cc",
     "src/google/protobuf/extension_set.cc",
     "src/google/protobuf/generated_enum_util.cc",
     "src/google/protobuf/generated_message_table_driven_lite.cc",
@@ -36,6 +37,7 @@ ohos_shared_library("protobuf_lite") {
     "src/google/protobuf/io/zero_copy_stream.cc",
     "src/google/protobuf/io/zero_copy_stream_impl.cc",
     "src/google/protobuf/io/zero_copy_stream_impl_lite.cc",
+    "src/google/protobuf/map.cc",
     "src/google/protobuf/message_lite.cc",
     "src/google/protobuf/parse_context.cc",
     "src/google/protobuf/repeated_field.cc",
@@ -87,6 +89,7 @@ ohos_static_library("protobuf_lite_static") {
   sources = [
     "src/google/protobuf/any_lite.cc",
     "src/google/protobuf/arena.cc",
+    "src/google/protobuf/arenastring.cc",
     "src/google/protobuf/extension_set.cc",
     "src/google/protobuf/generated_enum_util.cc",
     "src/google/protobuf/generated_message_table_driven_lite.cc",
@@ -98,6 +101,7 @@ ohos_static_library("protobuf_lite_static") {
     "src/google/protobuf/io/zero_copy_stream.cc",
     "src/google/protobuf/io/zero_copy_stream_impl.cc",
     "src/google/protobuf/io/zero_copy_stream_impl_lite.cc",
+    "src/google/protobuf/map.cc",
     "src/google/protobuf/message_lite.cc",
     "src/google/protobuf/parse_context.cc",
     "src/google/protobuf/repeated_field.cc",
@@ -151,6 +155,7 @@ ohos_shared_library("protobuf") {
     "src/google/protobuf/any.cc",
     "src/google/protobuf/any.pb.cc",
     "src/google/protobuf/api.pb.cc",
+    "src/google/protobuf/arenastring.cc",
     "src/google/protobuf/compiler/importer.cc",
     "src/google/protobuf/compiler/parser.cc",
     "src/google/protobuf/descriptor.cc",
@@ -166,6 +171,7 @@ ohos_shared_library("protobuf") {
     "src/google/protobuf/io/gzip_stream.cc",
     "src/google/protobuf/io/printer.cc",
     "src/google/protobuf/io/tokenizer.cc",
+    "src/google/protobuf/map.cc",
     "src/google/protobuf/map_field.cc",
     "src/google/protobuf/message.cc",
     "src/google/protobuf/reflection_ops.cc",
@@ -232,6 +238,7 @@ ohos_static_library("protobuf_static") {
     "src/google/protobuf/any.cc",
     "src/google/protobuf/any.pb.cc",
     "src/google/protobuf/api.pb.cc",
+    "src/google/protobuf/arenastring.cc",
     "src/google/protobuf/compiler/importer.cc",
     "src/google/protobuf/compiler/parser.cc",
     "src/google/protobuf/descriptor.cc",
@@ -247,6 +254,7 @@ ohos_static_library("protobuf_static") {
     "src/google/protobuf/io/gzip_stream.cc",
     "src/google/protobuf/io/printer.cc",
     "src/google/protobuf/io/tokenizer.cc",
+    "src/google/protobuf/map.cc",
     "src/google/protobuf/map_field.cc",
     "src/google/protobuf/message.cc",
     "src/google/protobuf/reflection_ops.cc",
@@ -306,6 +314,7 @@ ohos_static_library("protobuf_static") {
 
 ohos_shared_library("protoc_lib") {
   sources = [
+    "src/google/protobuf/arenastring.cc",
     "src/google/protobuf/compiler/code_generator.cc",
     "src/google/protobuf/compiler/command_line_interface.cc",
     "src/google/protobuf/compiler/cpp/cpp_enum.cc",
@@ -387,6 +396,7 @@ ohos_shared_library("protoc_lib") {
     "src/google/protobuf/compiler/ruby/ruby_generator.cc",
     "src/google/protobuf/compiler/subprocess.cc",
     "src/google/protobuf/compiler/zip_writer.cc",
+    "src/google/protobuf/map.cc",
   ]
   include_dirs = [
     "src/google/protobuf/**/*.h",
@@ -398,6 +408,7 @@ ohos_shared_library("protoc_lib") {
     "-Wno-unused-function",
     "-Wno-unused-private-field",
     "-Wno-deprecated-declarations",
+    "-Wno-inconsistent-missing-override",
   ]
   cflags = [
     "-Wno-sign-compare",
@@ -421,6 +432,7 @@ ohos_shared_library("protoc_lib") {
 
 ohos_static_library("protoc_static_lib") {
   sources = [
+    "src/google/protobuf/arenastring.cc",
     "src/google/protobuf/compiler/code_generator.cc",
     "src/google/protobuf/compiler/command_line_interface.cc",
     "src/google/protobuf/compiler/cpp/cpp_enum.cc",
@@ -502,6 +514,7 @@ ohos_static_library("protoc_static_lib") {
     "src/google/protobuf/compiler/ruby/ruby_generator.cc",
     "src/google/protobuf/compiler/subprocess.cc",
     "src/google/protobuf/compiler/zip_writer.cc",
+    "src/google/protobuf/map.cc",
   ]
   include_dirs = [
     "src/google/protobuf/**/*.h",
@@ -519,6 +532,7 @@ ohos_static_library("protoc_static_lib") {
     "-D HAVE_PTHREAD",
     "-Wno-unused-function",
     "-Wno-deprecated-declarations",
+    "-Wno-inconsistent-missing-override",
   ]
 
   deps = [

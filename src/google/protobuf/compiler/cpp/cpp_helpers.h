@@ -318,8 +318,6 @@ inline bool IsWeak(const FieldDescriptor* field, const Options& options) {
   return false;
 }
 
-bool IsStringInlined(const FieldDescriptor* descriptor, const Options& options);
-
 // For a string field, returns the effective ctype.  If the actual ctype is
 // not supported, returns the default of STRING.
 FieldOptions::CType EffectiveStringCType(const FieldDescriptor* field,
@@ -347,10 +345,14 @@ inline bool IsLazy(const FieldDescriptor* field, const Options& options) {
          !options.opensource_runtime;
 }
 
-// Returns true if "field" is used.
-inline bool IsFieldUsed(const FieldDescriptor* /*field*/,
-                        const Options& /*options*/) {
+inline bool IsFieldUsed(const FieldDescriptor* field, const Options& options) {
   return true;
+}
+
+// Returns true if "field" is stripped.
+inline bool IsFieldStripped(const FieldDescriptor* /*field*/,
+                            const Options& /*options*/) {
+  return false;
 }
 
 // Does the file contain any definitions that need extension_set.h?
@@ -406,14 +408,6 @@ inline bool IsProto2MessageSet(const Descriptor* descriptor,
          descriptor->full_name() == "google.protobuf.bridge.MessageSet";
 }
 
-inline bool IsProto2MessageSetFile(const FileDescriptor* file,
-                                   const Options& options) {
-  return !options.opensource_runtime &&
-         options.enforce_mode != EnforceOptimizeMode::kLiteRuntime &&
-         !options.lite_implicit_weak_fields &&
-         file->name() == "net/proto2/bridge/proto/message_set.proto";
-}
-
 inline bool IsMapEntryMessage(const Descriptor* descriptor) {
   return descriptor->options().map_entry();
 }
@@ -450,25 +444,9 @@ inline bool HasPreservingUnknownEnumSemantics(const FieldDescriptor* field) {
   return field->file()->syntax() == FileDescriptor::SYNTAX_PROTO3;
 }
 
-inline bool SupportsArenas(const FileDescriptor* file) {
-  return file->options().cc_enable_arenas();
-}
-
-inline bool SupportsArenas(const Descriptor* desc) {
-  return SupportsArenas(desc->file());
-}
-
-inline bool SupportsArenas(const FieldDescriptor* field) {
-  return SupportsArenas(field->file());
-}
-
 inline bool IsCrossFileMessage(const FieldDescriptor* field) {
   return field->type() == FieldDescriptor::TYPE_MESSAGE &&
          field->message_type()->file() != field->file();
-}
-
-inline std::string MessageCreateFunction(const Descriptor* d) {
-  return SupportsArenas(d) ? "CreateMessage" : "Create";
 }
 
 inline std::string MakeDefaultName(const FieldDescriptor* field) {

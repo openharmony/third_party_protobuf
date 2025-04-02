@@ -1,15 +1,37 @@
 // Protocol Buffers - Google's data interchange format
 // Copyright 2008 Google Inc.  All rights reserved.
+// https://developers.google.com/protocol-buffers/
 //
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file or at
-// https://developers.google.com/open-source/licenses/bsd
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.google.protobuf;
 
 import static com.google.protobuf.MessageSchema.getMutableUnknownFields;
 
-import com.google.protobuf.GeneratedMessageLite.ExtensionDescriptor;
 import com.google.protobuf.Internal.ProtobufList;
 import java.io.IOException;
 
@@ -21,17 +43,15 @@ import java.io.IOException;
  * IndexOutOfBoundsException and convert it to protobuf's InvalidProtocolBufferException when
  * crossing protobuf public API boundaries.
  */
-@CheckReturnValue
 final class ArrayDecoders {
-
-  private ArrayDecoders() {
-  }
-
   /**
    * A helper used to return multiple values in a Java function. Java doesn't natively support
    * returning multiple values in a function. Creating a new Object to hold the return values will
    * be too expensive. Instead, we pass a Registers instance to functions that want to return
    * multiple values and let the function set the return value in this Registers instance instead.
+   *
+   * <p>TODO(xiaofeng): This could be merged into CodedInputStream or CodedInputStreamReader which
+   * is already being passed through all the parsing routines.
    */
   static final class Registers {
     public int int1;
@@ -263,8 +283,9 @@ final class ArrayDecoders {
     // A group field must has a MessageSchema (the only other subclass of Schema is MessageSetSchema
     // and it can't be used in group fields).
     final MessageSchema messageSchema = (MessageSchema) schema;
+    // It's OK to directly use parseProto2Message since proto3 doesn't have group.
     final int endPosition =
-        messageSchema.parseMessage(msg, data, position, limit, endGroup, registers);
+        messageSchema.parseProto2Message(msg, data, position, limit, endGroup, registers);
     registers.object1 = msg;
     return endPosition;
   }
@@ -551,6 +572,7 @@ final class ArrayDecoders {
   }
 
   /** Decodes a packed sint64 field. Returns the position after all read values. */
+  @SuppressWarnings("unchecked")
   static int decodePackedSInt64List(
       byte[] data, int position, ProtobufList<?> list, Registers registers) throws IOException {
     final LongArrayList output = (LongArrayList) list;
@@ -760,9 +782,7 @@ final class ArrayDecoders {
       return decodeUnknownField(
           tag, data, position, limit, getMutableUnknownFields(message), registers);
     } else  {
-      // TODO: remove the unused variable
-      FieldSet<ExtensionDescriptor> unused =
-          ((GeneratedMessageLite.ExtendableMessage<?, ?>) message).ensureExtensionsAreMutable();
+      ((GeneratedMessageLite.ExtendableMessage<?, ?>) message).ensureExtensionsAreMutable();
       return decodeExtension(
           tag, data, position, limit, (GeneratedMessageLite.ExtendableMessage) message,
           extension, unknownFieldSchema, registers);

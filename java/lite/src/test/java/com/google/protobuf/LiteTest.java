@@ -42,21 +42,13 @@ import com.google.protobuf.UnittestLite.TestAllExtensionsLite;
 import com.google.protobuf.UnittestLite.TestAllTypesLite;
 import com.google.protobuf.UnittestLite.TestAllTypesLite.NestedEnum;
 import com.google.protobuf.UnittestLite.TestAllTypesLite.NestedMessage;
+import com.google.protobuf.UnittestLite.TestAllTypesLite.NestedMessage2;
 import com.google.protobuf.UnittestLite.TestAllTypesLite.OneofFieldCase;
 import com.google.protobuf.UnittestLite.TestAllTypesLite.OptionalGroup;
 import com.google.protobuf.UnittestLite.TestAllTypesLite.RepeatedGroup;
 import com.google.protobuf.UnittestLite.TestAllTypesLiteOrBuilder;
 import com.google.protobuf.UnittestLite.TestHugeFieldNumbersLite;
 import com.google.protobuf.UnittestLite.TestNestedExtensionLite;
-import map_lite_test.MapTestProto.TestMap;
-import map_lite_test.MapTestProto.TestMap.MessageValue;
-import protobuf_unittest.NestedExtensionLite;
-import protobuf_unittest.NonNestedExtensionLite;
-import protobuf_unittest.lite_equals_and_hash.LiteEqualsAndHash.Bar;
-import protobuf_unittest.lite_equals_and_hash.LiteEqualsAndHash.BarPrime;
-import protobuf_unittest.lite_equals_and_hash.LiteEqualsAndHash.Foo;
-import protobuf_unittest.lite_equals_and_hash.LiteEqualsAndHash.TestOneofEquals;
-import protobuf_unittest.lite_equals_and_hash.LiteEqualsAndHash.TestRecursiveOneof;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -68,6 +60,15 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import junit.framework.TestCase;
+import map_lite_test.MapTestProto.TestMap;
+import map_lite_test.MapTestProto.TestMap.MessageValue;
+import protobuf_unittest.NestedExtensionLite;
+import protobuf_unittest.NonNestedExtensionLite;
+import protobuf_unittest.lite_equals_and_hash.LiteEqualsAndHash.Bar;
+import protobuf_unittest.lite_equals_and_hash.LiteEqualsAndHash.BarPrime;
+import protobuf_unittest.lite_equals_and_hash.LiteEqualsAndHash.Foo;
+import protobuf_unittest.lite_equals_and_hash.LiteEqualsAndHash.TestOneofEquals;
+import protobuf_unittest.lite_equals_and_hash.LiteEqualsAndHash.TestRecursiveOneof;
 
 /**
  * Test lite runtime.
@@ -180,16 +181,24 @@ public class LiteTest extends TestCase {
     TestAllExtensionsLite message = TestUtilLite.getAllLiteExtensionsSet();
 
     // Test serialized size is memoized
-    message.memoizedSerializedSize = -1;
+    assertEquals(
+      GeneratedMessageLite.UNINITIALIZED_SERIALIZED_SIZE,
+      message.getMemoizedSerializedSize());
     int size = message.getSerializedSize();
     assertTrue(size > 0);
-    assertEquals(size, message.memoizedSerializedSize);
+    assertEquals(size, message.getMemoizedSerializedSize());
+    message.clearMemoizedSerializedSize();
+    assertEquals(
+      GeneratedMessageLite.UNINITIALIZED_SERIALIZED_SIZE,
+      message.getMemoizedSerializedSize());
 
     // Test hashCode is memoized
-    assertEquals(0, message.memoizedHashCode);
+    assertTrue(message.hashCodeIsNotMemoized());
     int hashCode = message.hashCode();
-    assertTrue(hashCode != 0);
-    assertEquals(hashCode, message.memoizedHashCode);
+    assertFalse(message.hashCodeIsNotMemoized());
+    assertEquals(hashCode, message.getMemoizedHashCode());
+    message.clearMemoizedHashCode();
+    assertTrue(message.hashCodeIsNotMemoized());
 
     // Test isInitialized is memoized
     Field memo = message.getClass().getDeclaredField("memoizedIsInitialized");
@@ -1352,6 +1361,45 @@ public class LiteTest extends TestCase {
     builder.mergeFrom(message.toByteArray());
     NestedMessage result = builder.build();
     assertEquals(message.getSerializedSize() * 2, result.getSerializedSize());
+  }
+
+  public void testMergeFrom_differentFieldsSetWithinOneField() throws Exception {
+    TestAllTypesLite result =
+        TestAllTypesLite.newBuilder()
+            .setOneofNestedMessage(NestedMessage.newBuilder().setBb(2))
+            .mergeFrom(
+                TestAllTypesLite.newBuilder()
+                    .setOneofNestedMessage2(NestedMessage2.newBuilder().setDd(3))
+                    .build())
+            .build();
+
+    assertToStringEquals("oneof_nested_message2 {\n  dd: 3\n}", result);
+  }
+
+  public void testMergeFrom_differentFieldsOfSameTypeSetWithinOneField() throws Exception {
+    TestAllTypesLite result =
+        TestAllTypesLite.newBuilder()
+            .setOneofNestedMessage(NestedMessage.newBuilder().setBb(2))
+            .mergeFrom(
+                TestAllTypesLite.newBuilder()
+                    .setOneofLazyNestedMessage(NestedMessage.newBuilder().setCc(3))
+                    .build())
+            .build();
+
+    assertToStringEquals("oneof_lazy_nested_message {\n  cc: 3\n}", result);
+  }
+
+  public void testMergeFrom_sameFieldSetWithinOneofField() throws Exception {
+    TestAllTypesLite result =
+        TestAllTypesLite.newBuilder()
+            .setOneofNestedMessage(NestedMessage.newBuilder().setBb(2))
+            .mergeFrom(
+                TestAllTypesLite.newBuilder()
+                    .setOneofNestedMessage(NestedMessage.newBuilder().setCc(4))
+                    .build())
+            .build();
+
+    assertToStringEquals("oneof_nested_message {\n  bb: 2\n  cc: 4\n}", result);
   }
 
   public void testToStringDefaultInstance() throws Exception {
