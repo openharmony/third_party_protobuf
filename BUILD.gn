@@ -136,6 +136,9 @@ ohos_static_library("protobuf_lite_static") {
     "-Wno-sign-compare",
     "-Wno-deprecated-declarations",
   ]
+  if (current_os == "ios") {
+    cflags_cc += [ "-faligned-allocation" ]
+  }
   cflags = [
     "-Wno-deprecated-declarations",
     "-Wno-sign-compare",
