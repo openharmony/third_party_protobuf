@@ -136,6 +136,9 @@ ohos_static_library("protobuf_lite_static") {
     "-Wno-sign-compare",
     "-Wno-deprecated-declarations",
   ]
+  if (host_os == "mac" && is_arkui_x) {
+    cflags_cc += [ "-faligned-allocation" ]
+  }
   cflags = [
     "-Wno-deprecated-declarations",
     "-Wno-sign-compare",
@@ -299,6 +302,9 @@ ohos_static_library("protobuf_static") {
     "-Wno-sign-compare",
     "-Wno-deprecated-declarations",
   ]
+  if (host_os == "mac" && is_arkui_x) {
+    cflags_cc += [ "-faligned-allocation" ]
+  }
   cflags = [
     "-Wno-sign-compare",
     "-D HAVE_PTHREAD",
