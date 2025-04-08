@@ -533,6 +533,25 @@
     "google::protobuf::ShutdownProtobufLibrary()";
     "google::protobuf::RepeatedField<unsigned long>::elements() const";
     "google::protobuf::internal::EpsCopyInputStream::SkipFallback(char const*, int)";
+    "google::protobuf::internal::ArenaStringPtr::ClearToEmpty()";
+    "google::protobuf::internal::ArenaStringPtr::Set(google::protobuf::internal::ArenaStringPtr::EmptyDefault, std::__h::basic_string<char, std::__h::char_traits<char>, std::__h::allocator<char>> const&, google::protobuf::Arena*)";
+    "google::protobuf::internal::ArenaStringPtr::Mutable(google::protobuf::internal::ArenaStringPtr::EmptyDefault, google::protobuf::Arena*)";
+    "google::protobuf::internal::EpsCopyInputStream::DoneFallback(int, int)";
+    "google::protobuf::internal::ArenaStringPtr::Set(google::protobuf::internal::ArenaStringPtr::EmptyDefault, std::__h::basic_string<char, std::__h::char_traits<char>, std::__h::allocator<char>>&&, google::protobuf::Arena*)";
+    "google::protobuf::internal::InitProtobufDefaultsSlow()";
+    "google::protobuf::internal::init_protobuf_defaults_state";
+    "google::protobuf::internal::EpsCopyInputStream::Next()";
+    "google::protobuf::internal::ParseAnyTypeUrl(google::protobuf::StringPiece, std::__h::basic_string<char, std::__h::char_traits<char>, std::__h::allocator<char>>*, std::__h::basic_string<char, std::__h::char_traits<char>, std::__h::allocator<char>>*)";
+    "google::protobuf::internal::ParseAnyTypeUrl(google::protobuf::StringPiece, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>*)";
+    "google::protobuf::GeneratedCodeInfo::Clear()";
+    "google::protobuf::GeneratedCodeInfo* google::protobuf::Arena::CreateMaybeMessage<google::protobuf::GeneratedCodeInfo>(google::protobuf::Arena*)";
+    "google::protobuf::GeneratedCodeInfo::_InternalParse(char const*, google::protobuf::internal::ParseContext*)";
+    "google::protobuf::GeneratedCodeInfo::_InternalSerialize(unsigned char*, google::protobuf::io::EpsCopyOutputStream*) const";
+    "google::protobuf::GeneratedCodeInfo::ByteSizeLong() const";
+    "google::protobuf::_GeneratedCodeInfo_default_instance_";
+    "google::protobuf::GeneratedCodeInfo::MergeFrom(google::protobuf::GeneratedCodeInfo const&)";
+    "scc_info_GeneratedCodeInfo_google_2fprotobuf_2fdescriptor_2eproto";
+    "google::protobuf::internal::ArenaStringPtr::Destroy(google::protobuf::internal::ArenaStringPtr::EmptyDefault, google::protobuf::Arena*)";
   };
   local:
     *;

@@ -18,7 +18,12 @@ else
 PTHREAD_DEF =
 endif
 
-PROTOBUF_VERSION = 24:0:0
+PROTOBUF_VERSION = 25:0:0
+PROTOBUF_OPT_FLAG += -Wl,-z,now -fstack-check
+
+if HAVE_COVERAGE
+PROTOBUF_OPT_FLAG += -fprofile-arcs -ftest-coverage
+endif
 
 if GCC
 # Turn on all warnings except for sign comparison (we ignore sign comparison
@@ -68,7 +73,6 @@ nobase_include_HEADERS =                                         \
   google/protobuf/stubs/bytestream.h                             \
   google/protobuf/stubs/casts.h                                  \
   google/protobuf/stubs/common.h                                 \
-  google/protobuf/stubs/fastmem.h                                \
   google/protobuf/stubs/hash.h                                   \
   google/protobuf/stubs/logging.h                                \
   google/protobuf/stubs/macros.h                                 \
@@ -104,7 +108,6 @@ nobase_include_HEADERS =                                         \
   google/protobuf/generated_message_util.h                       \
   google/protobuf/has_bits.h                                     \
   google/protobuf/implicit_weak_message.h                        \
-  google/protobuf/inlined_string_field.h                         \
   google/protobuf/io/io_win32.h                                \
   google/protobuf/map_entry.h                                    \
   google/protobuf/map_entry_lite.h                               \
@@ -202,12 +205,14 @@ libprotobuf_lite_la_SOURCES =                                  \
   google/protobuf/stubs/time.h                                 \
   google/protobuf/any_lite.cc                                  \
   google/protobuf/arena.cc                                     \
+  google/protobuf/arenastring.cc                               \
   google/protobuf/extension_set.cc                             \
   google/protobuf/generated_enum_util.cc                       \
   google/protobuf/generated_message_util.cc                    \
   google/protobuf/generated_message_table_driven_lite.h        \
   google/protobuf/generated_message_table_driven_lite.cc       \
   google/protobuf/implicit_weak_message.cc                     \
+  google/protobuf/map.cc                                       \
   google/protobuf/message_lite.cc                              \
   google/protobuf/parse_context.cc                             \
   google/protobuf/repeated_field.cc                            \

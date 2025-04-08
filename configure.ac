@@ -17,7 +17,7 @@ AC_PREREQ(2.59)
 # In the SVN trunk, the version should always be the next anticipated release
 # version with the "-pre" suffix.  (We used to use "-SNAPSHOT" but this pushed
 # the size of one file name in the dist tarfile over the 99-char limit.)
-AC_INIT([Protocol Buffers],[3.13.0],[protobuf@googlegroups.com],[protobuf])
+AC_INIT([Protocol Buffers],[3.14.0],[protobuf@googlegroups.com],[protobuf])
 
 AM_MAINTAINER_MODE([enable])
 
@@ -71,6 +71,13 @@ AC_ARG_WITH([protoc],
   [AS_HELP_STRING([--with-protoc=COMMAND],
     [use the given protoc command instead of building a new one when building tests (useful for cross-compiling)])],
   [],[with_protoc=no])
+
+AC_ARG_ENABLE([coverage],
+  [AS_HELP_STRING([--enable-coverage],
+    [generate coverage report])],
+  [coverage=yes],[coverage=no])
+
+AM_CONDITIONAL([HAVE_COVERAGE], [test "x$coverage" == "xyes"])
 
 # Checks for programs.
 AC_PROG_CC

@@ -960,7 +960,7 @@ class PROTOBUF_EXPORT EpsCopyOutputStream {
   // buffers to ensure there is no error as of yet.
   uint8* FlushAndResetBuffer(uint8*);
 
-  // The following functions mimick the old CodedOutputStream behavior as close
+  // The following functions mimic the old CodedOutputStream behavior as close
   // as possible. They flush the current state to the stream, behave as
   // the old CodedOutputStream and then return to normal operation.
   bool Skip(int count, uint8** pp);
@@ -1068,13 +1068,7 @@ class PROTOBUF_EXPORT CodedOutputStream {
   // automatically be trimmed when this stream is destroyed; this call is only
   // necessary if the underlying buffer is accessed *before* the stream is
   // destroyed.
-  void Trim() 
-  {
-    if (cur_ != nullptr) {
-      cur_ = impl_.Trim(cur_);
-    }
-  }
-
+  void Trim() { cur_ = impl_.Trim(cur_); }
 
   // Skips a number of bytes, leaving the bytes unmodified in the underlying
   // buffer.  Returns false if an underlying write error occurs.  This is
@@ -1165,7 +1159,7 @@ class PROTOBUF_EXPORT CodedOutputStream {
   // This is identical to WriteVarint32(), but optimized for writing tags.
   // In particular, if the input is a compile-time constant, this method
   // compiles down to a couple instructions.
-  // Always inline because otherwise the aformentioned optimization can't work,
+  // Always inline because otherwise the aforementioned optimization can't work,
   // but GCC by default doesn't want to inline this.
   void WriteTag(uint32 value);
   // Like WriteTag()  but writing directly to the target array.

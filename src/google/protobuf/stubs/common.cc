@@ -50,7 +50,7 @@
 #error "No suitable threading library available."
 #endif
 #if defined(__ANDROID__)
-#include <hilog/log.h>
+#include <android/log.h>
 #endif
 
 #include <google/protobuf/stubs/callback.h>
@@ -96,7 +96,7 @@ void VerifyVersion(int headerVersion,
   }
 }
 
-string VersionString(int version) {
+std::string VersionString(int version) {
   int major = version / 1000000;
   int minor = (version / 1000) % 1000;
   int micro = version % 1000;
@@ -125,9 +125,44 @@ string VersionString(int version) {
 
 namespace internal {
 
+#if defined(__ANDROID__)
+inline void DefaultLogHandler(LogLevel level, const char* filename, int line,
+                              const std::string& message) {
+  if (level < GOOGLE_PROTOBUF_MIN_LOG_LEVEL) {
+    return;
+  }
+  static const char* level_names[] = {"INFO", "WARNING", "ERROR", "FATAL"};
 
+  static const int android_log_levels[] = {
+      ANDROID_LOG_INFO,   // LOG(INFO),
+      ANDROID_LOG_WARN,   // LOG(WARNING)
+      ANDROID_LOG_ERROR,  // LOG(ERROR)
+      ANDROID_LOG_FATAL,  // LOG(FATAL)
+  };
+
+  // Bound the logging level.
+  const int android_log_level = android_log_levels[level];
+  ::std::ostringstream ostr;
+  ostr << "[libprotobuf " << level_names[level] << " " << filename << ":"
+       << line << "] " << message.c_str();
+
+  // Output the log string the Android log at the appropriate level.
+  __android_log_write(android_log_level, "libprotobuf-native",
+                      ostr.str().c_str());
+  // Also output to std::cerr.
+  fprintf(stderr, "%s", ostr.str().c_str());
+  fflush(stderr);
+
+  // Indicate termination if needed.
+  if (android_log_level == ANDROID_LOG_FATAL) {
+    __android_log_write(ANDROID_LOG_FATAL, "libprotobuf-native",
+                        "terminating.\n");
+  }
+}
+
+#else
 void DefaultLogHandler(LogLevel level, const char* filename, int line,
-                       const string& message) {
+                       const std::string& message) {
   if (level < GOOGLE_PROTOBUF_MIN_LOG_LEVEL) {
     return;
   }
@@ -139,17 +174,17 @@ void DefaultLogHandler(LogLevel level, const char* filename, int line,
           level_names[level], filename, line, message.c_str());
   fflush(stderr);  // Needed on MSVC.
 }
-
+#endif
 
 void NullLogHandler(LogLevel /* level */, const char* /* filename */,
-                    int /* line */, const string& /* message */) {
+                    int /* line */, const std::string& /* message */) {
   // Nothing.
 }
 
 static LogHandler* log_handler_ = &DefaultLogHandler;
 static std::atomic<int> log_silencer_count_ = ATOMIC_VAR_INIT(0);
 
-LogMessage& LogMessage::operator<<(const string& value) {
+LogMessage& LogMessage::operator<<(const std::string& value) {
   message_ += value;
   return *this;
 }
@@ -269,7 +304,7 @@ void DoNothing() {}
 //
 // TODO(xiaofeng): PROTOBUF_LITTLE_ENDIAN is unfortunately defined in
 // google/protobuf/io/coded_stream.h and therefore can not be used here.
-// Maybe move that macro definition here in the furture.
+// Maybe move that macro definition here in the future.
 uint32 ghtonl(uint32 x) {
   union {
     uint32 result;
