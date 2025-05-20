@@ -44,7 +44,7 @@
                     "name": "//third_party/protobuf:protobuf"
                 },
                 {
-                    "name": "//third_party/protobuf:protoc($host_toolchain)"
+                    "name": "//third_party/protobuf:protoc"
                 },
                 {
                     "name": "//third_party/protobuf:protoc_lib"
