@@ -1,7 +1,7 @@
 {
     "name": "@ohos/protobuf",
     "description": "Protocol Buffers - Google's data interchange format.",
-    "version": "3.14.0",
+    "version": "3.1",
     "license": "BSD-3-Clause",
     "publishAs": "code-segment",
     "segment": {
@@ -21,7 +21,8 @@
         "ram": "",
         "deps": {
             "components": [
-                "hilog"
+                "hilog",
+                "abseil-cpp"
             ],
             "third_party": []
         },
