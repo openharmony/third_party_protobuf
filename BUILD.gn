@@ -573,4 +573,6 @@ if (current_toolchain == host_toolchain) {
     subsystem_name = "${THIRDPARTY_PROTOBUF_SUBSYS_NAME}"
     part_name = "${THIRDPARTY_PROTOBUF_PART_NAME}"
   }
+} else {
+  group("protoc") {}
 }
