@@ -1,27 +1,45 @@
 // Protocol Buffers - Google's data interchange format
 // Copyright 2008 Google Inc.  All rights reserved.
+// https://developers.google.com/protocol-buffers/
 //
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file or at
-// https://developers.google.com/open-source/licenses/bsd
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.google.protobuf;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import protobuf_unittest.UnittestProto;
 import java.io.IOException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import junit.framework.TestCase;
 
 /**
- * Tests to make sure the lazy conversion of UTF8-encoded byte arrays to strings works
- * correctly.
+ * Tests to make sure the lazy conversion of UTF8-encoded byte arrays to strings works correctly.
+ *
+ * @author jonp@google.com (Jon Perlow)
  */
-@RunWith(JUnit4.class)
-public class LazyStringEndToEndTest {
+public class LazyStringEndToEndTest extends TestCase {
 
   private static final ByteString TEST_ALL_TYPES_SERIALIZED_WITH_ILLEGAL_UTF8 =
       ByteString.copyFrom(
@@ -32,8 +50,9 @@ public class LazyStringEndToEndTest {
 
   private ByteString encodedTestAllTypes;
 
-  @Before
-  public void setUp() throws Exception {
+  @Override
+  protected void setUp() throws Exception {
+    super.setUp();
     this.encodedTestAllTypes =
         UnittestProto.TestAllTypes.newBuilder()
             .setOptionalString("foo")
@@ -44,34 +63,27 @@ public class LazyStringEndToEndTest {
   }
 
   /** Tests that an invalid UTF8 string will roundtrip through a parse and serialization. */
-  @Test
   public void testParseAndSerialize() throws InvalidProtocolBufferException {
     UnittestProto.TestAllTypes tV2 =
-        UnittestProto.TestAllTypes.parseFrom(
-            TEST_ALL_TYPES_SERIALIZED_WITH_ILLEGAL_UTF8,
-            ExtensionRegistryLite.getEmptyRegistry());
+        UnittestProto.TestAllTypes.parseFrom(TEST_ALL_TYPES_SERIALIZED_WITH_ILLEGAL_UTF8);
     ByteString bytes = tV2.toByteString();
-    assertThat(bytes).isEqualTo(TEST_ALL_TYPES_SERIALIZED_WITH_ILLEGAL_UTF8);
+    assertEquals(TEST_ALL_TYPES_SERIALIZED_WITH_ILLEGAL_UTF8, bytes);
 
-    String unused = tV2.getOptionalString();
+    tV2.getOptionalString();
     bytes = tV2.toByteString();
-    assertThat(bytes).isEqualTo(TEST_ALL_TYPES_SERIALIZED_WITH_ILLEGAL_UTF8);
+    assertEquals(TEST_ALL_TYPES_SERIALIZED_WITH_ILLEGAL_UTF8, bytes);
   }
 
-  @Test
   public void testParseAndWrite() throws IOException {
     UnittestProto.TestAllTypes tV2 =
-        UnittestProto.TestAllTypes.parseFrom(
-            TEST_ALL_TYPES_SERIALIZED_WITH_ILLEGAL_UTF8,
-            ExtensionRegistryLite.getEmptyRegistry());
+        UnittestProto.TestAllTypes.parseFrom(TEST_ALL_TYPES_SERIALIZED_WITH_ILLEGAL_UTF8);
     byte[] sink = new byte[TEST_ALL_TYPES_SERIALIZED_WITH_ILLEGAL_UTF8.size()];
     CodedOutputStream outputStream = CodedOutputStream.newInstance(sink);
     tV2.writeTo(outputStream);
     outputStream.flush();
-    assertThat(ByteString.copyFrom(sink)).isEqualTo(TEST_ALL_TYPES_SERIALIZED_WITH_ILLEGAL_UTF8);
+    assertEquals(TEST_ALL_TYPES_SERIALIZED_WITH_ILLEGAL_UTF8, ByteString.copyFrom(sink));
   }
 
-  @Test
   public void testCaching() {
     String a = "a";
     String b = "b";
@@ -84,33 +96,30 @@ public class LazyStringEndToEndTest {
             .build();
 
     // String should be the one we passed it.
-    assertThat(proto.getOptionalString()).isSameInstanceAs(a);
-    assertThat(proto.getRepeatedString(0)).isSameInstanceAs(b);
-    assertThat(proto.getRepeatedString(1)).isSameInstanceAs(c);
+    assertSame(a, proto.getOptionalString());
+    assertSame(b, proto.getRepeatedString(0));
+    assertSame(c, proto.getRepeatedString(1));
 
     // Ensure serialization keeps strings cached.
-    ByteString unused = proto.toByteString();
+    proto.toByteString();
 
     // And now the string should stay cached.
-    assertThat(proto.getOptionalString()).isSameInstanceAs(a);
-    assertThat(proto.getRepeatedString(0)).isSameInstanceAs(b);
-    assertThat(proto.getRepeatedString(1)).isSameInstanceAs(c);
+    assertSame(a, proto.getOptionalString());
+    assertSame(b, proto.getRepeatedString(0));
+    assertSame(c, proto.getRepeatedString(1));
   }
 
-  @Test
   public void testNoStringCachingIfOnlyBytesAccessed() throws Exception {
-    UnittestProto.TestAllTypes proto =
-        UnittestProto.TestAllTypes.parseFrom(
-            encodedTestAllTypes, ExtensionRegistryLite.getEmptyRegistry());
+    UnittestProto.TestAllTypes proto = UnittestProto.TestAllTypes.parseFrom(encodedTestAllTypes);
     ByteString optional = proto.getOptionalStringBytes();
-    assertThat(proto.getOptionalStringBytes()).isSameInstanceAs(optional);
-    assertThat(proto.toBuilder().getOptionalStringBytes()).isSameInstanceAs(optional);
+    assertSame(optional, proto.getOptionalStringBytes());
+    assertSame(optional, proto.toBuilder().getOptionalStringBytes());
 
     ByteString repeated0 = proto.getRepeatedStringBytes(0);
     ByteString repeated1 = proto.getRepeatedStringBytes(1);
-    assertThat(proto.getRepeatedStringBytes(0)).isSameInstanceAs(repeated0);
-    assertThat(proto.getRepeatedStringBytes(1)).isSameInstanceAs(repeated1);
-    assertThat(proto.toBuilder().getRepeatedStringBytes(0)).isSameInstanceAs(repeated0);
-    assertThat(proto.toBuilder().getRepeatedStringBytes(1)).isSameInstanceAs(repeated1);
+    assertSame(repeated0, proto.getRepeatedStringBytes(0));
+    assertSame(repeated1, proto.getRepeatedStringBytes(1));
+    assertSame(repeated0, proto.toBuilder().getRepeatedStringBytes(0));
+    assertSame(repeated1, proto.toBuilder().getRepeatedStringBytes(1));
   }
 }

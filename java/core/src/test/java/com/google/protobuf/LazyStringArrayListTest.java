@@ -1,14 +1,35 @@
 // Protocol Buffers - Google's data interchange format
 // Copyright 2008 Google Inc.  All rights reserved.
+// https://developers.google.com/protocol-buffers/
 //
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file or at
-// https://developers.google.com/open-source/licenses/bsd
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.google.protobuf;
 
-import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
 import static java.util.Arrays.asList;
 
 import java.util.ArrayList;
@@ -16,13 +37,14 @@ import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import junit.framework.TestCase;
 
-/** Tests for {@link LazyStringArrayList}. */
-@RunWith(JUnit4.class)
-public class LazyStringArrayListTest {
+/**
+ * Tests for {@link LazyStringArrayList}.
+ *
+ * @author jonp@google.com (Jon Perlow)
+ */
+public class LazyStringArrayListTest extends TestCase {
 
   private static final String STRING_A = "A";
   private static final String STRING_B = "B";
@@ -32,56 +54,53 @@ public class LazyStringArrayListTest {
   private static final ByteString BYTE_STRING_B = ByteString.copyFromUtf8("B");
   private static final ByteString BYTE_STRING_C = ByteString.copyFromUtf8("C");
 
-  @Test
   public void testJustStrings() {
     LazyStringArrayList list = new LazyStringArrayList();
     list.add(STRING_A);
     list.add(STRING_B);
     list.add(STRING_C);
 
-    assertThat(list).hasSize(3);
-    assertThat(list.get(0)).isSameInstanceAs(STRING_A);
-    assertThat(list.get(1)).isSameInstanceAs(STRING_B);
-    assertThat(list.get(2)).isSameInstanceAs(STRING_C);
+    assertEquals(3, list.size());
+    assertSame(STRING_A, list.get(0));
+    assertSame(STRING_B, list.get(1));
+    assertSame(STRING_C, list.get(2));
 
     list.set(1, STRING_C);
-    assertThat(list.get(1)).isSameInstanceAs(STRING_C);
+    assertSame(STRING_C, list.get(1));
 
     list.remove(1);
-    assertThat(list.get(0)).isSameInstanceAs(STRING_A);
-    assertThat(list.get(1)).isSameInstanceAs(STRING_C);
+    assertSame(STRING_A, list.get(0));
+    assertSame(STRING_C, list.get(1));
 
     List<ByteString> byteStringList = list.asByteStringList();
-    assertThat(byteStringList.get(0)).isEqualTo(BYTE_STRING_A);
-    assertThat(byteStringList.get(1)).isEqualTo(BYTE_STRING_C);
+    assertEquals(BYTE_STRING_A, byteStringList.get(0));
+    assertEquals(BYTE_STRING_C, byteStringList.get(1));
 
     // Underlying list should be transformed.
-    assertThat(byteStringList.get(0)).isSameInstanceAs(list.getByteString(0));
-    assertThat(byteStringList.get(1)).isSameInstanceAs(list.getByteString(1));
+    assertSame(byteStringList.get(0), list.getByteString(0));
+    assertSame(byteStringList.get(1), list.getByteString(1));
   }
 
-  @Test
   public void testJustByteString() {
     LazyStringArrayList list = new LazyStringArrayList();
     list.add(BYTE_STRING_A);
     list.add(BYTE_STRING_B);
     list.add(BYTE_STRING_C);
 
-    assertThat(list).hasSize(3);
-    assertThat(list.getByteString(0)).isSameInstanceAs(BYTE_STRING_A);
-    assertThat(list.getByteString(1)).isSameInstanceAs(BYTE_STRING_B);
-    assertThat(list.getByteString(2)).isSameInstanceAs(BYTE_STRING_C);
+    assertEquals(3, list.size());
+    assertSame(BYTE_STRING_A, list.getByteString(0));
+    assertSame(BYTE_STRING_B, list.getByteString(1));
+    assertSame(BYTE_STRING_C, list.getByteString(2));
 
     list.remove(1);
-    assertThat(list.getByteString(0)).isSameInstanceAs(BYTE_STRING_A);
-    assertThat(list.getByteString(1)).isSameInstanceAs(BYTE_STRING_C);
+    assertSame(BYTE_STRING_A, list.getByteString(0));
+    assertSame(BYTE_STRING_C, list.getByteString(1));
 
     List<ByteString> byteStringList = list.asByteStringList();
-    assertThat(byteStringList.get(0)).isSameInstanceAs(BYTE_STRING_A);
-    assertThat(byteStringList.get(1)).isSameInstanceAs(BYTE_STRING_C);
+    assertSame(BYTE_STRING_A, byteStringList.get(0));
+    assertSame(BYTE_STRING_C, byteStringList.get(1));
   }
 
-  @Test
   public void testConversionBackAndForth() {
     LazyStringArrayList list = new LazyStringArrayList();
     list.add(STRING_A);
@@ -89,34 +108,33 @@ public class LazyStringArrayListTest {
     list.add(BYTE_STRING_C);
 
     // String a should be the same because it was originally a string
-    assertThat(list.get(0)).isSameInstanceAs(STRING_A);
+    assertSame(STRING_A, list.get(0));
 
     // String b and c should be different because the string has to be computed
     // from the ByteString
     String bPrime = list.get(1);
-    assertThat(bPrime).isNotSameInstanceAs(STRING_B);
-    assertThat(bPrime).isEqualTo(STRING_B);
+    assertNotSame(STRING_B, bPrime);
+    assertEquals(STRING_B, bPrime);
     String cPrime = list.get(2);
-    assertThat(cPrime).isNotSameInstanceAs(STRING_C);
-    assertThat(cPrime).isEqualTo(STRING_C);
+    assertNotSame(STRING_C, cPrime);
+    assertEquals(STRING_C, cPrime);
 
     // String c and c should stay the same once cached.
-    assertThat(list.get(1)).isSameInstanceAs(bPrime);
-    assertThat(list.get(2)).isSameInstanceAs(cPrime);
+    assertSame(bPrime, list.get(1));
+    assertSame(cPrime, list.get(2));
 
     // ByteString needs to be computed from string for both a and b
     ByteString aPrimeByteString = list.getByteString(0);
-    assertThat(aPrimeByteString).isEqualTo(BYTE_STRING_A);
+    assertEquals(BYTE_STRING_A, aPrimeByteString);
     ByteString bPrimeByteString = list.getByteString(1);
-    assertThat(bPrimeByteString).isNotSameInstanceAs(BYTE_STRING_B);
-    assertThat(list.getByteString(1)).isEqualTo(BYTE_STRING_B);
+    assertNotSame(BYTE_STRING_B, bPrimeByteString);
+    assertEquals(BYTE_STRING_B, list.getByteString(1));
 
     // Once cached, ByteString should stay cached.
-    assertThat(list.getByteString(0)).isSameInstanceAs(aPrimeByteString);
-    assertThat(list.getByteString(1)).isSameInstanceAs(bPrimeByteString);
+    assertSame(aPrimeByteString, list.getByteString(0));
+    assertSame(bPrimeByteString, list.getByteString(1));
   }
 
-  @Test
   public void testCopyConstructorCopiesByReference() {
     LazyStringArrayList list1 = new LazyStringArrayList();
     list1.add(STRING_A);
@@ -124,27 +142,25 @@ public class LazyStringArrayListTest {
     list1.add(BYTE_STRING_C);
 
     LazyStringArrayList list2 = new LazyStringArrayList(list1);
-    assertThat(list2).hasSize(3);
-    assertThat(list2.get(0)).isSameInstanceAs(STRING_A);
-    assertThat(list2.getByteString(1)).isSameInstanceAs(BYTE_STRING_B);
-    assertThat(list2.getByteString(2)).isSameInstanceAs(BYTE_STRING_C);
+    assertEquals(3, list2.size());
+    assertSame(STRING_A, list2.get(0));
+    assertSame(BYTE_STRING_B, list2.getByteString(1));
+    assertSame(BYTE_STRING_C, list2.getByteString(2));
   }
 
-  @Test
   public void testListCopyConstructor() {
-    List<String> list1 = new ArrayList<>();
+    List<String> list1 = new ArrayList<String>();
     list1.add(STRING_A);
     list1.add(STRING_B);
     list1.add(STRING_C);
 
     LazyStringArrayList list2 = new LazyStringArrayList(list1);
-    assertThat(list2).hasSize(3);
-    assertThat(list2.get(0)).isSameInstanceAs(STRING_A);
-    assertThat(list2.get(1)).isSameInstanceAs(STRING_B);
-    assertThat(list2.get(2)).isSameInstanceAs(STRING_C);
+    assertEquals(3, list2.size());
+    assertSame(STRING_A, list2.get(0));
+    assertSame(STRING_B, list2.get(1));
+    assertSame(STRING_C, list2.get(2));
   }
 
-  @Test
   public void testAddAllCopiesByReferenceIfPossible() {
     LazyStringArrayList list1 = new LazyStringArrayList();
     list1.add(STRING_A);
@@ -154,20 +170,19 @@ public class LazyStringArrayListTest {
     LazyStringArrayList list2 = new LazyStringArrayList();
     list2.addAll(list1);
 
-    assertThat(list2).hasSize(3);
-    assertThat(list2.get(0)).isSameInstanceAs(STRING_A);
-    assertThat(list2.getByteString(1)).isSameInstanceAs(BYTE_STRING_B);
-    assertThat(list2.getByteString(2)).isSameInstanceAs(BYTE_STRING_C);
+    assertEquals(3, list2.size());
+    assertSame(STRING_A, list2.get(0));
+    assertSame(BYTE_STRING_B, list2.getByteString(1));
+    assertSame(BYTE_STRING_C, list2.getByteString(2));
   }
 
-  @Test
   public void testModificationWithIteration() {
     LazyStringArrayList list = new LazyStringArrayList();
     list.addAll(asList(STRING_A, STRING_B, STRING_C));
     Iterator<String> iterator = list.iterator();
-    assertThat(list).hasSize(3);
-    assertThat(list.get(0)).isEqualTo(STRING_A);
-    assertThat(iterator.next()).isSameInstanceAs(STRING_A);
+    assertEquals(3, list.size());
+    assertEquals(STRING_A, list.get(0));
+    assertEquals(STRING_A, iterator.next());
 
     // Does not structurally modify.
     iterator = list.iterator();
@@ -177,7 +192,7 @@ public class LazyStringArrayListTest {
     list.remove(0);
     try {
       iterator.next();
-      assertWithMessage("expected exception").fail();;
+      fail();
     } catch (ConcurrentModificationException e) {
       // expected
     }
@@ -186,13 +201,12 @@ public class LazyStringArrayListTest {
     list.add(0, STRING_C);
     try {
       iterator.next();
-      assertWithMessage("expected exception").fail();;
+      fail();
     } catch (ConcurrentModificationException e) {
       // expected
     }
   }
 
-  @Test
   public void testMakeImmutable() {
     LazyStringArrayList list = new LazyStringArrayList();
     list.add(STRING_A);
@@ -206,55 +220,54 @@ public class LazyStringArrayListTest {
 
     try {
       list.add(BYTE_STRING_A.toByteArray());
-      assertWithMessage("expected exception").fail();;
+      fail();
     } catch (UnsupportedOperationException e) {
       // expected
     }
 
     try {
       list.add(BYTE_STRING_A);
-      assertWithMessage("expected exception").fail();;
+      fail();
     } catch (UnsupportedOperationException e) {
       // expected
     }
 
     try {
       list.addAllByteArray(Collections.singletonList(BYTE_STRING_A.toByteArray()));
-      assertWithMessage("expected exception").fail();;
+      fail();
     } catch (UnsupportedOperationException e) {
       // expected
     }
 
     try {
       list.addAllByteString(asList(BYTE_STRING_A));
-      assertWithMessage("expected exception").fail();;
+      fail();
     } catch (UnsupportedOperationException e) {
       // expected
     }
 
     try {
       list.mergeFrom(new LazyStringArrayList());
-      assertWithMessage("expected exception").fail();;
+      fail();
     } catch (UnsupportedOperationException e) {
       // expected
     }
 
     try {
       list.set(0, BYTE_STRING_A.toByteArray());
-      assertWithMessage("expected exception").fail();;
+      fail();
     } catch (UnsupportedOperationException e) {
       // expected
     }
 
     try {
       list.set(0, BYTE_STRING_A);
-      assertWithMessage("expected exception").fail();;
+      fail();
     } catch (UnsupportedOperationException e) {
       // expected
     }
   }
 
-  @Test
   public void testImmutabilityPropagation() {
     LazyStringArrayList list = new LazyStringArrayList();
     list.add(STRING_A);
@@ -268,80 +281,81 @@ public class LazyStringArrayListTest {
     assertGenericListImmutable(byteArrayList, byteArrayList.get(0));
   }
 
+  @SuppressWarnings("unchecked")
   private static <T> void assertGenericListImmutable(List<T> list, T value) {
     try {
       list.add(value);
-      assertWithMessage("expected exception").fail();;
+      fail();
     } catch (UnsupportedOperationException e) {
       // expected
     }
 
     try {
       list.add(0, value);
-      assertWithMessage("expected exception").fail();;
+      fail();
     } catch (UnsupportedOperationException e) {
       // expected
     }
 
     try {
       list.addAll(asList(value));
-      assertWithMessage("expected exception").fail();;
+      fail();
     } catch (UnsupportedOperationException e) {
       // expected
     }
 
     try {
       list.addAll(0, asList(value));
-      assertWithMessage("expected exception").fail();;
+      fail();
     } catch (UnsupportedOperationException e) {
       // expected
     }
 
     try {
       list.clear();
-      assertWithMessage("expected exception").fail();;
+      fail();
     } catch (UnsupportedOperationException e) {
       // expected
     }
 
     try {
       list.remove(0);
-      assertWithMessage("expected exception").fail();;
+      fail();
     } catch (UnsupportedOperationException e) {
       // expected
     }
 
     try {
       list.remove(value);
-      assertWithMessage("expected exception").fail();;
+      fail();
     } catch (UnsupportedOperationException e) {
       // expected
     }
 
     try {
       list.removeAll(asList(value));
-      assertWithMessage("expected exception").fail();;
+      fail();
     } catch (UnsupportedOperationException e) {
       // expected
     }
 
     try {
       list.retainAll(asList());
-      assertWithMessage("expected exception").fail();;
+      fail();
     } catch (UnsupportedOperationException e) {
       // expected
     }
 
     try {
       list.retainAll(asList());
-      assertWithMessage("expected exception").fail();;
+      fail();
     } catch (UnsupportedOperationException e) {
       // expected
     }
 
     try {
       list.set(0, value);
-      assertWithMessage("expected exception").fail();;
+      fail();
     } catch (UnsupportedOperationException e) {
       // expected
     }
