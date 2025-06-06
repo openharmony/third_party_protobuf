@@ -1,35 +1,10 @@
-#! /usr/bin/env python
 # -*- coding: utf-8 -*-
-#
 # Protocol Buffers - Google's data interchange format
 # Copyright 2008 Google Inc.  All rights reserved.
-# https://developers.google.com/protocol-buffers/
 #
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are
-# met:
-#
-#     * Redistributions of source code must retain the above copyright
-# notice, this list of conditions and the following disclaimer.
-#     * Redistributions in binary form must reproduce the above
-# copyright notice, this list of conditions and the following disclaimer
-# in the documentation and/or other materials provided with the
-# distribution.
-#     * Neither the name of Google Inc. nor the names of its
-# contributors may be used to endorse or promote products derived from
-# this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file or at
+# https://developers.google.com/open-source/licenses/bsd
 
 """Unittest for reflection.py, which also indirectly tests the output of the
 pure-Python protocol compiler.
@@ -38,37 +13,30 @@ pure-Python protocol compiler.
 import copy
 import gc
 import operator
-import six
 import struct
+import sys
+import unittest
 import warnings
 
-try:
-  import unittest2 as unittest  #PY26
-except ImportError:
-  import unittest
-
+from google.protobuf import descriptor
+from google.protobuf import descriptor_pb2
+from google.protobuf import message
+from google.protobuf import message_factory
+from google.protobuf import reflection
+from google.protobuf import text_format
+from google.protobuf.internal import api_implementation
+from google.protobuf.internal import decoder
+from google.protobuf.internal import message_set_extensions_pb2
+from google.protobuf.internal import more_extensions_pb2
+from google.protobuf.internal import more_messages_pb2
+from google.protobuf.internal import test_util
+from google.protobuf.internal import testing_refleaks
+from google.protobuf.internal import wire_format
+from google.protobuf.internal import _parameterized
 from google.protobuf import unittest_import_pb2
 from google.protobuf import unittest_mset_pb2
 from google.protobuf import unittest_pb2
 from google.protobuf import unittest_proto3_arena_pb2
-from google.protobuf import descriptor_pb2
-from google.protobuf import descriptor
-from google.protobuf import message
-from google.protobuf import reflection
-from google.protobuf import text_format
-from google.protobuf.internal import api_implementation
-from google.protobuf.internal import more_extensions_pb2
-from google.protobuf.internal import more_messages_pb2
-from google.protobuf.internal import message_set_extensions_pb2
-from google.protobuf.internal import wire_format
-from google.protobuf.internal import test_util
-from google.protobuf.internal import testing_refleaks
-from google.protobuf.internal import decoder
-from google.protobuf.internal import _parameterized
-
-
-if six.PY3:
-  long = int  # pylint: disable=redefined-builtin,invalid-name
 
 
 warnings.simplefilter('error', DeprecationWarning)
@@ -223,7 +191,7 @@ class ReflectionTest(unittest.TestCase):
     self.assertEqual(3, message.ByteSize())
 
     message = message_module.TestAllTypes(repeated_int32=[12])
-    # TODO(jieluo): Add this test back for proto3
+    # TODO: Add this test back for proto3
     if message_module is unittest_pb2:
       self.assertEqual(3, message.ByteSize())
 
@@ -386,8 +354,9 @@ class ReflectionTest(unittest.TestCase):
     self.assertRaises(TypeError, setattr, proto, 'optional_bool', 'foo')
     self.assertRaises(TypeError, setattr, proto, 'optional_float', 'foo')
     self.assertRaises(TypeError, setattr, proto, 'optional_double', 'foo')
-    # TODO(jieluo): Fix type checking difference for python and c extension
-    if api_implementation.Type() == 'python':
+    # TODO: Fix type checking difference for python and c extension
+    if (api_implementation.Type() == 'python' or
+        (sys.version_info.major, sys.version_info.minor) >= (3, 10)):
       self.assertRaises(TypeError, setattr, proto, 'optional_bool', 1.1)
     else:
       proto.optional_bool = 1.1
@@ -411,7 +380,7 @@ class ReflectionTest(unittest.TestCase):
     TestGetAndDeserialize('optional_int32', 1, int)
     TestGetAndDeserialize('optional_int32', 1 << 30, int)
     TestGetAndDeserialize('optional_uint32', 1 << 30, int)
-    integer_64 = long
+    integer_64 = int
     if struct.calcsize('L') == 4:
       # Python only has signed ints, so 32-bit python can't fit an uint32
       # in an int.
@@ -438,7 +407,7 @@ class ReflectionTest(unittest.TestCase):
       pb.optional_uint64 = '2'
 
     # The exact error should propagate with a poorly written custom integer.
-    with self.assertRaisesRegexp(RuntimeError, 'my_error'):
+    with self.assertRaisesRegex(RuntimeError, 'my_error'):
       pb.optional_uint64 = test_util.NonStandardInteger(5, 'my_error')
 
   def assetIntegerBoundsChecking(self, integer_fn, message_module):
@@ -501,7 +470,7 @@ class ReflectionTest(unittest.TestCase):
     self.assertRaises(TypeError, proto.repeated_string.__setitem__, 0, 10)
 
     # Repeated enums tests.
-    #proto.repeated_nested_enum.append(0)
+    # proto.repeated_nested_enum.append(0)
 
   def testSingleScalarGettersAndSetters(self, message_module):
     proto = message_module.TestAllTypes()
@@ -513,7 +482,7 @@ class ReflectionTest(unittest.TestCase):
     self.assertEqual(0xffffffffffff, proto.optional_uint64)
     proto.optional_uint64 = 0xffffffffffffffff
     self.assertEqual(0xffffffffffffffff, proto.optional_uint64)
-    # TODO(robinson): Test all other scalar field types.
+    # TODO: Test all other scalar field types.
 
   def testEnums(self, message_module):
     proto = message_module.TestAllTypes()
@@ -626,14 +595,37 @@ class ReflectionTest(unittest.TestCase):
 
   def testEnum_KeysAndValues(self, message_module):
     if message_module == unittest_pb2:
-      keys = ['FOREIGN_FOO', 'FOREIGN_BAR', 'FOREIGN_BAZ']
-      values = [4, 5, 6]
-      items = [('FOREIGN_FOO', 4), ('FOREIGN_BAR', 5), ('FOREIGN_BAZ', 6)]
+      keys = [
+          'FOREIGN_FOO',
+          'FOREIGN_BAR',
+          'FOREIGN_BAZ',
+          'FOREIGN_BAX',
+          'FOREIGN_LARGE',
+      ]
+      values = [4, 5, 6, 32, 123456]
+      items = [
+          ('FOREIGN_FOO', 4),
+          ('FOREIGN_BAR', 5),
+          ('FOREIGN_BAZ', 6),
+          ('FOREIGN_BAX', 32),
+          ('FOREIGN_LARGE', 123456),
+      ]
     else:
-      keys = ['FOREIGN_ZERO', 'FOREIGN_FOO', 'FOREIGN_BAR', 'FOREIGN_BAZ']
-      values = [0, 4, 5, 6]
-      items = [('FOREIGN_ZERO', 0), ('FOREIGN_FOO', 4),
-               ('FOREIGN_BAR', 5), ('FOREIGN_BAZ', 6)]
+      keys = [
+          'FOREIGN_ZERO',
+          'FOREIGN_FOO',
+          'FOREIGN_BAR',
+          'FOREIGN_BAZ',
+          'FOREIGN_LARGE',
+      ]
+      values = [0, 4, 5, 6, 123456]
+      items = [
+          ('FOREIGN_ZERO', 0),
+          ('FOREIGN_FOO', 4),
+          ('FOREIGN_BAR', 5),
+          ('FOREIGN_BAZ', 6),
+          ('FOREIGN_LARGE', 123456),
+      ]
     self.assertEqual(keys,
                      list(message_module.ForeignEnum.keys()))
     self.assertEqual(values,
@@ -816,7 +808,12 @@ class ReflectionTest(unittest.TestCase):
     messages.remove(messages[0])
     self.assertEqual(len(messages), 0)
 
-    # TODO(anuraag): Implement deepcopy for extension dict
+  def testEmptyDeepCopy(self, message_module):
+    proto1 = message_module.TestAllTypes()
+    nested2 = copy.deepcopy(proto1.optional_nested_message)
+    self.assertEqual(0, nested2.bb)
+
+    # TODO: Implement deepcopy for extension dict
 
   def testDisconnectingBeforeClear(self, message_module):
     proto = message_module.TestAllTypes()
@@ -852,14 +849,14 @@ class ReflectionTest(unittest.TestCase):
                       setattr, proto, 'optional_bytes', u'unicode object')
 
     # Check that the default value is of python's 'unicode' type.
-    self.assertEqual(type(proto.optional_string), six.text_type)
+    self.assertEqual(type(proto.optional_string), str)
 
-    proto.optional_string = six.text_type('Testing')
+    proto.optional_string = str('Testing')
     self.assertEqual(proto.optional_string, str('Testing'))
 
     # Assign a value of type 'str' which can be encoded in UTF-8.
     proto.optional_string = str('Testing')
-    self.assertEqual(proto.optional_string, six.text_type('Testing'))
+    self.assertEqual(proto.optional_string, str('Testing'))
 
     # Try to assign a 'bytes' object which contains non-UTF-8.
     self.assertRaises(ValueError,
@@ -874,8 +871,7 @@ class ReflectionTest(unittest.TestCase):
 
   def testBytesInTextFormat(self, message_module):
     proto = message_module.TestAllTypes(optional_bytes=b'\x00\x7f\x80\xff')
-    self.assertEqual(u'optional_bytes: "\\000\\177\\200\\377"\n',
-                     six.text_type(proto))
+    self.assertEqual(u'optional_bytes: "\\000\\177\\200\\377"\n', str(proto))
 
   def testEmptyNestedMessage(self, message_module):
     proto = message_module.TestAllTypes()
@@ -1190,7 +1186,7 @@ class Proto2ReflectionTest(unittest.TestCase):
     proto.ClearField('optional_int32')
     self.assertEqual(0, proto.optional_int32)
     self.assertFalse(proto.HasField('optional_int32'))
-    # TODO(robinson): Test all other scalar field types.
+    # TODO: Test all other scalar field types.
 
   def testRepeatedScalars(self):
     proto = unittest_pb2.TestAllTypes()
@@ -1311,6 +1307,38 @@ class Proto2ReflectionTest(unittest.TestCase):
     # Remove a non-existent element.
     self.assertRaises(ValueError, proto.repeated_int32.remove, 123)
 
+  def testRepeatedScalarsReverse_Empty(self):
+    proto = unittest_pb2.TestAllTypes()
+
+    self.assertFalse(proto.repeated_int32)
+    self.assertEqual(0, len(proto.repeated_int32))
+
+    self.assertIsNone(proto.repeated_int32.reverse())
+
+    self.assertFalse(proto.repeated_int32)
+    self.assertEqual(0, len(proto.repeated_int32))
+
+  def testRepeatedScalarsReverse_NonEmpty(self):
+    proto = unittest_pb2.TestAllTypes()
+
+    self.assertFalse(proto.repeated_int32)
+    self.assertEqual(0, len(proto.repeated_int32))
+
+    proto.repeated_int32.append(1)
+    proto.repeated_int32.append(2)
+    proto.repeated_int32.append(3)
+    proto.repeated_int32.append(4)
+
+    self.assertEqual(4, len(proto.repeated_int32))
+
+    self.assertIsNone(proto.repeated_int32.reverse())
+
+    self.assertEqual(4, len(proto.repeated_int32))
+    self.assertEqual(4, proto.repeated_int32[0])
+    self.assertEqual(3, proto.repeated_int32[1])
+    self.assertEqual(2, proto.repeated_int32[2])
+    self.assertEqual(1, proto.repeated_int32[3])
+
   def testRepeatedComposites(self):
     proto = unittest_pb2.TestAllTypes()
     self.assertFalse(proto.repeated_nested_message)
@@ -1423,12 +1451,42 @@ class Proto2ReflectionTest(unittest.TestCase):
     self.assertEqual(1, len(proto.repeated_nested_message))
     self.assertEqual(m1, proto.repeated_nested_message[0])
 
+  def testRepeatedCompositeReverse_Empty(self):
+    proto = unittest_pb2.TestAllTypes()
+
+    self.assertFalse(proto.repeated_nested_message)
+    self.assertEqual(0, len(proto.repeated_nested_message))
+
+    self.assertIsNone(proto.repeated_nested_message.reverse())
+
+    self.assertFalse(proto.repeated_nested_message)
+    self.assertEqual(0, len(proto.repeated_nested_message))
+
+  def testRepeatedCompositeReverse_NonEmpty(self):
+    proto = unittest_pb2.TestAllTypes()
+
+    self.assertFalse(proto.repeated_nested_message)
+    self.assertEqual(0, len(proto.repeated_nested_message))
+
+    m0 = proto.repeated_nested_message.add()
+    m0.bb = len(proto.repeated_nested_message)
+    m1 = proto.repeated_nested_message.add()
+    m1.bb = len(proto.repeated_nested_message)
+    m2 = proto.repeated_nested_message.add()
+    m2.bb = len(proto.repeated_nested_message)
+    self.assertListsEqual([m0, m1, m2], proto.repeated_nested_message)
+
+    self.assertIsNone(proto.repeated_nested_message.reverse())
+
+    self.assertListsEqual([m2, m1, m0], proto.repeated_nested_message)
+
   def testHandWrittenReflection(self):
     # Hand written extensions are only supported by the pure-Python
     # implementation of the API.
     if api_implementation.Type() != 'python':
       return
 
+    file = descriptor.FileDescriptor(name='foo.proto', package='')
     FieldDescriptor = descriptor.FieldDescriptor
     foo_field_descriptor = FieldDescriptor(
         name='foo_field', full_name='MyProto.foo_field',
@@ -1437,7 +1495,7 @@ class Proto2ReflectionTest(unittest.TestCase):
         label=FieldDescriptor.LABEL_OPTIONAL, default_value=0,
         containing_type=None, message_type=None, enum_type=None,
         is_extension=False, extension_scope=None,
-        options=descriptor_pb2.FieldOptions(),
+        options=descriptor_pb2.FieldOptions(), file=file,
         # pylint: disable=protected-access
         create_key=descriptor._internal_create_key)
     mydescriptor = descriptor.Descriptor(
@@ -1445,9 +1503,12 @@ class Proto2ReflectionTest(unittest.TestCase):
         containing_type=None, nested_types=[], enum_types=[],
         fields=[foo_field_descriptor], extensions=[],
         options=descriptor_pb2.MessageOptions(),
+        file=file,
         # pylint: disable=protected-access
         create_key=descriptor._internal_create_key)
-    class MyProtoClass(six.with_metaclass(reflection.GeneratedProtocolMessageType, message.Message)):
+
+    class MyProtoClass(
+        message.Message, metaclass=reflection.GeneratedProtocolMessageType):
       DESCRIPTOR = mydescriptor
     myproto_instance = MyProtoClass()
     self.assertEqual(0, myproto_instance.foo_field)
@@ -1495,8 +1556,8 @@ class Proto2ReflectionTest(unittest.TestCase):
     self.assertTrue('price' in desc.fields_by_name)
     self.assertTrue('owners' in desc.fields_by_name)
 
-    class CarMessage(six.with_metaclass(reflection.GeneratedProtocolMessageType,
-                                        message.Message)):
+    class CarMessage(
+        message.Message, metaclass=reflection.GeneratedProtocolMessageType):
       DESCRIPTOR = desc
 
     prius = CarMessage()
@@ -1507,7 +1568,8 @@ class Proto2ReflectionTest(unittest.TestCase):
     prius.owners.extend(['bob', 'susan'])
 
     serialized_prius = prius.SerializeToString()
-    new_prius = reflection.ParseMessage(desc, serialized_prius)
+    new_prius = message_factory.GetMessageClass(desc)()
+    new_prius.ParseFromString(serialized_prius)
     self.assertIsNot(new_prius, prius)
     self.assertEqual(prius, new_prius)
 
@@ -1880,17 +1942,17 @@ class Proto2ReflectionTest(unittest.TestCase):
 
   def testDisconnectingInOneof(self):
     m = unittest_pb2.TestOneof2()  # This message has two messages in a oneof.
-    m.foo_message.qux_int = 5
+    m.foo_message.moo_int = 5
     sub_message = m.foo_message
     # Accessing another message's field does not clear the first one
-    self.assertEqual(m.foo_lazy_message.qux_int, 0)
-    self.assertEqual(m.foo_message.qux_int, 5)
+    self.assertEqual(m.foo_lazy_message.moo_int, 0)
+    self.assertEqual(m.foo_message.moo_int, 5)
     # But mutating another message in the oneof detaches the first one.
-    m.foo_lazy_message.qux_int = 6
-    self.assertEqual(m.foo_message.qux_int, 0)
+    m.foo_lazy_message.moo_int = 6
+    self.assertEqual(m.foo_message.moo_int, 0)
     # The reference we got above was detached and is still valid.
-    self.assertEqual(sub_message.qux_int, 5)
-    sub_message.qux_int = 7
+    self.assertEqual(sub_message.moo_int, 5)
+    sub_message.moo_int = 7
 
   def assertInitialized(self, proto):
     self.assertTrue(proto.IsInitialized())
@@ -1967,7 +2029,7 @@ class Proto2ReflectionTest(unittest.TestCase):
     self.assertRaises(TypeError, proto.IsInitialized, 1, 2, 3)
 
   @unittest.skipIf(
-      api_implementation.Type() != 'cpp' or api_implementation.Version() != 2,
+      api_implementation.Type() == 'python',
       'Errors are only available from the most recent C++ implementation.')
   def testFileDescriptorErrors(self):
     file_name = 'test_file_descriptor_errors.proto'
@@ -1999,6 +2061,49 @@ class Proto2ReflectionTest(unittest.TestCase):
       # duplicate, though we don't check the message exactly to avoid a
       # dependency on the C++ logging code.
       self.assertIn('test_file_descriptor_errors.msg1', str(cm.exception))
+
+  def testDescriptorProtoHasFileOptions(self):
+    self.assertTrue(descriptor_pb2.DESCRIPTOR.has_options)
+    self.assertEqual(
+        descriptor_pb2.DESCRIPTOR.GetOptions().java_package,
+        'com.google.protobuf',
+    )
+
+  def testDescriptorProtoHasFieldOptions(self):
+    self.assertTrue(descriptor_pb2.DESCRIPTOR.has_options)
+    self.assertEqual(
+        descriptor_pb2.DESCRIPTOR.GetOptions().java_package,
+        'com.google.protobuf',
+    )
+    packed_desc = (
+        descriptor_pb2.SourceCodeInfo.DESCRIPTOR.nested_types_by_name.get(
+            'Location'
+        ).fields_by_name.get('path')
+    )
+    self.assertTrue(packed_desc.has_options)
+    self.assertTrue(packed_desc.GetOptions().packed)
+
+  def testDescriptorProtoHasFeatureOptions(self):
+    self.assertTrue(descriptor_pb2.DESCRIPTOR.has_options)
+    self.assertEqual(
+        descriptor_pb2.DESCRIPTOR.GetOptions().java_package,
+        'com.google.protobuf',
+    )
+    presence_desc = descriptor_pb2.FeatureSet.DESCRIPTOR.fields_by_name.get(
+        'field_presence'
+    )
+    self.assertTrue(presence_desc.has_options)
+    self.assertEqual(
+        presence_desc.GetOptions().retention,
+        descriptor_pb2.FieldOptions.OptionRetention.RETENTION_RUNTIME,
+    )
+    self.assertListsEqual(
+        presence_desc.GetOptions().targets,
+        [
+            descriptor_pb2.FieldOptions.OptionTargetType.TARGET_TYPE_FIELD,
+            descriptor_pb2.FieldOptions.OptionTargetType.TARGET_TYPE_FILE,
+        ],
+    )
 
   def testStringUTF8Serialization(self):
     proto = message_set_extensions_pb2.TestMessageSet()
@@ -2033,7 +2138,7 @@ class Proto2ReflectionTest(unittest.TestCase):
     bytes_read = message2.MergeFromString(raw.item[0].message)
     self.assertEqual(len(raw.item[0].message), bytes_read)
 
-    self.assertEqual(type(message2.str), six.text_type)
+    self.assertEqual(type(message2.str), str)
     self.assertEqual(message2.str, test_utf8)
 
     # The pure Python API throws an exception on MergeFromString(),
@@ -2383,11 +2488,11 @@ class ByteSizeTest(unittest.TestCase):
 
     self.assertEqual(2, len(repeated_nested_message))
     del repeated_nested_message[0:1]
-    # TODO(jieluo): Fix cpp extension bug when delete repeated message.
+    # TODO: Fix cpp extension bug when delete repeated message.
     if api_implementation.Type() == 'python':
       self.assertEqual(1, len(repeated_nested_message))
     del repeated_nested_message[-1]
-    # TODO(jieluo): Fix cpp extension bug when delete repeated message.
+    # TODO: Fix cpp extension bug when delete repeated message.
     if api_implementation.Type() == 'python':
       self.assertEqual(0, len(repeated_nested_message))
 
@@ -2549,7 +2654,7 @@ class ByteSizeTest(unittest.TestCase):
 @testing_refleaks.TestCase
 class SerializationTest(unittest.TestCase):
 
-  def testSerializeEmtpyMessage(self):
+  def testSerializeEmptyMessage(self):
     first_proto = unittest_pb2.TestAllTypes()
     second_proto = unittest_pb2.TestAllTypes()
     serialized = first_proto.SerializeToString()
@@ -3061,10 +3166,10 @@ class SerializationTest(unittest.TestCase):
       unittest_pb2.ForeignMessage.c.__get__(msg)
     except TypeError:
       pass  # The cpp implementation cannot mix fields from other messages.
-            # This test exercises a specific check that avoids a crash.
+      # This test exercises a specific check that avoids a crash.
     else:
       pass  # The python implementation allows fields from other messages.
-            # This is useless, but works.
+      # This is useless, but works.
 
   def testInitKwargs(self):
     proto = unittest_pb2.TestAllTypes(
@@ -3098,11 +3203,11 @@ class SerializationTest(unittest.TestCase):
     self.assertEqual([1, 2, 3], proto.repeated_int32)
 
   def testInitArgsUnknownFieldName(self):
-    def InitalizeEmptyMessageWithExtraKeywordArg():
+    def InitializeEmptyMessageWithExtraKeywordArg():
       unused_proto = unittest_pb2.TestEmptyMessage(unknown='unknown')
     self._CheckRaises(
         ValueError,
-        InitalizeEmptyMessageWithExtraKeywordArg,
+        InitializeEmptyMessageWithExtraKeywordArg,
         'Protocol message TestEmptyMessage has no "unknown" field.')
 
   def testInitRequiredKwargs(self):
@@ -3156,23 +3261,22 @@ class OptionsTest(unittest.TestCase):
     proto.optional_int32 = 1
     proto.optional_double = 3.0
     for field_descriptor, _ in proto.ListFields():
-      self.assertEqual(False, field_descriptor.GetOptions().packed)
+      self.assertEqual(False, field_descriptor.is_packed)
 
     proto = unittest_pb2.TestPackedTypes()
     proto.packed_int32.append(1)
     proto.packed_double.append(3.0)
     for field_descriptor, _ in proto.ListFields():
-      self.assertEqual(True, field_descriptor.GetOptions().packed)
+      self.assertEqual(True, field_descriptor.is_packed)
       self.assertEqual(descriptor.FieldDescriptor.LABEL_REPEATED,
                        field_descriptor.label)
-
 
 
 @testing_refleaks.TestCase
 class ClassAPITest(unittest.TestCase):
 
   @unittest.skipIf(
-      api_implementation.Type() == 'cpp' and api_implementation.Version() == 2,
+      api_implementation.Type() != 'python',
       'C++ implementation requires a call to MakeDescriptor()')
   @testing_refleaks.SkipReferenceLeakChecker('MakeClass is not repeatable')
   def testMakeClassWithNestedDescriptor(self):
@@ -3204,7 +3308,7 @@ class ClassAPITest(unittest.TestCase):
         enum_types=[], extensions=[],
         # pylint: disable=protected-access
         create_key=descriptor._internal_create_key)
-    reflection.MakeClass(parent_desc)
+    message_factory.GetMessageClass(parent_desc)
 
   def _GetSerializedFileDescriptor(self, name):
     """Get a serialized representation of a test FileDescriptorProto.
@@ -3267,7 +3371,7 @@ class ClassAPITest(unittest.TestCase):
   # conflicting message descriptors.
   def testParsingFlatClassWithExplicitClassDeclaration(self):
     """Test that the generated class can parse a flat message."""
-    # TODO(xiaofeng): This test fails with cpp implementation in the call
+    # TODO: This test fails with cpp implementation in the call
     # of six.with_metaclass(). The other two callsites of with_metaclass
     # in this file are both excluded from cpp test, so it might be expected
     # to fail. Need someone more familiar with the python code to take a
@@ -3279,7 +3383,8 @@ class ClassAPITest(unittest.TestCase):
     msg_descriptor = descriptor.MakeDescriptor(
         file_descriptor.message_type[0])
 
-    class MessageClass(six.with_metaclass(reflection.GeneratedProtocolMessageType, message.Message)):
+    class MessageClass(
+        message.Message, metaclass=reflection.GeneratedProtocolMessageType):
       DESCRIPTOR = msg_descriptor
     msg = MessageClass()
     msg_str = (
@@ -3296,7 +3401,7 @@ class ClassAPITest(unittest.TestCase):
     file_descriptor.ParseFromString(self._GetSerializedFileDescriptor('B'))
     msg_descriptor = descriptor.MakeDescriptor(
         file_descriptor.message_type[0])
-    msg_class = reflection.MakeClass(msg_descriptor)
+    msg_class = message_factory.GetMessageClass(msg_descriptor)
     msg = msg_class()
     msg_str = (
         'flat: 0 '
@@ -3312,7 +3417,7 @@ class ClassAPITest(unittest.TestCase):
     file_descriptor.ParseFromString(self._GetSerializedFileDescriptor('C'))
     msg_descriptor = descriptor.MakeDescriptor(
         file_descriptor.message_type[0])
-    msg_class = reflection.MakeClass(msg_descriptor)
+    msg_class = message_factory.GetMessageClass(msg_descriptor)
     msg = msg_class()
     msg_str = (
         'bar {'
