@@ -4,7 +4,7 @@
 
   <groupId>com.google.protobuf</groupId>
   <artifactId>protobuf-bom</artifactId>
-  <version>4.29.4</version>
+  <version>3.14.0</version>
   <packaging>pom</packaging>
 
   <name>Protocol Buffers [BOM]</name>
@@ -13,23 +13,23 @@
 
   <organization>
     <name>Google LLC</name>
-    <url>https://protobuf.dev</url>
+    <url>https://cloud.google.com</url>
   </organization>
 
   <developers>
     <developer>
-      <id>protobuf</id>
-      <name>Protocol Buffers</name>
-      <email>protobuf@googlegroups.com</email>
+      <id>haon</id>
+      <name>Hao Nguyen</name>
+      <email>haon@google.com</email>
       <organization>Google</organization>
-      <organizationUrl>https://protobuf.dev</organizationUrl>
+      <organizationUrl>https://cloud.google.com</organizationUrl>
       <timezone>America/Los_Angeles</timezone>
     </developer>
   </developers>
 
   <licenses>
     <license>
-      <name>BSD-3-Clause</name>
+      <name>3-Clause BSD License</name>
       <url>https://opensource.org/licenses/BSD-3-Clause</url>
     </license>
   </licenses>
@@ -64,11 +64,6 @@
       <dependency>
         <groupId>com.google.protobuf</groupId>
         <artifactId>protobuf-java-util</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.google.protobuf</groupId>
-        <artifactId>protobuf-kotlin</artifactId>
         <version>${project.version}</version>
       </dependency>
     </dependencies>
