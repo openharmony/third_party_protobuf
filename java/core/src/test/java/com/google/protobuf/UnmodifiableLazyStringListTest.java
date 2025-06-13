@@ -1,25 +1,46 @@
 // Protocol Buffers - Google's data interchange format
 // Copyright 2008 Google Inc.  All rights reserved.
+// https://developers.google.com/protocol-buffers/
 //
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file or at
-// https://developers.google.com/open-source/licenses/bsd
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.google.protobuf;
-
-import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import junit.framework.TestCase;
 
-/** Tests for {@link UnmodifiableLazyStringList}. */
-@RunWith(JUnit4.class)
-public class UnmodifiableLazyStringListTest {
+/**
+ * Tests for {@link UnmodifiableLazyStringList}.
+ *
+ * @author jonp@google.com (Jon Perlow)
+ */
+public class UnmodifiableLazyStringListTest extends TestCase {
 
   private static final String STRING_A = "A";
   private static final String STRING_B = "B";
@@ -29,83 +50,80 @@ public class UnmodifiableLazyStringListTest {
   private static final ByteString BYTE_STRING_B = ByteString.copyFromUtf8("B");
   private static final ByteString BYTE_STRING_C = ByteString.copyFromUtf8("C");
 
-  @Test
   public void testReadOnlyMethods() {
     LazyStringArrayList rawList = createSampleList();
     UnmodifiableLazyStringList list = new UnmodifiableLazyStringList(rawList);
-    assertThat(list).hasSize(3);
-    assertThat(list.get(0)).isSameInstanceAs(STRING_A);
-    assertThat(list.get(1)).isSameInstanceAs(STRING_B);
-    assertThat(list.get(2)).isSameInstanceAs(STRING_C);
-    assertThat(list.getByteString(0)).isEqualTo(BYTE_STRING_A);
-    assertThat(list.getByteString(1)).isEqualTo(BYTE_STRING_B);
-    assertThat(list.getByteString(2)).isEqualTo(BYTE_STRING_C);
+    assertEquals(3, list.size());
+    assertSame(STRING_A, list.get(0));
+    assertSame(STRING_B, list.get(1));
+    assertSame(STRING_C, list.get(2));
+    assertEquals(BYTE_STRING_A, list.getByteString(0));
+    assertEquals(BYTE_STRING_B, list.getByteString(1));
+    assertEquals(BYTE_STRING_C, list.getByteString(2));
 
     List<ByteString> byteStringList = list.asByteStringList();
-    assertThat(byteStringList.get(0)).isSameInstanceAs(list.getByteString(0));
-    assertThat(byteStringList.get(1)).isSameInstanceAs(list.getByteString(1));
-    assertThat(byteStringList.get(2)).isSameInstanceAs(list.getByteString(2));
+    assertSame(list.getByteString(0), byteStringList.get(0));
+    assertSame(list.getByteString(1), byteStringList.get(1));
+    assertSame(list.getByteString(2), byteStringList.get(2));
   }
 
-  @Test
   public void testModifyMethods() {
     LazyStringArrayList rawList = createSampleList();
     UnmodifiableLazyStringList list = new UnmodifiableLazyStringList(rawList);
 
     try {
       list.remove(0);
-      assertWithMessage("expected exception").fail();
+      fail();
     } catch (UnsupportedOperationException e) {
       // expected
     }
-    assertThat(list).hasSize(3);
+    assertEquals(3, list.size());
 
     try {
       list.add(STRING_B);
-      assertWithMessage("expected exception").fail();
+      fail();
     } catch (UnsupportedOperationException e) {
       // expected
     }
-    assertThat(list).hasSize(3);
+    assertEquals(3, list.size());
 
     try {
       list.set(1, STRING_B);
-      assertWithMessage("expected exception").fail();
+      fail();
     } catch (UnsupportedOperationException e) {
       // expected
     }
-    assertThat(list).hasSize(3);
+    assertEquals(3, list.size());
 
     List<ByteString> byteStringList = list.asByteStringList();
     try {
       byteStringList.remove(0);
-      assertWithMessage("expected exception").fail();
+      fail();
     } catch (UnsupportedOperationException e) {
       // expected
     }
-    assertThat(list).hasSize(3);
-    assertThat(byteStringList).hasSize(3);
+    assertEquals(3, list.size());
+    assertEquals(3, byteStringList.size());
 
     try {
       byteStringList.add(BYTE_STRING_B);
-      assertWithMessage("expected exception").fail();
+      fail();
     } catch (UnsupportedOperationException e) {
       // expected
     }
-    assertThat(list).hasSize(3);
-    assertThat(byteStringList).hasSize(3);
+    assertEquals(3, list.size());
+    assertEquals(3, byteStringList.size());
 
     try {
       byteStringList.set(1, BYTE_STRING_B);
-      assertWithMessage("expected exception").fail();
+      fail();
     } catch (UnsupportedOperationException e) {
       // expected
     }
-    assertThat(list).hasSize(3);
-    assertThat(byteStringList).hasSize(3);
+    assertEquals(3, list.size());
+    assertEquals(3, byteStringList.size());
   }
 
-  @Test
   public void testIterator() {
     LazyStringArrayList rawList = createSampleList();
     UnmodifiableLazyStringList list = new UnmodifiableLazyStringList(rawList);
@@ -117,12 +135,12 @@ public class UnmodifiableLazyStringListTest {
       count++;
       try {
         iter.remove();
-        assertWithMessage("expected exception").fail();
+        fail();
       } catch (UnsupportedOperationException e) {
         // expected
       }
     }
-    assertThat(count).isEqualTo(3);
+    assertEquals(3, count);
 
     List<ByteString> byteStringList = list.asByteStringList();
     Iterator<ByteString> byteIter = byteStringList.iterator();
@@ -132,15 +150,14 @@ public class UnmodifiableLazyStringListTest {
       count++;
       try {
         byteIter.remove();
-        assertWithMessage("expected exception").fail();
+        fail();
       } catch (UnsupportedOperationException e) {
         // expected
       }
     }
-    assertThat(count).isEqualTo(3);
+    assertEquals(3, count);
   }
 
-  @Test
   public void testListIterator() {
     LazyStringArrayList rawList = createSampleList();
     UnmodifiableLazyStringList list = new UnmodifiableLazyStringList(rawList);
@@ -152,24 +169,24 @@ public class UnmodifiableLazyStringListTest {
       count++;
       try {
         iter.remove();
-        assertWithMessage("expected exception").fail();
+        fail();
       } catch (UnsupportedOperationException e) {
         // expected
       }
       try {
         iter.set("bar");
-        assertWithMessage("expected exception").fail();
+        fail();
       } catch (UnsupportedOperationException e) {
         // expected
       }
       try {
         iter.add("bar");
-        assertWithMessage("expected exception").fail();
+        fail();
       } catch (UnsupportedOperationException e) {
         // expected
       }
     }
-    assertThat(count).isEqualTo(3);
+    assertEquals(3, count);
 
     List<ByteString> byteStringList = list.asByteStringList();
     ListIterator<ByteString> byteIter = byteStringList.listIterator();
@@ -179,24 +196,24 @@ public class UnmodifiableLazyStringListTest {
       count++;
       try {
         byteIter.remove();
-        assertWithMessage("expected exception").fail();
+        fail();
       } catch (UnsupportedOperationException e) {
         // expected
       }
       try {
         byteIter.set(BYTE_STRING_A);
-        assertWithMessage("expected exception").fail();
+        fail();
       } catch (UnsupportedOperationException e) {
         // expected
       }
       try {
         byteIter.add(BYTE_STRING_A);
-        assertWithMessage("expected exception").fail();
+        fail();
       } catch (UnsupportedOperationException e) {
         // expected
       }
     }
-    assertThat(count).isEqualTo(3);
+    assertEquals(3, count);
   }
 
   private LazyStringArrayList createSampleList() {

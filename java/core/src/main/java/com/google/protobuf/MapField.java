@@ -1,9 +1,32 @@
 // Protocol Buffers - Google's data interchange format
 // Copyright 2008 Google Inc.  All rights reserved.
+// https://developers.google.com/protocol-buffers/
 //
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file or at
-// https://developers.google.com/open-source/licenses/bsd
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.google.protobuf;
 
@@ -30,7 +53,7 @@ import java.util.Set;
  * <p>THREAD-SAFETY NOTE: Read-only access is thread-safe. Users can call getMap() and getList()
  * concurrently in multiple threads. If write-access is needed, all access must be synchronized.
  */
-public class MapField<K, V> extends MapFieldReflectionAccessor implements MutabilityOracle {
+public class MapField<K, V> implements MutabilityOracle {
 
   /**
    * Indicates where the data of this map field is currently stored.
@@ -62,7 +85,7 @@ public class MapField<K, V> extends MapFieldReflectionAccessor implements Mutabi
 
   private volatile boolean isMutable;
   private volatile StorageMode mode;
-  private MutabilityAwareMap<K, V> mapData;
+  private MutatabilityAwareMap<K, V> mapData;
   private List<Message> listData;
 
   // Convert between a map entry Message and a key-value pair.
@@ -99,13 +122,14 @@ public class MapField<K, V> extends MapFieldReflectionAccessor implements Mutabi
     }
   }
 
+
   private final Converter<K, V> converter;
 
   private MapField(Converter<K, V> converter, StorageMode mode, Map<K, V> mapData) {
     this.converter = converter;
     this.isMutable = true;
     this.mode = mode;
-    this.mapData = new MutabilityAwareMap<K, V>(this, mapData);
+    this.mapData = new MutatabilityAwareMap<K, V>(this, mapData);
     this.listData = null;
   }
 
@@ -113,25 +137,29 @@ public class MapField<K, V> extends MapFieldReflectionAccessor implements Mutabi
     this(new ImmutableMessageConverter<K, V>(defaultEntry), mode, mapData);
   }
 
+
   /** Returns an immutable empty MapField. */
   public static <K, V> MapField<K, V> emptyMapField(MapEntry<K, V> defaultEntry) {
     return new MapField<K, V>(defaultEntry, StorageMode.MAP, Collections.<K, V>emptyMap());
   }
+
 
   /** Creates a new mutable empty MapField. */
   public static <K, V> MapField<K, V> newMapField(MapEntry<K, V> defaultEntry) {
     return new MapField<K, V>(defaultEntry, StorageMode.MAP, new LinkedHashMap<K, V>());
   }
 
+
   private Message convertKeyAndValueToMessage(K key, V value) {
     return converter.convertKeyAndValueToMessage(key, value);
   }
 
+  @SuppressWarnings("unchecked")
   private void convertMessageToKeyAndValue(Message message, Map<K, V> map) {
     converter.convertMessageToKeyAndValue(message, map);
   }
 
-  private List<Message> convertMapToList(MutabilityAwareMap<K, V> mapData) {
+  private List<Message> convertMapToList(MutatabilityAwareMap<K, V> mapData) {
     List<Message> listData = new ArrayList<Message>();
     for (Map.Entry<K, V> entry : mapData.entrySet()) {
       listData.add(convertKeyAndValueToMessage(entry.getKey(), entry.getValue()));
@@ -139,12 +167,12 @@ public class MapField<K, V> extends MapFieldReflectionAccessor implements Mutabi
     return listData;
   }
 
-  private MutabilityAwareMap<K, V> convertListToMap(List<Message> listData) {
+  private MutatabilityAwareMap<K, V> convertListToMap(List<Message> listData) {
     Map<K, V> mapData = new LinkedHashMap<K, V>();
     for (Message item : listData) {
       convertMessageToKeyAndValue(item, mapData);
     }
-    return new MutabilityAwareMap<K, V>(this, mapData);
+    return new MutatabilityAwareMap<K, V>(this, mapData);
   }
 
   /** Returns the content of this MapField as a read-only Map. */
@@ -177,7 +205,7 @@ public class MapField<K, V> extends MapFieldReflectionAccessor implements Mutabi
   }
 
   public void clear() {
-    mapData = new MutabilityAwareMap<K, V>(this, new LinkedHashMap<K, V>());
+    mapData = new MutatabilityAwareMap<K, V>(this, new LinkedHashMap<K, V>());
     mode = StorageMode.MAP;
   }
 
@@ -202,7 +230,6 @@ public class MapField<K, V> extends MapFieldReflectionAccessor implements Mutabi
   }
 
   /** Gets the content of this MapField as a read-only List. */
-  @Override
   List<Message> getList() {
     if (mode == StorageMode.MAP) {
       synchronized (this) {
@@ -216,7 +243,6 @@ public class MapField<K, V> extends MapFieldReflectionAccessor implements Mutabi
   }
 
   /** Gets a mutable List view of this MapField. */
-  @Override
   List<Message> getMutableList() {
     if (mode != StorageMode.LIST) {
       if (mode == StorageMode.MAP) {
@@ -229,7 +255,6 @@ public class MapField<K, V> extends MapFieldReflectionAccessor implements Mutabi
   }
 
   /** Gets the default instance of the message stored in the list view of this map field. */
-  @Override
   Message getMapEntryMessageDefaultInstance() {
     return converter.getMessageDefaultInstance();
   }
@@ -258,11 +283,11 @@ public class MapField<K, V> extends MapFieldReflectionAccessor implements Mutabi
   }
 
   /** An internal map that checks for mutability before delegating. */
-  static class MutabilityAwareMap<K, V> implements Map<K, V> {
+  private static class MutatabilityAwareMap<K, V> implements Map<K, V> {
     private final MutabilityOracle mutabilityOracle;
     private final Map<K, V> delegate;
 
-    MutabilityAwareMap(MutabilityOracle mutabilityOracle, Map<K, V> delegate) {
+    MutatabilityAwareMap(MutabilityOracle mutabilityOracle, Map<K, V> delegate) {
       this.mutabilityOracle = mutabilityOracle;
       this.delegate = delegate;
     }
@@ -324,17 +349,17 @@ public class MapField<K, V> extends MapFieldReflectionAccessor implements Mutabi
 
     @Override
     public Set<K> keySet() {
-      return new MutabilityAwareSet<K>(mutabilityOracle, delegate.keySet());
+      return new MutatabilityAwareSet<K>(mutabilityOracle, delegate.keySet());
     }
 
     @Override
     public Collection<V> values() {
-      return new MutabilityAwareCollection<V>(mutabilityOracle, delegate.values());
+      return new MutatabilityAwareCollection<V>(mutabilityOracle, delegate.values());
     }
 
     @Override
     public Set<java.util.Map.Entry<K, V>> entrySet() {
-      return new MutabilityAwareSet<Entry<K, V>>(mutabilityOracle, delegate.entrySet());
+      return new MutatabilityAwareSet<Entry<K, V>>(mutabilityOracle, delegate.entrySet());
     }
 
     @Override
@@ -353,11 +378,11 @@ public class MapField<K, V> extends MapFieldReflectionAccessor implements Mutabi
     }
 
     /** An internal collection that checks for mutability before delegating. */
-    private static class MutabilityAwareCollection<E> implements Collection<E> {
+    private static class MutatabilityAwareCollection<E> implements Collection<E> {
       private final MutabilityOracle mutabilityOracle;
       private final Collection<E> delegate;
 
-      MutabilityAwareCollection(MutabilityOracle mutabilityOracle, Collection<E> delegate) {
+      MutatabilityAwareCollection(MutabilityOracle mutabilityOracle, Collection<E> delegate) {
         this.mutabilityOracle = mutabilityOracle;
         this.delegate = delegate;
       }
@@ -379,7 +404,7 @@ public class MapField<K, V> extends MapFieldReflectionAccessor implements Mutabi
 
       @Override
       public Iterator<E> iterator() {
-        return new MutabilityAwareIterator<E>(mutabilityOracle, delegate.iterator());
+        return new MutatabilityAwareIterator<E>(mutabilityOracle, delegate.iterator());
       }
 
       @Override
@@ -450,11 +475,11 @@ public class MapField<K, V> extends MapFieldReflectionAccessor implements Mutabi
     }
 
     /** An internal set that checks for mutability before delegating. */
-    private static class MutabilityAwareSet<E> implements Set<E> {
+    private static class MutatabilityAwareSet<E> implements Set<E> {
       private final MutabilityOracle mutabilityOracle;
       private final Set<E> delegate;
 
-      MutabilityAwareSet(MutabilityOracle mutabilityOracle, Set<E> delegate) {
+      MutatabilityAwareSet(MutabilityOracle mutabilityOracle, Set<E> delegate) {
         this.mutabilityOracle = mutabilityOracle;
         this.delegate = delegate;
       }
@@ -476,7 +501,7 @@ public class MapField<K, V> extends MapFieldReflectionAccessor implements Mutabi
 
       @Override
       public Iterator<E> iterator() {
-        return new MutabilityAwareIterator<E>(mutabilityOracle, delegate.iterator());
+        return new MutatabilityAwareIterator<E>(mutabilityOracle, delegate.iterator());
       }
 
       @Override
@@ -547,11 +572,11 @@ public class MapField<K, V> extends MapFieldReflectionAccessor implements Mutabi
     }
 
     /** An internal iterator that checks for mutability before delegating. */
-    private static class MutabilityAwareIterator<E> implements Iterator<E> {
+    private static class MutatabilityAwareIterator<E> implements Iterator<E> {
       private final MutabilityOracle mutabilityOracle;
       private final Iterator<E> delegate;
 
-      MutabilityAwareIterator(MutabilityOracle mutabilityOracle, Iterator<E> delegate) {
+      MutatabilityAwareIterator(MutabilityOracle mutabilityOracle, Iterator<E> delegate) {
         this.mutabilityOracle = mutabilityOracle;
         this.delegate = delegate;
       }
