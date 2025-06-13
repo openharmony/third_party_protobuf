@@ -1,9 +1,32 @@
 // Protocol Buffers - Google's data interchange format
 // Copyright 2008 Google Inc.  All rights reserved.
+// https://developers.google.com/protocol-buffers/
 //
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file or at
-// https://developers.google.com/open-source/licenses/bsd
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.google.protobuf;
 
@@ -25,7 +48,6 @@ import java.util.Map;
  * A {@link Reader} that reads from a buffer containing a message serialized with the binary
  * protocol.
  */
-@CheckReturnValue
 @ExperimentalApi
 abstract class BinaryReader implements Reader {
   private static final int FIXED32_MULTIPLE_MASK = FIXED32_SIZE - 1;
@@ -44,10 +66,10 @@ abstract class BinaryReader implements Reader {
    */
   public static BinaryReader newInstance(ByteBuffer buffer, boolean bufferIsImmutable) {
     if (buffer.hasArray()) {
-      // TODO: Add support for unsafe operations.
+      // TODO(nathanmittler): Add support for unsafe operations.
       return new SafeHeapReader(buffer, bufferIsImmutable);
     }
-    // TODO: Add support for direct buffers
+    // TODO(nathanmittler): Add support for direct buffers
     throw new IllegalArgumentException("Direct buffers not yet supported");
   }
 
@@ -253,7 +275,6 @@ abstract class BinaryReader implements Reader {
       }
     }
 
-    @Deprecated
     @Override
     public <T> T readGroup(Class<T> clazz, ExtensionRegistryLite extensionRegistry)
         throws IOException {
@@ -261,7 +282,6 @@ abstract class BinaryReader implements Reader {
       return readGroup(Protobuf.getInstance().schemaFor(clazz), extensionRegistry);
     }
 
-    @Deprecated
     @Override
     public <T> T readGroupBySchemaWithCheck(
         Schema<T> schema, ExtensionRegistryLite extensionRegistry) throws IOException {
@@ -944,7 +964,6 @@ abstract class BinaryReader implements Reader {
       }
     }
 
-    @Deprecated
     @Override
     public <T> void readGroupList(
         List<T> target, Class<T> targetType, ExtensionRegistryLite extensionRegistry)
@@ -953,7 +972,6 @@ abstract class BinaryReader implements Reader {
       readGroupList(target, schema, extensionRegistry);
     }
 
-    @Deprecated
     @Override
     public <T> void readGroupList(
         List<T> target, Schema<T> schema, ExtensionRegistryLite extensionRegistry)
