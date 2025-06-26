@@ -735,35 +735,32 @@ ohos_static_library("protoc_static_lib") {
 }
 
 # Only compile the plugin for the host architecture.
-if (current_toolchain == host_toolchain) {
-  ohos_executable("protoc") {
-    sources = [ "src/google/protobuf/compiler/main.cc" ]
-    include_dirs = [
-      "src/google/protobuf/**/*.h",
-      "src/google/protobuf/**/*.inc",
-      "src",
-    ]
-    deps = [ ":protoc_static_lib" ]
-    cflags_cc = [
-      "-Wno-sign-compare",
-      "-Wno-deprecated-declarations",
-    ]
-    if (is_arkui_x) {
-      deps += [ "//third_party/abseil-cpp:absl_base_static" ]
-    } else {
-      external_deps = [ "abseil-cpp:absl_base_static" ]
-    }
-    if (is_mac || is_ios) {
-      frameworks = [ "Foundation.framework" ]
-    }
-    cflags = [
-      "-Wno-sign-compare",
-      "-D HAVE_PTHREAD",
-      "-Wno-deprecated-declarations",
-    ]
-    subsystem_name = "${THIRDPARTY_PROTOBUF_SUBSYS_NAME}"
-    part_name = "${THIRDPARTY_PROTOBUF_PART_NAME}"
+ohos_executable("protoc") {
+  sources = [ "src/google/protobuf/compiler/main.cc" ]
+  include_dirs = [
+    "src/google/protobuf/**/*.h",
+    "src/google/protobuf/**/*.inc",
+    "src",
+  ]
+  deps = [ ":protoc_static_lib" ]
+  cflags_cc = [
+    "-Wno-sign-compare",
+    "-Wno-deprecated-declarations",
+  ]
+  if (is_arkui_x) {
+    deps += [ "//third_party/abseil-cpp:absl_base_static" ]
+  } else {
+    external_deps = [ "abseil-cpp:absl_base_static" ]
   }
-} else {
-  group("protoc") {}
+  if (is_mac || is_ios) {
+    frameworks = [ "Foundation.framework" ]
+  }
+  cflags = [
+    "-Wno-sign-compare",
+    "-D HAVE_PTHREAD",
+    "-Wno-deprecated-declarations",
+  ]
+  install_enable = false
+  subsystem_name = "${THIRDPARTY_PROTOBUF_SUBSYS_NAME}"
+  part_name = "${THIRDPARTY_PROTOBUF_PART_NAME}"
 }
