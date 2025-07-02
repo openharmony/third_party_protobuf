@@ -2,10 +2,33 @@
 
 // Protocol Buffers - Google's data interchange format
 // Copyright 2008 Google Inc.  All rights reserved.
+// https://developers.google.com/protocol-buffers/
 //
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file or at
-// https://developers.google.com/open-source/licenses/bsd
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /**
  * RepeatedField and RepeatedFieldIter are used by generated protocol message
@@ -16,7 +39,6 @@ namespace Google\Protobuf\Internal;
 
 use Google\Protobuf\Internal\GPBType;
 use Google\Protobuf\Internal\GPBUtil;
-use Traversable;
 
 /**
  * RepeatedField is used by generated protocol message classes to manipulate
@@ -45,7 +67,7 @@ class RepeatedField implements \ArrayAccess, \IteratorAggregate, \Countable
     /**
      * Constructs an instance of RepeatedField.
      *
-     * @param integer $type Type of the stored element.
+     * @param long $type Type of the stored element.
      * @param string $klass Message/Enum class name (message/enum fields only).
      * @ignore
      */
@@ -94,13 +116,11 @@ class RepeatedField implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * This will also be called for: $ele = $arr[0]
      *
-     * @param integer $offset The index of the element to be fetched.
-     * @return mixed The stored element at given index.
+     * @param long $offset The index of the element to be fetched.
+     * @return object The stored element at given index.
      * @throws \ErrorException Invalid type for index.
      * @throws \ErrorException Non-existing index.
-     * @todo need to add return type mixed (require update php version to 8.0)
      */
-    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         return $this->container[$offset];
@@ -111,15 +131,13 @@ class RepeatedField implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * This will also be called for: $arr []= $ele and $arr[0] = ele
      *
-     * @param int|null $offset The index of the element to be assigned.
-     * @param mixed $value The element to be assigned.
+     * @param long $offset The index of the element to be assigned.
+     * @param object $value The element to be assigned.
      * @return void
      * @throws \ErrorException Invalid type for index.
      * @throws \ErrorException Non-existing index.
      * @throws \ErrorException Incorrect type of the element.
-     * @todo need to add return type void (require update php version to 7.1)
      */
-    #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value)
     {
         switch ($this->type) {
@@ -159,7 +177,8 @@ class RepeatedField implements \ArrayAccess, \IteratorAggregate, \Countable
                 break;
             case GPBType::MESSAGE:
                 if (is_null($value)) {
-                    throw new \TypeError("RepeatedField element cannot be null.");
+                  trigger_error("RepeatedField element cannot be null.",
+                                E_USER_ERROR);
                 }
                 GPBUtil::checkMessage($value, $this->klass);
                 break;
@@ -185,24 +204,22 @@ class RepeatedField implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * This will also be called for: unset($arr)
      *
-     * @param integer $offset The index of the element to be removed.
+     * @param long $offset The index of the element to be removed.
      * @return void
      * @throws \ErrorException Invalid type for index.
      * @throws \ErrorException The element to be removed is not at the end of the
      * RepeatedField.
-     * @todo need to add return type void (require update php version to 7.1)
      */
-    #[\ReturnTypeWillChange]
     public function offsetUnset($offset)
     {
         $count = count($this->container);
-        if (!is_numeric($offset) || $count === 0 || $offset < 0 || $offset >= $count) {
+        if (!is_numeric($offset) || $count === 0 || $offset !== $count - 1) {
             trigger_error(
                 "Cannot remove element at the given index",
                 E_USER_ERROR);
             return;
         }
-        array_splice($this->container, $offset, 1);
+        array_pop($this->container);
     }
 
     /**
@@ -210,11 +227,11 @@ class RepeatedField implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * This will also be called for: isset($arr)
      *
-     * @param integer $offset The index of the element to be removed.
+     * @param long $offset The index of the element to be removed.
      * @return bool True if the element at the given offset exists.
      * @throws \ErrorException Invalid type for index.
      */
-    public function offsetExists($offset): bool
+    public function offsetExists($offset)
     {
         return isset($this->container[$offset]);
     }
@@ -222,7 +239,7 @@ class RepeatedField implements \ArrayAccess, \IteratorAggregate, \Countable
     /**
      * @ignore
      */
-    public function getIterator(): Traversable
+    public function getIterator()
     {
         return new RepeatedFieldIter($this->container);
     }
@@ -234,21 +251,8 @@ class RepeatedField implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @return integer The number of stored elements.
      */
-    public function count(): int
+    public function count()
     {
         return count($this->container);
-    }
-
-    public function __debugInfo()
-    {
-        return array_map(
-            function ($item) {
-                if ($item instanceof Message || $item instanceof RepeatedField) {
-                    return $item->__debugInfo();
-                }
-                return $item;
-            },
-            iterator_to_array($this)
-        );
     }
 }

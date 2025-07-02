@@ -37,16 +37,12 @@ class Annotation extends \Google\Protobuf\Internal\Message
     protected $begin = null;
     /**
      * Identifies the ending offset in bytes in the generated code that
-     * relates to the identified object. The end offset should be one past
+     * relates to the identified offset. The end offset should be one past
      * the last relevant byte (so the length of the text = end - begin).
      *
      * Generated from protobuf field <code>optional int32 end = 4;</code>
      */
     protected $end = null;
-    /**
-     * Generated from protobuf field <code>optional .google.protobuf.GeneratedCodeInfo.Annotation.Semantic semantic = 5;</code>
-     */
-    protected $semantic = null;
 
     /**
      * Constructor.
@@ -54,7 +50,7 @@ class Annotation extends \Google\Protobuf\Internal\Message
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
-     *     @type array<int>|\Google\Protobuf\Internal\RepeatedField $path
+     *     @type int[]|\Google\Protobuf\Internal\RepeatedField $path
      *           Identifies the element in the original source .proto file. This field
      *           is formatted the same as SourceCodeInfo.Location.path.
      *     @type string $source_file
@@ -64,9 +60,8 @@ class Annotation extends \Google\Protobuf\Internal\Message
      *           that relates to the identified object.
      *     @type int $end
      *           Identifies the ending offset in bytes in the generated code that
-     *           relates to the identified object. The end offset should be one past
+     *           relates to the identified offset. The end offset should be one past
      *           the last relevant byte (so the length of the text = end - begin).
-     *     @type int $semantic
      * }
      */
     public function __construct($data = NULL) {
@@ -91,7 +86,7 @@ class Annotation extends \Google\Protobuf\Internal\Message
      * is formatted the same as SourceCodeInfo.Location.path.
      *
      * Generated from protobuf field <code>repeated int32 path = 1 [packed = true];</code>
-     * @param array<int>|\Google\Protobuf\Internal\RepeatedField $var
+     * @param int[]|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setPath($var)
@@ -178,7 +173,7 @@ class Annotation extends \Google\Protobuf\Internal\Message
 
     /**
      * Identifies the ending offset in bytes in the generated code that
-     * relates to the identified object. The end offset should be one past
+     * relates to the identified offset. The end offset should be one past
      * the last relevant byte (so the length of the text = end - begin).
      *
      * Generated from protobuf field <code>optional int32 end = 4;</code>
@@ -201,7 +196,7 @@ class Annotation extends \Google\Protobuf\Internal\Message
 
     /**
      * Identifies the ending offset in bytes in the generated code that
-     * relates to the identified object. The end offset should be one past
+     * relates to the identified offset. The end offset should be one past
      * the last relevant byte (so the length of the text = end - begin).
      *
      * Generated from protobuf field <code>optional int32 end = 4;</code>
@@ -212,38 +207,6 @@ class Annotation extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkInt32($var);
         $this->end = $var;
-
-        return $this;
-    }
-
-    /**
-     * Generated from protobuf field <code>optional .google.protobuf.GeneratedCodeInfo.Annotation.Semantic semantic = 5;</code>
-     * @return int
-     */
-    public function getSemantic()
-    {
-        return isset($this->semantic) ? $this->semantic : 0;
-    }
-
-    public function hasSemantic()
-    {
-        return isset($this->semantic);
-    }
-
-    public function clearSemantic()
-    {
-        unset($this->semantic);
-    }
-
-    /**
-     * Generated from protobuf field <code>optional .google.protobuf.GeneratedCodeInfo.Annotation.Semantic semantic = 5;</code>
-     * @param int $var
-     * @return $this
-     */
-    public function setSemantic($var)
-    {
-        GPBUtil::checkEnum($var, \Google\Protobuf\Internal\GeneratedCodeInfo\Annotation\Semantic::class);
-        $this->semantic = $var;
 
         return $this;
     }
