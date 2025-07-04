@@ -173,8 +173,12 @@
 // User code should not inspect this macro.  To check in the preprocessor if
 // absl::variant is a typedef of std::variant, use the feature macro
 // ABSL_USES_STD_VARIANT.
-
+#if defined(ARK_UI_X)
+#define ABSL_OPTION_USE_STD_VARIANT 0
+#else
 #define ABSL_OPTION_USE_STD_VARIANT 2
+#endif
+
 
 // ABSL_OPTION_USE_STD_ORDERING
 //

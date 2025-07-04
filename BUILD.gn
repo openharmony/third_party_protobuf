@@ -748,6 +748,7 @@ ohos_executable("protoc") {
     "-Wno-deprecated-declarations",
   ]
   if (is_arkui_x) {
+    defines = [ "ARK_UI_X" ]
     deps += [ "//third_party/abseil-cpp:absl_base_static" ]
   } else {
     external_deps = [ "abseil-cpp:absl_base_static" ]
