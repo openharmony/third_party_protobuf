@@ -466,6 +466,11 @@
     "google::protobuf::FileDescriptorProto::FileDescriptorProto(google::protobuf::Arena*, google::protobuf::FileDescriptorProto const&)";
     "google::protobuf::Message::MaybeComputeUnknownFieldsSize(unsigned int, google::protobuf::internal::CachedSize const*) const";
     "google::protobuf::internal::WireFormatLite::Int64SizeWithPackedTagSize(google::protobuf::RepeatedField<long long> const&, unsigned int, google::protobuf::internal::CachedSize const&)";
+    "google::protobuf::internal::RepeatedPtrFieldBase::AddString()";
+    "absl::lts_20250127::log_internal::LogMessage& absl::lts_20250127::log_internal::LogMessage::operator<<<int, 0>(int const&)";
+    "void absl::lts_20250127::log_internal::LogMessage::CopyToEncodedBuffer<(absl::lts_20250127::log_internal::LogMessage::StringType)0>(std::__h::basic_string_view<char, std::__h::char_traits<char>>)";
+    "char const* absl::lts_20250127::log_internal::MakeCheckOpString<void const*, void const*>(void const*, void const*, char const*)";
+    "google::protobuf::internal::WireFormatLite::UInt32SizeWithPackedTagSize(google::protobuf::RepeatedField<unsigned int> const&, unsigned int, google::protobuf::internal::CachedSize const&)";
   };
   local:
     *;
