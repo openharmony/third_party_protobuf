@@ -471,6 +471,16 @@
     "void absl::lts_20250127::log_internal::LogMessage::CopyToEncodedBuffer<(absl::lts_20250127::log_internal::LogMessage::StringType)0>(std::__h::basic_string_view<char, std::__h::char_traits<char>>)";
     "char const* absl::lts_20250127::log_internal::MakeCheckOpString<void const*, void const*>(void const*, void const*, char const*)";
     "google::protobuf::internal::WireFormatLite::UInt32SizeWithPackedTagSize(google::protobuf::RepeatedField<unsigned int> const&, unsigned int, google::protobuf::internal::CachedSize const&)";
+    
+    "google::protobuf::internal::WireFormatLite::EnumSizeWithPackedTagSize(google::protobuf::RepeatedField<int> const&, unsigned long, google::protobuf::internal::CachedSize const&)";
+    "google::protobuf::internal::WireFormatLite::Int64SizeWithPackedTagSize(google::protobuf::RepeatedField<long> const&, unsigned long, google::protobuf::internal::CachedSize const&)";
+    "google::protobuf::internal::WireFormatLite::Int32SizeWithPackedTagSize(google::protobuf::RepeatedField<int> const&, unsigned long, google::protobuf::internal::CachedSize const&)"; 
+    "char const* absl::lts_20250127::log_internal::MakeCheckOpString<long, long>(long, long, char const*)";
+    "google::protobuf::internal::WireFormatLite::UInt64SizeWithPackedTagSize(google::protobuf::RepeatedField<unsigned long> const&, unsigned long, google::protobuf::internal::CachedSize const&)"; 
+    "char const* absl::lts_20250127::log_internal::MakeCheckOpString<unsigned long, unsigned long>(unsigned long, unsigned long, char const*)";
+    "google::protobuf::internal::WireFormatLite::UInt32SizeWithPackedTagSize(google::protobuf::RepeatedField<unsigned int> const&, unsigned long, google::protobuf::internal::CachedSize const&)";
+
+ 
   };
   local:
     *;
