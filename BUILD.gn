@@ -82,7 +82,7 @@ ohos_shared_library("protobuf_lite") {
   install_enable = true
   innerapi_tags = [
     "platformsdk_indirect",
-    "chipsetsdk",
+    "chipsetsdk_sp",
   ]
   subsystem_name = "${THIRDPARTY_PROTOBUF_SUBSYS_NAME}"
   part_name = "${THIRDPARTY_PROTOBUF_PART_NAME}"
