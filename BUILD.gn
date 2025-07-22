@@ -253,6 +253,7 @@ ohos_shared_library("protobuf") {
     "src/google/protobuf/wire_format_lite.cc",
     "src/google/protobuf/wrappers.pb.cc",
     "third_party/utf8_range/utf8_validity.cc",
+    "third_party/utf8_range/utf8_range.c",
   ]
   include_dirs = [
     "src/google/protobuf/**/*.h",
@@ -269,10 +270,7 @@ ohos_shared_library("protobuf") {
     "-D HAVE_PTHREAD",
     "-Wno-deprecated-declarations",
   ]
-
-  deps = [ ":protobuf_lite" ]
   external_deps = [ "abseil-cpp:absl_base_static" ]
-
   if (!is_asan && !is_debug) {
     version_script = "libprotobuf.map"
   }
