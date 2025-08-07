@@ -58,7 +58,7 @@ ohos_shared_library("protobuf_lite") {
   ]
 
   if (!is_asan && !is_debug) {
-    version_script = "libprotobuf_lite.map"
+    #version_script = "libprotobuf_lite.map"
   }
   include_dirs = [
     "src/google/protobuf/**/*.h",
@@ -272,7 +272,7 @@ ohos_shared_library("protobuf") {
   ]
   external_deps = [ "abseil-cpp:absl_base_static" ]
   if (!is_asan && !is_debug) {
-    version_script = "libprotobuf.map"
+    #version_script = "libprotobuf.map"
   }
 
   public_configs = [ ":protobuf_config" ]
@@ -558,7 +558,7 @@ ohos_shared_library("protoc_lib") {
   external_deps = [ "abseil-cpp:absl_base_static" ]
 
   if (!is_asan && !is_debug) {
-    version_script = "libprotoc.map"
+    #version_script = "libprotoc.map"
   }
   install_enable = false
   public_configs = [ ":protobuf_config" ]
