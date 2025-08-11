@@ -317,8 +317,14 @@ class PROTOBUF_EXPORT WireFormatLite {
   };
 
   // Returns true if the data is valid UTF-8.
+#if defined (__MINGW64__) || defined(__MINGW32__)
   static bool VerifyUtf8String(const char* data, int size, Operation op,
                                std::string_view field_name);
+#else
+  static bool VerifyUtf8String(const char* data, int size, Operation op,
+                               absl::string_view field_name);
+#endif
+
 
   template <typename MessageType>
   static inline bool ReadGroup(int field_number, io::CodedInputStream* input,

@@ -110,7 +110,7 @@
 #include "absl/numeric/bits.h"
 #include "absl/strings/cord.h"
 #include "absl/strings/string_view.h"
-#include "google/protobuf/endian.h"
+#include "google/protobuf/endian_pb.h"
 
 // Must be included last.
 #include "google/protobuf/port_def.inc"

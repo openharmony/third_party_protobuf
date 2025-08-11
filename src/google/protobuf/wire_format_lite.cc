@@ -610,8 +610,13 @@ void PrintUTF8ErrorLog(absl::string_view message_name,
   ABSL_LOG(ERROR) << error_message;
 }
 
+#if defined (__MINGW64__) || defined(__MINGW32__)
 bool WireFormatLite::VerifyUtf8String(const char* data, int size, Operation op,
-                                      std::string_view field_name) {
+                                      const std::string_view field_name) {
+#else
+bool WireFormatLite::VerifyUtf8String(const char* data, int size, Operation op,
+                                      const absl::string_view field_name) {
+#endif
   if (!utf8_range::IsStructurallyValid({data, static_cast<size_t>(size)})) {
     const char* operation_str = nullptr;
     switch (op) {
@@ -623,7 +628,11 @@ bool WireFormatLite::VerifyUtf8String(const char* data, int size, Operation op,
         break;
         // no default case: have the compiler warn if a case is not covered.
     }
+#if defined (__MINGW64__) || defined(__MINGW32__)
     PrintUTF8ErrorLog("", absl::string_view{field_name.data(), field_name.size()}, operation_str, false);
+#else
+    PrintUTF8ErrorLog("", field_name, operation_str, false);
+#endif
     return false;
   }
   return true;
