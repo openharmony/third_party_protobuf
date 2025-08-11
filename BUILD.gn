@@ -57,9 +57,6 @@ ohos_shared_library("protobuf_lite") {
     "third_party/utf8_range/utf8_validity.cc",
   ]
 
-  if (!is_asan && !is_debug) {
-    version_script = "libprotobuf_lite.map"
-  }
   include_dirs = [
     "src/google/protobuf/**/*.h",
     "src/google/protobuf/**/*.inc",
@@ -271,10 +268,6 @@ ohos_shared_library("protobuf") {
     "-Wno-deprecated-declarations",
   ]
   external_deps = [ "abseil-cpp:absl_base_static" ]
-  if (!is_asan && !is_debug) {
-    version_script = "libprotobuf.map"
-  }
-
   public_configs = [ ":protobuf_config" ]
   install_enable = true
   subsystem_name = "${THIRDPARTY_PROTOBUF_SUBSYS_NAME}"
@@ -556,10 +549,6 @@ ohos_shared_library("protoc_lib") {
     ":protobuf_lite",
   ]
   external_deps = [ "abseil-cpp:absl_base_static" ]
-
-  if (!is_asan && !is_debug) {
-    version_script = "libprotoc.map"
-  }
   install_enable = false
   public_configs = [ ":protobuf_config" ]
   subsystem_name = "${THIRDPARTY_PROTOBUF_SUBSYS_NAME}"
