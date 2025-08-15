@@ -15,7 +15,7 @@ if(TARGET absl::strings)
   # (https://github.com/protocolbuffers/protobuf/issues/10435)
 elseif(protobuf_ABSL_PROVIDER STREQUAL "module")
   if(NOT ABSL_ROOT_DIR)
-    if (NOT EXISTS "{protobuf_SOURCE_DIR}/../../out/abseil-cpp/CMakeLists.txt")
+    if (NOT EXISTS "${protobuf_SOURCE_DIR}/../../out/abseil-cpp/CMakeLists.txt")
       execute_process(COMMAND ${protobuf_SOURCE_DIR}/../abseil-cpp/install_no_lock.sh ${protobuf_SOURCE_DIR}/../../out/ ${protobuf_SOURCE_DIR}/../abseil-cpp
                       WORKING_DIRECTORY ${protobuf_SOURCE_DIR}/../abseil-cpp
                       RESULT_VARIABLE result)
