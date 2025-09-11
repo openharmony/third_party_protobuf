@@ -274,6 +274,13 @@ ohos_shared_library("protobuf") {
   part_name = "${THIRDPARTY_PROTOBUF_PART_NAME}"
 }
 
+group("protobuf_static_toolchain") {
+  deps = [
+    ":protobuf_static",
+    ":protobuf_static(${host_toolchain})"
+  ]
+}
+
 ohos_static_library("protobuf_static") {
   sources = [
     "src/google/protobuf/any.cc",
