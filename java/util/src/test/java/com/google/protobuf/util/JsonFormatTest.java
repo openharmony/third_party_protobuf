@@ -84,8 +84,8 @@ public class JsonFormatTest {
   private void setAllFields(TestAllTypes.Builder builder) {
     builder.setOptionalInt32(1234);
     builder.setOptionalInt64(1234567890123456789L);
-    builder.setOptionalUint32(5678);
-    builder.setOptionalUint64(2345678901234567890L);
+    builder.setOptionalUint32(-1);
+    builder.setOptionalUint64(-1L);
     builder.setOptionalSint32(9012);
     builder.setOptionalSint64(3456789012345678901L);
     builder.setOptionalFixed32(3456);
@@ -190,8 +190,8 @@ public class JsonFormatTest {
             "{\n"
                 + "  \"optionalInt32\": 1234,\n"
                 + "  \"optionalInt64\": \"1234567890123456789\",\n"
-                + "  \"optionalUint32\": 5678,\n"
-                + "  \"optionalUint64\": \"2345678901234567890\",\n"
+                + "  \"optionalUint32\": 4294967295,\n"
+                + "  \"optionalUint64\": \"18446744073709551615\",\n"
                 + "  \"optionalSint32\": 9012,\n"
                 + "  \"optionalSint64\": \"3456789012345678901\",\n"
                 + "  \"optionalFixed32\": 3456,\n"
@@ -1611,8 +1611,8 @@ public class JsonFormatTest {
             "{"
                 + "\"optionalInt32\":1234,"
                 + "\"optionalInt64\":\"1234567890123456789\","
-                + "\"optionalUint32\":5678,"
-                + "\"optionalUint64\":\"2345678901234567890\","
+                + "\"optionalUint32\":4294967295,"
+                + "\"optionalUint64\":\"18446744073709551615\","
                 + "\"optionalSint32\":9012,"
                 + "\"optionalSint64\":\"3456789012345678901\","
                 + "\"optionalFixed32\":3456,"
@@ -1697,7 +1697,40 @@ public class JsonFormatTest {
       parser.merge(input, builder);
       assertWithMessage("Exception is expected.").fail();
     } catch (InvalidProtocolBufferException e) {
-      // Expected.
+      assertThat(e).hasMessageThat().contains("recursion");
+    }
+  }
+
+  @Test
+  public void testRecursionLimitAnyOfAny() throws Exception {
+    String input =
+        "{\n"
+            + "  \"@type\": \"type.googleapis.com/google.protobuf.Any\", \"value\": {\n"
+            + "    \"@type\": \"type.googleapis.com/google.protobuf.Any\", \"value\": {\n"
+            + "      \"@type\": \"type.googleapis.com/google.protobuf.Any\", \"value\": {\n"
+            + "        \"@type\": \"type.googleapis.com/google.protobuf.Any\", \"value\": {\n"
+            + "          \"@type\": \"type.googleapis.com/google.protobuf.Any\"}\n"
+            + "        }\n"
+            + "      }\n"
+            + "    }\n"
+            + "  }\n"
+            + "}\n";
+
+    JsonFormat.TypeRegistry registry =
+        JsonFormat.TypeRegistry.newBuilder().add(Any.getDescriptor()).build();
+
+    JsonFormat.Parser parser = JsonFormat.parser().usingTypeRegistry(registry);
+    Any.Builder builder = Any.newBuilder();
+    parser.merge(input, builder); // Successfully parses with no default recursion limit.
+    Any unused = builder.build();
+
+    parser = JsonFormat.parser().usingTypeRegistry(registry).usingRecursionLimit(3);
+    builder = Any.newBuilder();
+    try {
+      parser.merge(input, builder);
+      assertWithMessage("Exception is expected.").fail();
+    } catch (InvalidProtocolBufferException e) {
+      assertThat(e).hasMessageThat().contains("recursion");
     }
   }
 

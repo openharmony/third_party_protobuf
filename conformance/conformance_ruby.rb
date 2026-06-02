@@ -1,5 +1,3 @@
-#!/usr/bin/env ruby
-#
 # Protocol Buffers - Google's data interchange format
 # Copyright 2008 Google Inc.  All rights reserved.
 #
@@ -7,8 +5,16 @@
 # license that can be found in the LICENSE file or at
 # https://developers.google.com/open-source/licenses/bsd
 
+# TODO - When rules_ruby supports prefix stripping, use it to obviate the need
+# for manual load path manipulation
+# https://github.com/bazel-contrib/rules_ruby/issues/219
+$LOAD_PATH.unshift ENV['PWD']
+$LOAD_PATH.unshift File.join(ENV['PWD'], 'ruby', 'lib')
+$LOAD_PATH.unshift File.join(ENV['PWD'], 'ruby')
+
 require 'conformance/conformance_pb'
 require 'conformance/test_protos/test_messages_edition2023_pb'
+require 'conformance/test_protos/test_messages_edition_unstable_pb'
 require 'google/protobuf'
 require 'google/protobuf/test_messages_proto3_pb'
 require 'google/protobuf/test_messages_proto2_pb'
