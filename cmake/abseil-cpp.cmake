@@ -10,29 +10,44 @@ if(protobuf_BUILD_TESTS)
   set(ABSL_FIND_GOOGLETEST OFF)
 endif()
 
-if (NOT TARGET absl::strings)
-  if (NOT protobuf_FORCE_FETCH_DEPENDENCIES)
-    # Use "CONFIG" as there is no built-in cmake module for absl.
-    find_package(absl CONFIG)
+if(TARGET absl::strings)
+  # If Abseil is included already, skip including it.
+  # (https://github.com/protocolbuffers/protobuf/issues/10435)
+elseif(protobuf_ABSL_PROVIDER STREQUAL "module")
+  if(NOT ABSL_ROOT_DIR)
+    set(ABSL_ROOT_DIR ${protobuf_SOURCE_DIR}/../../third_party/abseil-cpp)
+    set(EXPORT_ABSL_ROOT_DIR "third_party/abseil-cpp" CACHE PATH "absl_root_dir")
   endif()
-
-  # Fallback to fetching Abseil from github if it's not found locally.
-  if (NOT absl_FOUND AND NOT protobuf_LOCAL_DEPENDENCIES_ONLY)
-    include(${protobuf_SOURCE_DIR}/cmake/dependencies.cmake)
-    message(STATUS "Fallback to downloading Abseil ${abseil-cpp-version} from GitHub")
-
-    include(FetchContent)
-    FetchContent_Declare(
-      absl
-      GIT_REPOSITORY "https://github.com/abseil/abseil-cpp.git"
-      GIT_TAG "${abseil-cpp-version}"
-    )
-    if (protobuf_INSTALL)
+  if(EXISTS "${ABSL_ROOT_DIR}/CMakeLists.txt")
+    if(protobuf_INSTALL)
       # When protobuf_INSTALL is enabled and Abseil will be built as a module,
       # Abseil will be installed along with protobuf for convenience.
       set(ABSL_ENABLE_INSTALL ON)
     endif()
-    FetchContent_MakeAvailable(absl)
+    add_subdirectory(${ABSL_ROOT_DIR} third_party/abseil-cpp)
+  else()
+    message(WARNING "protobuf_ABSL_PROVIDER is \"module\" but ABSL_ROOT_DIR is wrong")
+  endif()
+  if(protobuf_INSTALL AND NOT _protobuf_INSTALL_SUPPORTED_FROM_MODULE)
+    message(WARNING "protobuf_INSTALL will be forced to FALSE because protobuf_ABSL_PROVIDER is \"module\" and CMake version (${CMAKE_VERSION}) is less than 3.13.")
+    set(protobuf_INSTALL FALSE)
+  endif()
+elseif(protobuf_ABSL_PROVIDER STREQUAL "package")
+  # Use "CONFIG" as there is no built-in cmake module for absl.
+  find_package(absl REQUIRED CONFIG)
+else()
+  # Default to module mode for OpenHarmony environment
+  if(NOT ABSL_ROOT_DIR)
+    set(ABSL_ROOT_DIR ${protobuf_SOURCE_DIR}/../../third_party/abseil-cpp)
+    set(EXPORT_ABSL_ROOT_DIR "third_party/abseil-cpp" CACHE PATH "absl_root_dir")
+  endif()
+  if(EXISTS "${ABSL_ROOT_DIR}/CMakeLists.txt")
+    if(protobuf_INSTALL)
+      set(ABSL_ENABLE_INSTALL ON)
+    endif()
+    add_subdirectory(${ABSL_ROOT_DIR} third_party/abseil-cpp)
+  else()
+    find_package(absl CONFIG)
   endif()
 endif()
 

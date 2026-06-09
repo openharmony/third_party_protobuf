@@ -22,6 +22,7 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Android")
 endif()
 target_include_directories(libprotobuf-lite PUBLIC
   $<BUILD_INTERFACE:${protobuf_SOURCE_DIR}/src>
+  $<BUILD_INTERFACE:${protobuf_SOURCE_DIR}/third_party/utf8_range>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 target_link_libraries(libprotobuf-lite PUBLIC ${protobuf_ABSL_USED_TARGETS})

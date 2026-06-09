@@ -14,6 +14,10 @@ endif()
 # Project
 project(protobuf C CXX)
 
+# Enforce C++17 standard for protobuf 6.x
+set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard" FORCE)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 if(CMAKE_CXX_STANDARD AND CMAKE_CXX_STANDARD LESS 17)
   message(FATAL_ERROR "The minimum supported C++ standard is C++ 17")
 endif()
