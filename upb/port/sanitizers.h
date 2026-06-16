@@ -52,7 +52,13 @@ enum {
 
 UPB_INLINE uint8_t UPB_PRIVATE(_upb_Xsan_GetTag)(const void *addr) {
 #if UPB_HWASAN
+// __hwasan_get_tag_from_pointer() requires clang 17+
+#if defined(__clang_major__) && __clang_major__ >= 17
   return __hwasan_get_tag_from_pointer(addr);
+#else
+  UPB_UNUSED(addr);
+  return 0;
+#endif
 #else
   UPB_UNUSED(addr);
   return 0;
