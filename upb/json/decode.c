@@ -566,7 +566,7 @@ static unsigned int jsondec_base64_tablelookup(const char ch) {
       -1,       -1,       -1,       -1};
 
   /* Sign-extend return value so high bit will be set on any unexpected char. */
-  return table[(unsigned char)ch];
+  return table[(unsigned)ch];
 }
 
 static char* jsondec_partialbase64(jsondec* d, const char* ptr, const char* end,
@@ -674,7 +674,7 @@ static int64_t jsondec_strtoint64(jsondec* d, upb_StringView str) {
 static void jsondec_checkempty(jsondec* d, upb_StringView str,
                                const upb_FieldDef* f) {
   if (str.size != 0) return;
-  d->result = kUpb_JsonDecodeResult_OkWithEmptyStringNumerics;
+  d->result = kUpb_JsonDecodeResult_Error;
   upb_Status_SetErrorFormat(d->status,
                             "Empty string is not a valid number (field: %s). "
                             "This will be an error in a future version.",
@@ -782,7 +782,7 @@ static upb_MessageValue jsondec_double(jsondec* d, const upb_FieldDef* f) {
         char* end;
         val.double_val = strtod(str.data, &end);
         if (end != str.data + str.size) {
-          d->result = kUpb_JsonDecodeResult_OkWithEmptyStringNumerics;
+          d->result = kUpb_JsonDecodeResult_Error;
           upb_Status_SetErrorFormat(
               d->status,
               "Non-number characters in quoted number (field: %s). "

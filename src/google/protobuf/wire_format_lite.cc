@@ -20,7 +20,6 @@
 
 #include "absl/log/absl_check.h"
 #include "absl/log/absl_log.h"
-#include "absl/log/log.h"
 #include "absl/strings/cord.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_format.h"
@@ -284,30 +283,6 @@ void CodedOutputStreamFieldSkipper::SkipUnknownEnum(int field_number,
                                                     int value) {
   unknown_fields_->WriteVarint32(field_number);
   unknown_fields_->WriteVarint64(value);
-}
-
-bool WireFormatLite::ReadPackedEnumPreserveUnknowns(
-    io::CodedInputStream* input, int field_number, bool (*is_valid)(int),
-    io::CodedOutputStream* unknown_fields_stream, RepeatedField<int>* values) {
-  uint32_t length;
-  if (!input->ReadVarint32(&length)) return false;
-  io::CodedInputStream::Limit limit = input->PushLimit(length);
-  while (input->BytesUntilLimit() > 0) {
-    int value;
-    if (!ReadPrimitive<int, WireFormatLite::TYPE_ENUM>(input, &value)) {
-      return false;
-    }
-    if (is_valid == nullptr || is_valid(value)) {
-      values->Add(value);
-    } else {
-      uint32_t tag = WireFormatLite::MakeTag(field_number,
-                                             WireFormatLite::WIRETYPE_VARINT);
-      unknown_fields_stream->WriteVarint32(tag);
-      unknown_fields_stream->WriteVarint32(value);
-    }
-  }
-  input->PopLimit(limit);
-  return true;
 }
 
 #if !defined(ABSL_IS_LITTLE_ENDIAN)
@@ -578,13 +553,6 @@ bool WireFormatLite::ReadBytes(io::CodedInputStream* input,
   return ReadBytesToString(input, value);
 }
 
-bool WireFormatLite::ReadBytes(io::CodedInputStream* input, std::string** p) {
-  if (*p == &GetEmptyStringAlreadyInited()) {
-    *p = new std::string();
-  }
-  return ReadBytesToString(input, *p);
-}
-
 void PrintUTF8ErrorLog(absl::string_view message_name,
                        absl::string_view field_name, const char* operation_str,
                        bool emit_stacktrace) {
@@ -610,13 +578,8 @@ void PrintUTF8ErrorLog(absl::string_view message_name,
   ABSL_LOG(ERROR) << error_message;
 }
 
-#if defined (__MINGW64__) || defined(__MINGW32__)
-bool WireFormatLite::VerifyUtf8String(const char* data, int size, Operation op,
-                                      const std::string_view field_name) {
-#else
 bool WireFormatLite::VerifyUtf8String(const char* data, int size, Operation op,
                                       const absl::string_view field_name) {
-#endif
   if (!utf8_range::IsStructurallyValid({data, static_cast<size_t>(size)})) {
     const char* operation_str = nullptr;
     switch (op) {
@@ -628,11 +591,7 @@ bool WireFormatLite::VerifyUtf8String(const char* data, int size, Operation op,
         break;
         // no default case: have the compiler warn if a case is not covered.
     }
-#if defined (__MINGW64__) || defined(__MINGW32__)
-    PrintUTF8ErrorLog("", absl::string_view{field_name.data(), field_name.size()}, operation_str, false);
-#else
     PrintUTF8ErrorLog("", field_name, operation_str, false);
-#endif
     return false;
   }
   return true;

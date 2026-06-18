@@ -7,6 +7,11 @@ if (NOT TARGET utf8_range)
             "the protobuf runtime.\n")
   endif()
 
+  if(NOT UTF8_RANGE_ROOT_DIR)
+    set(UTF8_RANGE_ROOT_DIR ${protobuf_SOURCE_DIR}/../../third_party/utf8_range)
+    set(EXPORT_UTF8_RANGE_ROOT_DIR "third_party/protobuf/third_party/utf8_range" CACHE PATH "utf8_range_root_dir")
+  endif()
+
   set(utf8_range_ENABLE_INSTALL ${protobuf_INSTALL} CACHE BOOL "Set install")
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/third_party/utf8_range third_party/utf8_range)
   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party/utf8_range)

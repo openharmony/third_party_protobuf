@@ -18,6 +18,7 @@
 #include "absl/strings/str_format.h"
 #include "conformance_test.h"
 #include "conformance/test_protos/test_messages_edition2023.pb.h"
+#include "conformance/test_protos/test_messages_edition_unstable.pb.h"
 #include "editions/golden/test_messages_proto2_editions.pb.h"
 #include "editions/golden/test_messages_proto3_editions.pb.h"
 #include "google/protobuf/test_messages_proto2.pb.h"
@@ -140,6 +141,10 @@ TextFormatConformanceTestSuiteImpl<MessageType>::
   // Flag control performance tests to keep them internal and opt-in only
   if (suite_.performance_) {
     if (MessageType::GetDescriptor()->name() == "TestAllTypesEdition2023") {
+      // There are no editions-sensitive performance tests.
+      return;
+    }
+    if (MessageType::GetDescriptor()->name() == "TestAllTypesEditionUnstable") {
       // There are no editions-sensitive performance tests.
       return;
     }
@@ -713,6 +718,25 @@ void TextFormatConformanceTestSuiteImpl<MessageType>::RunAllTests() {
   message.add_repeated_int32(2);
   message.add_repeated_int32(3);
   RunValidUnknownTextFormatTest("RepeatedUnknownFields", message);
+
+  // Reserved field names
+  for (const auto& test_case : std::vector<std::pair<std::string, std::string>>{
+           {"Boolean", "true"},
+           {"Integer", "-123"},
+           {"Float", "0.123"},
+           {"Enum", "ENUM_VALUE"},
+           {"String", "\"hello\""},
+           {"Message", "{ a: 123 }"},
+           {"MessageAngleBrackets", "< a: 123 >"},
+           {"RepeatedInteger", "[-123, 456]"},
+           {"RepeatedFloat", "[0.123, 1e-10] "},
+           {"RepeatedString", R"pb(["hello", "world"])pb"},
+       }) {
+    RunValidTextFormatTest(absl::StrCat("ReservedFieldName.", test_case.first),
+                           REQUIRED,
+                           absl::StrCat("reserved_field: ", test_case.second));
+    // TODO: Add a test for reserved field numbers on 999999.
+  }
 
   // Map fields
   MessageType prototype;

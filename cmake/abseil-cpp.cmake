@@ -35,7 +35,26 @@ elseif(protobuf_ABSL_PROVIDER STREQUAL "module")
 elseif(protobuf_ABSL_PROVIDER STREQUAL "package")
   # Use "CONFIG" as there is no built-in cmake module for absl.
   find_package(absl REQUIRED CONFIG)
+else()
+  # Default to module mode for OpenHarmony environment
+  if(NOT ABSL_ROOT_DIR)
+    set(ABSL_ROOT_DIR ${protobuf_SOURCE_DIR}/../../third_party/abseil-cpp)
+    set(EXPORT_ABSL_ROOT_DIR "third_party/abseil-cpp" CACHE PATH "absl_root_dir")
+  endif()
+  if(EXISTS "${ABSL_ROOT_DIR}/CMakeLists.txt")
+    if(protobuf_INSTALL)
+      set(ABSL_ENABLE_INSTALL ON)
+    endif()
+    add_subdirectory(${ABSL_ROOT_DIR} third_party/abseil-cpp)
+  else()
+    find_package(absl CONFIG)
+  endif()
 endif()
+
+if (NOT TARGET absl::strings)
+  message(FATAL_ERROR "Cannot find abseil-cpp dependency that's needed to build protobuf.\n")
+endif()
+
 set(_protobuf_FIND_ABSL "if(NOT TARGET absl::strings)\n  find_package(absl CONFIG)\nendif()")
 
 if (BUILD_SHARED_LIBS AND MSVC)
@@ -46,13 +65,8 @@ if (BUILD_SHARED_LIBS AND MSVC)
   # Once https://github.com/abseil/abseil-cpp/pull/1466 is merged and released
   # in the minimum version of abseil required by protobuf, it is possible to
   # always link absl::abseil_dll and absl::abseil_test_dll and remove the if
-  if(protobuf_ABSL_PROVIDER STREQUAL "package")
-    set(protobuf_ABSL_USED_TARGETS absl::abseil_dll)
-    set(protobuf_ABSL_USED_TEST_TARGETS absl::abseil_test_dll)
-  else()
-    set(protobuf_ABSL_USED_TARGETS abseil_dll)
-    set(protobuf_ABSL_USED_TEST_TARGETS abseil_test_dll)
-  endif()
+  set(protobuf_ABSL_USED_TARGETS absl::abseil_dll)
+  set(protobuf_ABSL_USED_TEST_TARGETS absl::abseil_test_dll)
 else()
   set(protobuf_ABSL_USED_TARGETS
     absl::absl_check
@@ -73,7 +87,6 @@ else()
     absl::flat_hash_set
     absl::function_ref
     absl::hash
-    absl::if_constexpr
     absl::layout
     absl::log_initialize
     absl::log_globals
@@ -81,7 +94,6 @@ else()
     absl::memory
     absl::node_hash_map
     absl::node_hash_set
-    absl::optional
     absl::random_distributions
     absl::random_random
     absl::span
@@ -92,7 +104,6 @@ else()
     absl::time
     absl::type_traits
     absl::utility
-    absl::variant
   )
   set(protobuf_ABSL_USED_TEST_TARGETS
     absl::scoped_mock_log
