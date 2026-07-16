@@ -86,6 +86,7 @@ ohos_shared_library("protobuf_lite") {
 }
 
 ohos_static_library("protobuf_lite_static") {
+  branch_protector_ret = "pac_ret"
   sources = [
     "src/google/protobuf/any.cc",
     "src/google/protobuf/any_lite.cc",
@@ -175,6 +176,7 @@ ohos_static_library("protobuf_lite_static") {
 }
 
 ohos_shared_library("protobuf") {
+  branch_protector_ret = "pac_ret"
   sources = [
     "src/google/protobuf/any.cc",
     "src/google/protobuf/any.pb.cc",
@@ -286,6 +288,7 @@ group("protobuf_static_toolchain") {
 }
 
 ohos_static_library("protobuf_static") {
+  branch_protector_ret = "pac_ret"
   sources = [
     "src/google/protobuf/any.cc",
     "src/google/protobuf/any.pb.cc",
@@ -403,6 +406,7 @@ ohos_static_library("protobuf_static") {
 }
 
 ohos_shared_library("protoc_lib") {
+  branch_protector_ret = "pac_ret"
   sources = [
     "src/google/protobuf/compiler/code_generator.cc",
     "src/google/protobuf/compiler/code_generator_lite.cc",
@@ -630,6 +634,7 @@ ohos_shared_library("protoc_lib") {
 }
 
 ohos_static_library("protoc_static_lib") {
+  branch_protector_ret = "pac_ret"
   sources = [
     "src/google/protobuf/compiler/code_generator.cc",
     "src/google/protobuf/compiler/code_generator_lite.cc",
@@ -857,6 +862,7 @@ ohos_static_library("protoc_static_lib") {
 
 # Only compile the plugin for the host architecture.
 ohos_executable("protoc") {
+  branch_protector_ret = "pac_ret"
   sources = [ "src/google/protobuf/compiler/main.cc" ]
   include_dirs = [
     "src/google/protobuf/**/*.h",
