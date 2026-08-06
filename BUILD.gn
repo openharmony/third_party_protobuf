@@ -75,6 +75,10 @@ ohos_shared_library("protobuf_lite") {
     "-D HAVE_PTHREAD",
   ]
 
+  # Bind internal references to this .so's own definitions; prevents absl
+  # hash calls from being pre-empted by an external libabsl_base.z.so.
+  ldflags = [ "-Wl,-Bsymbolic" ]
+
   public_configs = [ ":protobuf_config" ]
   install_enable = true
   innerapi_tags = [
