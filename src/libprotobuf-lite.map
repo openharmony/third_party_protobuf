@@ -3,7 +3,9 @@
     extern "C++" {
       *google*;
       *pb::*;
+      *absl::*;
     };
+    utf8_range_*;
     scc_info_*;
     descriptor_table_*;
 
